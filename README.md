@@ -1,146 +1,282 @@
 
-# 🧩 Teo & Tea
+# Teo & Tea
 
-### Una plataforma de información, acompañamiento e inclusión para personas con Trastorno del Espectro Autista (TEA)
+**Plataforma de información, acompañamiento e inclusión para personas con Trastorno del Espectro Autista (TEA), sus familias y su entorno.**
 
-**Teo & Tea** es una plataforma digital diseñada para acompañar a las personas con Trastorno del Espectro Autista (TEA), sus familias, cuidadores y su entorno, ofreciendo un espacio accesible donde encontrar información confiable, herramientas prácticas y recursos que favorezcan la comprensión, la autonomía y la inclusión.
+## 1. Descripción del proyecto
 
-Nuestro propósito es centralizar recursos educativos, orientación y herramientas de apoyo adaptadas a las diferentes etapas de la vida, promoviendo una sociedad más informada, empática y respetuosa de la neurodiversidad.
+Teo & Tea es una plataforma digital orientada a centralizar información, recursos educativos, herramientas prácticas y espacios de interacción relacionados con el autismo y la neurodiversidad.
 
-Creemos que cada persona tiene una forma única de percibir, aprender y relacionarse con el mundo. Por eso, Teo & Tea busca facilitar el acceso a recursos que contribuyan al bienestar, el desarrollo personal y la participación activa de las personas autistas en la sociedad.
+El proyecto busca facilitar el acceso a contenidos útiles según las necesidades, los intereses y los objetivos de cada usuario, promoviendo la comprensión del TEA, el acompañamiento y la inclusión social y laboral.
 
----
+La propuesta integra cuatro áreas principales: una biblioteca de contenidos educativos, una comunidad de intercambio y apoyo, un módulo de orientación laboral y un espacio de recursos para empresas interesadas en fomentar entornos de trabajo inclusivos.
 
-## 🎯 Objetivo del proyecto
+Además, contempla un proceso de bienvenida personalizado que permitirá orientar a los usuarios hacia contenidos y recursos relevantes según su perfil y sus preferencias.
 
-Desarrollar una plataforma integral que facilite el acceso a información, recursos y herramientas de apoyo relacionados con el TEA, conectando a las personas autistas, sus familias y su entorno con contenidos útiles para afrontar los distintos desafíos y oportunidades de cada etapa de la vida.
+Teo & Tea se encuentra en proceso de definición y desarrollo. Las funcionalidades descritas en este documento representan los requerimientos y objetivos del proyecto, y no implican que todos los módulos estén implementados actualmente.
 
-## 🌟 ¿Qué ofrece Teo & Tea?
+## 2. Objetivos del proyecto
 
-La plataforma busca reunir diferentes funcionalidades en un solo lugar:
+### 2.1. Objetivo general
 
-- 📚 **Contenido educativo:** información sobre el TEA, sus características, necesidades de apoyo y estrategias para comprender mejor la neurodiversidad.
-- 🧭 **Acompañamiento por etapas de vida:** recursos organizados según las necesidades de la infancia, adolescencia, adultez y otras transiciones importantes.
-- 🛠️ **Herramientas prácticas:** materiales, guías y recursos que faciliten las rutinas, la comunicación, el aprendizaje y la vida cotidiana.
-- 🤝 **Comunidad y conexión:** un espacio para fomentar el intercambio de experiencias, la comprensión mutua y el acompañamiento entre familias, cuidadores y personas interesadas en la inclusión.
-- 💙 **Orientación para familias y cuidadores:** contenidos que ayuden a comprender las necesidades de apoyo y a construir entornos más accesibles y respetuosos.
-- 🌍 **Promoción de la inclusión:** recursos para sensibilizar a la sociedad y fomentar la inclusión en ámbitos como la educación, la familia, el trabajo y la comunidad.
+Desarrollar una plataforma digital que reúna información, recursos de apoyo, comunidad y herramientas de orientación laboral para personas autistas, sus familias y su entorno, contribuyendo a una sociedad más inclusiva y consciente de la neurodiversidad.
 
-*Las funcionalidades descritas representan los objetivos de la plataforma y podrán implementarse progresivamente según la evolución del proyecto.*
+### 2.2. Objetivos específicos
 
-## 👥 Público objetivo
+- Centralizar información educativa sobre el autismo mediante artículos, guías e infografías.
+- Facilitar el intercambio de experiencias y el apoyo entre personas con intereses y necesidades similares.
+- Proporcionar recursos para la preparación laboral y el acceso a oportunidades de empleo inclusivas.
+- Orientar a las empresas en la implementación de prácticas de inclusión laboral.
+- Personalizar la experiencia inicial de los usuarios mediante un cuestionario de bienvenida.
+- Organizar los recursos según los perfiles, objetivos e intereses de cada persona.
+- Promover el respeto por las diferencias individuales y las distintas formas de aprender, comunicarse y participar en la sociedad.
 
-Teo & Tea está dirigido a:
+## 3. Personajes y perfiles de referencia
 
-- **Personas con TEA:** que buscan recursos, herramientas y contenidos que respondan a sus necesidades e intereses.
-- **Familias y cuidadores:** que necesitan orientación, información y estrategias para acompañar a sus seres queridos.
-- **Docentes y profesionales:** interesados en conocer recursos que favorezcan el aprendizaje, la participación y la inclusión.
-- **Instituciones educativas y organizaciones:** que promueven la accesibilidad, la sensibilización y la inclusión.
-- **Comunidad en general:** personas que desean comprender mejor el autismo y contribuir a crear entornos más respetuosos.
+Teo & Tea utiliza dos personajes representativos para explorar diferentes perspectivas, necesidades y fortalezas. Estos perfiles sirven como referencia para el diseño de la experiencia de usuario y la organización de los contenidos.
 
-## 💡 Nuestra misión
+### 3.1. Teo
 
-Facilitar el acceso a información, herramientas y recursos que acompañen a las personas autistas y a su entorno, promoviendo el respeto por las diferencias individuales, la autonomía y la inclusión en todos los ámbitos de la vida.
+**Edad:** 28 años.
 
-## 🔭 Nuestra visión
+**Perfil:** Neurotípico.
 
-Convertir a Teo & Tea en una plataforma de referencia para el acompañamiento y la inclusión de las personas con TEA, construyendo una comunidad informada y comprometida con una sociedad en la que todas las personas puedan desarrollarse, participar y sentirse comprendidas.
+**Características:** Espontáneo, sociable, expresivo y orientado a actuar con rapidez.
 
-## 💙 Nuestros valores
+**Fortalezas de referencia:**
+- Interacción social.
+- Comunicación y expresión.
+- Espontaneidad.
+- Confianza.
+- Creación de contactos y networking.
 
-- **Inclusión:** promover la participación de todas las personas sin discriminación.
-- **Empatía:** comprender y respetar las distintas experiencias y perspectivas.
-- **Accesibilidad:** facilitar el acceso a los contenidos y herramientas de la plataforma.
-- **Respeto:** reconocer la individualidad, los derechos y la autonomía de cada persona.
-- **Colaboración:** fomentar el apoyo mutuo entre personas autistas, familias, profesionales y comunidad.
-- **Aprendizaje continuo:** mejorar los recursos y contenidos a partir de las necesidades de sus usuarios.
+**Aplicación en el proyecto:** Teo representa una perspectiva que puede ayudar a identificar recursos relacionados con las habilidades sociales, la comunicación, la colaboración y la interacción con otras personas.
 
-## ♿ Accesibilidad e inclusión
+### 3.2. Tea
 
-Teo & Tea tiene como objetivo ofrecer una experiencia digital clara, intuitiva y accesible, considerando las diferentes formas de procesar la información e interactuar con la tecnología.
+**Edad:** 26 años.
 
-Entre los principios que orientan su diseño se encuentran:
+**Perfil:** Neurodivergente, específicamente autista.
 
-- Navegación sencilla y estructura visual clara.
-- Contenidos organizados y fáciles de comprender.
+**Características:** Reservada, tranquila, perspicaz, detallista y orientada a la planificación.
+
+**Fortalezas de referencia:**
+- Organización.
+- Concentración.
+- Preparación anticipada.
+- Análisis.
+- Desarrollo de estrategias personales.
+
+**Aplicación en el proyecto:** Tea representa una perspectiva que ayuda a considerar la necesidad de información estructurada, preparación, claridad y herramientas que permitan organizar actividades de acuerdo con las preferencias individuales.
+
+Estos personajes son perfiles de referencia para el diseño del producto. Sus características no deben interpretarse como reglas universales: las habilidades, necesidades y preferencias varían entre personas neurotípicas, autistas y otras personas neurodivergentes.
+
+## 4. Módulos principales
+
+### 4.1. Biblioteca
+
+Espacio destinado a centralizar información y materiales educativos relacionados con el autismo y la neurodiversidad.
+
+**Requerimientos principales:**
+- Artículos informativos.
+- Guías educativas.
+- Infografías y recursos visuales.
+- Organización de contenidos por temas.
+- Acceso a materiales relevantes para los distintos perfiles de usuarios.
+
+**Propósito:** facilitar la consulta de información comprensible y útil para personas autistas, familiares, cuidadores y personas interesadas en la inclusión.
+
+### 4.2. Comunidad
+
+Espacio de interacción para fomentar el intercambio de experiencias, la conexión entre personas y el apoyo entre pares.
+
+**Requerimientos principales:**
+- Foros de conversación.
+- Intercambio de experiencias.
+- Grupos de interés.
+- Espacios de apoyo entre pares.
+
+**Propósito:** favorecer la participación, el sentido de comunidad y el aprendizaje compartido, procurando un entorno respetuoso y seguro.
+
+### 4.3. Empleo: TeoWorks / Tu camino laboral
+
+Módulo enfocado en la orientación y preparación para el mundo laboral, con especial atención a las oportunidades inclusivas.
+
+**Requerimientos principales:**
+- Perfiles laborales.
+- Información sobre oportunidades de empleo inclusivo.
+- Recursos de preparación para el empleo.
+- Orientación para identificar intereses y objetivos profesionales.
+
+**Propósito:** facilitar el acceso a recursos que acompañen a los usuarios en su preparación laboral y en la búsqueda de oportunidades acordes con sus habilidades, intereses y necesidades.
+
+### 4.4. Empresas
+
+Módulo dirigido a empresas y organizaciones interesadas en mejorar sus prácticas de inclusión laboral.
+
+**Requerimientos principales:**
+- Orientación sobre inclusión laboral.
+- Materiales de formación.
+- Recursos para promover entornos de trabajo accesibles.
+- Información para comprender y atender distintas necesidades de apoyo.
+
+**Propósito:** contribuir a la creación de entornos laborales más inclusivos, mediante información y recursos que ayuden a las organizaciones a reconocer la diversidad y reducir barreras de participación.
+
+### 4.5. Onboarding personalizado
+
+Proceso de bienvenida diseñado para conocer las preferencias y los objetivos iniciales del usuario, con el fin de orientar su experiencia dentro de la plataforma.
+
+**Criterios de personalización previstos:**
+
+- **Perfil del usuario:** persona neurotípica, persona neurodivergente, familiar o cuidador, empleador u otro perfil pertinente.
+- **Tipo de neurodivergencia:** información opcional que permita orientar los contenidos según las preferencias y necesidades declaradas por el usuario.
+- **Objetivos personales:** buscar empleo, hacer amigos, acceder a información, encontrar apoyo u otros objetivos.
+- **Intereses:** temas y áreas de interés que ayuden a priorizar los recursos mostrados.
+
+**Propósito:** ofrecer una experiencia inicial más relevante y facilitar el acceso a los módulos y contenidos que mejor respondan a los objetivos de cada usuario.
+
+El cuestionario deberá diseñarse con criterios de accesibilidad, claridad y privacidad. Las respuestas personales no deben utilizarse para realizar diagnósticos ni para imponer limitaciones a los usuarios.
+
+## 5. Público objetivo
+
+Teo & Tea está dirigido a los siguientes grupos:
+
+- **Personas autistas:** interesadas en acceder a información, recursos, comunidad y herramientas de apoyo.
+- **Personas neurodivergentes:** que buscan contenidos y recursos relacionados con sus intereses y necesidades.
+- **Familiares y cuidadores:** que desean comprender mejor el autismo y encontrar recursos de orientación.
+- **Personas neurotípicas:** interesadas en aprender sobre neurodiversidad y contribuir a la inclusión.
+- **Empleadores y empresas:** que buscan información y recursos para desarrollar entornos laborales inclusivos.
+- **Personas en búsqueda de empleo:** interesadas en la orientación y preparación para oportunidades laborales inclusivas.
+
+## 6. Enfoque de accesibilidad e inclusión
+
+La accesibilidad debe formar parte de las decisiones de diseño y desarrollo de Teo & Tea.
+
+Se consideran los siguientes principios:
+
+- Navegación clara y consistente.
+- Contenidos organizados y fáciles de localizar.
+- Lenguaje comprensible y estructura visual coherente.
 - Diseño adaptable a dispositivos móviles, tabletas y computadoras.
-- Uso de colores, tipografías y elementos visuales que favorezcan la legibilidad.
-- Atención a las necesidades sensoriales y cognitivas de los usuarios.
-- Respeto por las preferencias individuales y las diferentes formas de comunicación.
+- Opciones de presentación que respeten distintas preferencias sensoriales y cognitivas.
+- Respeto por las diferentes formas de comunicación e interacción.
+- Protección de la privacidad y tratamiento responsable de la información personal.
 
-La accesibilidad es un proceso de mejora continua que debe evaluarse con usuarios reales y sus comunidades.
+La experiencia deberá evaluarse y mejorarse de forma continua, considerando la participación de personas autistas y otros usuarios representativos del público objetivo.
 
-## 🛡️ Uso responsable de la información
+## 7. Cronograma de desarrollo
 
-Teo & Tea busca ofrecer información educativa y recursos de orientación relacionados con el TEA. Sus contenidos deben elaborarse o revisarse utilizando fuentes confiables y criterios de accesibilidad.
+El cronograma de trabajo contempla la recopilación de información, las etapas de desarrollo, la presentación de la propuesta y el cierre del proyecto.
 
-La plataforma no pretende sustituir el diagnóstico, la evaluación ni la atención de profesionales de la salud, la educación u otras áreas especializadas. Los recursos deben entenderse como herramientas complementarias de información y acompañamiento.
+| Fecha | Actividad o hito |
+|---|---|
+| 7 de noviembre | Recopilación de información |
+| 14 de noviembre | Trabajo de desarrollo |
+| 21 de noviembre | Trabajo de desarrollo |
+| 28 de noviembre | Trabajo de desarrollo |
+| 5 de diciembre | Trabajo de desarrollo |
+| 12 de diciembre | Presentación de la propuesta |
+| 19 de diciembre | Celebración de Navidad: hito de entrega y cierre |
 
-Asimismo, se promoverá el respeto por la privacidad de los usuarios y el tratamiento responsable de los datos personales, especialmente cuando se trate de información sensible.
+**Objetivo del cronograma:** completar el desarrollo previsto y preparar la propuesta para su presentación y cierre durante las festividades de Navidad.
 
-## 🚀 Objetivos futuros
+Las fechas corresponden al cronograma documentado del proyecto. El año, los responsables y el estado de cumplimiento de cada hito deberán confirmarse y actualizarse por el equipo.
 
-Entre las posibles líneas de evolución del proyecto se encuentran:
+## 8. Documentación técnica y organización del trabajo
 
-- Ampliar la biblioteca de recursos educativos.
-- Incorporar herramientas personalizables para las rutinas y actividades diarias.
-- Desarrollar espacios de comunidad y participación.
-- Organizar contenidos según las necesidades y etapas de vida.
-- Integrar recursos visuales y materiales descargables.
-- Mejorar continuamente la accesibilidad y la experiencia de usuario.
-- Establecer colaboraciones con profesionales y organizaciones especializadas.
+Esta sección está destinada a registrar las decisiones técnicas, los recursos de diseño y el seguimiento del trabajo en equipo.
 
-## 🧑‍💻 Tecnologías utilizadas
+### 8.1. Requerimientos técnicos y arquitectura
 
-Las tecnologías de desarrollo se documentarán de acuerdo con la implementación real del proyecto.
+Espacio para documentar la arquitectura de la aplicación y las tecnologías seleccionadas.
 
-Este apartado puede incluir:
+| Elemento | Información |
+|---|---|
+| Stack tecnológico | Pendiente de definición |
+| Base de datos | Pendiente de definición |
+| APIs y servicios externos | Pendiente de definición |
+| Arquitectura de la aplicación | Pendiente de documentación |
+| Documentación de servicios | Archivo o enlace pendiente |
+| Responsable técnico | Pendiente de asignación |
 
-- **Frontend:** tecnologías utilizadas para construir la interfaz.
-- **Backend:** tecnologías responsables de la lógica y los servicios de la aplicación.
-- **Base de datos:** sistema utilizado para almacenar y gestionar la información.
-- **Diseño y prototipado:** herramientas empleadas para definir la experiencia de usuario.
-- **Control de versiones:** Git y GitHub.
+### 8.2. Diseño UI/UX y flujos de pantalla
 
-## ⚙️ Instalación y ejecución
+Espacio para documentar la interfaz, la experiencia de usuario y los recorridos principales de la aplicación.
 
-Cuando el proyecto esté disponible para ejecutarse localmente, se podrán incluir aquí las instrucciones necesarias para instalarlo y probarlo.
+| Elemento | Información |
+|---|---|
+| Herramienta de diseño | Pendiente de definición |
+| Archivo de diseño principal | Enlace o archivo pendiente |
+| Wireframes | Pendientes de documentación |
+| Flujos de pantalla | Pendientes de documentación |
+| Revisión de prototipos | Evento de calendario pendiente |
+| Criterios de accesibilidad | Pendientes de especificación |
 
-De forma general, el proceso incluirá:
+### 8.3. Reuniones y avances
 
-1. Clonar el repositorio.
-2. Instalar las dependencias necesarias.
-3. Configurar las variables de entorno, si corresponde.
-4. Ejecutar la aplicación siguiendo las instrucciones del proyecto.
+Registro de las reuniones, los acuerdos del equipo y el seguimiento de las tareas.
 
-Los comandos específicos se añadirán cuando se definan las tecnologías y la estructura del repositorio.
+| Elemento | Información |
+|---|---|
+| Próxima sincronización | Fecha pendiente |
+| Registro de notas | Archivo o enlace pendiente |
+| Acuerdos de reuniones | Pendientes de registro |
+| Bloqueos identificados | Pendientes de registro |
+| Próximos pasos | Pendientes de definición |
 
-## 🤝 Contribuciones
+Se recomienda actualizar esta sección después de cada reunión o hito de desarrollo para mantener la documentación alineada con el avance real del proyecto.
 
-Las contribuciones que ayuden a mejorar Teo & Tea son bienvenidas, especialmente aquellas relacionadas con la accesibilidad, la experiencia de usuario, la calidad de los contenidos y la inclusión.
+## 9. Estado del proyecto
 
-Si deseas contribuir:
+El proyecto contempla la definición, el diseño y el desarrollo progresivo de los módulos descritos en este documento.
 
-1. Revisa el estado actual del proyecto.
-2. Propón una mejora o identifica un problema.
-3. Crea una rama para tu contribución.
-4. Realiza los cambios y documenta su propósito.
-5. Envía un Pull Request para su revisión.
+Los siguientes aspectos deben completarse o confirmarse por el equipo:
 
-Se valorarán especialmente las aportaciones respetuosas con la diversidad y basadas en las experiencias y necesidades de las personas autistas.
+- Definición del stack tecnológico.
+- Selección de la base de datos y los servicios externos.
+- Documentación de la arquitectura.
+- Diseño de la interfaz y los flujos de pantalla.
+- Especificación detallada de los requerimientos funcionales.
+- Asignación de responsables y seguimiento de tareas.
+- Implementación y validación de los módulos.
+- Pruebas de accesibilidad y experiencia de usuario.
 
-## 📄 Licencia
+Este apartado deberá actualizarse a medida que se implementen y validen las funcionalidades.
 
-La licencia del proyecto está pendiente de definición. Cuando se seleccione una, se incluirá el archivo `LICENSE` y se documentarán las condiciones de uso, modificación y distribución del código.
+## 10. Privacidad y uso responsable
 
-## 💙 Un espacio para comprender, acompañar e incluir
+Teo & Tea busca proporcionar información educativa y recursos de orientación. Los contenidos relacionados con la salud y el bienestar deberán basarse en fuentes confiables y revisarse de manera responsable.
 
-**Teo & Tea nace con una idea fundamental: la inclusión comienza cuando aprendemos a comprender y respetar las diferencias.**
+La plataforma no sustituye el diagnóstico, la evaluación ni la atención profesional cuando estos sean necesarios.
 
-Queremos contribuir a un entorno en el que las personas autistas y sus familias encuentren información útil, herramientas de apoyo y oportunidades para participar activamente en la sociedad.
+Dado que el onboarding podría recopilar información relacionada con la neurodivergencia y las preferencias personales, su diseño deberá considerar la minimización de datos, el consentimiento informado, la seguridad y las medidas de protección de la información aplicables.
 
-Más que una plataforma, Teo & Tea busca ser un punto de encuentro entre la información, el acompañamiento y la inclusión.
+Los espacios de comunidad también deberán contemplar normas de participación, mecanismos para reportar contenido inapropiado y medidas orientadas a proteger a sus integrantes.
 
----
+## 11. Contribuciones
 
-**Teo & Tea** — Comprender, acompañar e incluir. 💙
+Las contribuciones que ayuden a mejorar Teo & Tea podrán incluir:
+
+- Desarrollo de funcionalidades.
+- Mejoras en la interfaz y la experiencia de usuario.
+- Revisión de accesibilidad.
+- Corrección de errores.
+- Mejoras en la documentación.
+- Propuestas de recursos educativos.
+- Sugerencias relacionadas con la inclusión laboral y la comunidad.
+
+Las contribuciones deberán documentarse y revisarse de acuerdo con las pautas de colaboración que establezca el equipo.
+
+## 12. Licencia
+
+La licencia del proyecto está pendiente de definición.
+
+Una vez seleccionada, se deberá incorporar el archivo `LICENSE` al repositorio y documentar las condiciones de uso, modificación y distribución del código.
+
+## 13. Propósito de Teo & Tea
+
+Teo & Tea busca conectar información, acompañamiento, comunidad e inclusión en un mismo espacio digital.
+
+A través de sus módulos y de una experiencia personalizada, el proyecto aspira a facilitar el acceso a recursos relevantes para las personas autistas, sus familias, su entorno y las organizaciones que desean promover una participación más inclusiva.
+
+**Teo & Tea: información, acompañamiento e inclusión.**
