@@ -1,0 +1,243 @@
+.community-content {
+  --background: #f0f4f8;
+}
+
+.community-layout {
+  box-sizing: border-box;
+  width: min(100%, 760px);
+  margin: 0 auto;
+  padding: 20px 16px 32px;
+}
+
+.community-intro {
+  margin: 0 4px 16px;
+}
+
+.community-eyebrow {
+  margin: 0 0 6px;
+  color: #4d6f91;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.community-intro h1 {
+  margin: 0;
+  color: #173b66;
+  font-size: clamp(1.7rem, 6vw, 2.2rem);
+}
+
+.community-intro > p:last-child {
+  margin: 8px 0 0;
+  color: #294d73;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.composer-card,
+.post-card {
+  margin: 0 0 16px;
+  border: 1px solid #d5e0ec;
+  border-radius: 18px;
+  background: #fffefc;
+  box-shadow: 0 4px 16px rgb(23 59 102 / 5%);
+}
+
+.composer-card ion-card-content,
+.post-card ion-card-content {
+  padding: 18px;
+}
+
+.composer-heading,
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.composer-heading ion-avatar,
+.post-header ion-avatar {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  background: #e6eef7;
+}
+
+.avatar-fallback {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: #173b66;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.composer-heading > div,
+.post-author {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.composer-heading strong,
+.post-author strong {
+  color: #173b66;
+  font-size: 1rem;
+}
+
+.composer-heading span,
+.post-author span {
+  color: #4d6f91;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.composer-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.composer-form ion-textarea,
+.comment-form ion-textarea {
+  --background: #f7f9fc;
+  --border-radius: 12px;
+  --padding-bottom: 12px;
+  --padding-end: 12px;
+  --padding-start: 12px;
+  --padding-top: 12px;
+  border: 1px solid #d5e0ec;
+  border-radius: 12px;
+  color: #173b66;
+  font-size: 1rem;
+}
+
+.composer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.composer-actions ion-button {
+  min-height: 44px;
+  margin: 0;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.attachment-name,
+.post-attachment {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: #294d73;
+  font-size: 0.92rem;
+}
+
+.post-attachment ion-icon {
+  color: #0052cc;
+  font-size: 1.2rem;
+}
+
+.post-header {
+  align-items: flex-start;
+}
+
+.post-body {
+  margin: 18px 0;
+  color: #173b66;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.post-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  border-top: 1px solid #e1e8f0;
+  padding-top: 8px;
+}
+
+.post-actions ion-button {
+  min-height: 42px;
+  margin: 0;
+  color: #294d73;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.post-actions ion-button[aria-pressed='true'] {
+  color: #0052cc;
+}
+
+.post-comments {
+  margin-top: 8px;
+  padding-top: 14px;
+  border-top: 1px solid #e1e8f0;
+}
+
+.comment-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comment-list li {
+  padding: 12px;
+  border-radius: 12px;
+  background: #f0f4f8;
+  color: #173b66;
+}
+
+.comment-list strong {
+  font-size: 0.95rem;
+}
+
+.comment-list p,
+.no-comments {
+  margin: 4px 0 0;
+  color: #294d73;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.comment-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.comment-form ion-textarea {
+  flex: 1;
+}
+
+.comment-form ion-button {
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0;
+}
+
+@media (max-width: 400px) {
+  .post-actions ion-button {
+    padding-inline: 4px;
+    font-size: 0.84rem;
+  }
+}

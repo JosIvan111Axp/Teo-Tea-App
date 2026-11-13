@@ -1,4 +1,4 @@
-import { Navigate, Route } from 'react-router-dom';
+import { Navigate, Route, useLocation } from 'react-router-dom';
 import {
   IonApp,
   IonIcon,
@@ -10,7 +10,9 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { ellipse, square, triangle } from 'ionicons/icons';
+import { homeOutline, peopleOutline, personCircleOutline } from 'ionicons/icons';
+import AuthPage from './pages/AuthPage';
+import LibraryPage from './pages/LibraryPage';
 import Tab1 from './pages/Tab1';
 import Tab2 from './pages/Tab2';
 import Tab3 from './pages/Tab3';
@@ -31,47 +33,53 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
-
-/* import '@ionic/react/css/palettes/dark.always.css'; */
-/* import '@ionic/react/css/palettes/dark.class.css'; */
-import '@ionic/react/css/palettes/dark.system.css';
-
 /* Theme variables */
 import './theme/variables.css';
 
 setupIonicReact();
 
+const AppRoutes: React.FC = () => {
+  const { pathname } = useLocation();
+  const showTabBar = ['/inicio', '/comunidad', '/perfil'].includes(pathname) ||
+    pathname.startsWith('/biblioteca');
+
+  return (
+    <IonTabs>
+      <IonRouterOutlet>
+        <Route path="/bienvenida" element={<AuthPage mode="welcome" />} />
+        <Route path="/registro" element={<AuthPage mode="register" />} />
+        <Route path="/iniciar-sesion" element={<AuthPage mode="login" />} />
+        <Route path="/inicio" element={<Tab1 />} />
+        <Route path="/comunidad" element={<Tab2 />} />
+        <Route path="/perfil" element={<Tab3 />} />
+        <Route path="/biblioteca/:articleId" element={<LibraryPage />} />
+        <Route path="/biblioteca" element={<LibraryPage />} />
+        <Route path="/" element={<Navigate to="/bienvenida" replace />} />
+      </IonRouterOutlet>
+      {showTabBar && (
+        <IonTabBar slot="bottom">
+          <IonTabButton tab="inicio" href="/inicio">
+            <IonIcon aria-hidden="true" icon={homeOutline} />
+            <IonLabel>Inicio</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="comunidad" href="/comunidad">
+            <IonIcon aria-hidden="true" icon={peopleOutline} />
+            <IonLabel>Comunidad</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="perfil" href="/perfil">
+            <IonIcon aria-hidden="true" icon={personCircleOutline} />
+            <IonLabel>Perfil</IonLabel>
+          </IonTabButton>
+        </IonTabBar>
+      )}
+    </IonTabs>
+  );
+};
+
 const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
-      <IonTabs>
-        <IonRouterOutlet>
-          <Route path="/tab1" element={<Tab1 />} />
-          <Route path="/tab2" element={<Tab2 />} />
-          <Route path="/tab3" element={<Tab3 />} />
-          <Route path="/" element={<Navigate to="/tab1" replace />} />
-        </IonRouterOutlet>
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="tab1" href="/tab1">
-            <IonIcon aria-hidden="true" icon={triangle} />
-            <IonLabel>Tab 1</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab2" href="/tab2">
-            <IonIcon aria-hidden="true" icon={ellipse} />
-            <IonLabel>Tab 2</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab3" href="/tab3">
-            <IonIcon aria-hidden="true" icon={square} />
-            <IonLabel>Tab 3</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs>
+      <AppRoutes />
     </IonReactRouter>
   </IonApp>
 );

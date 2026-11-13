@@ -1,0 +1,184 @@
+.auth-content {
+  --background: #f0f4f8;
+}
+
+.auth-shell {
+  display: flex;
+  justify-content: center;
+  min-height: 100%;
+  padding: 24px 16px;
+}
+
+.auth-panel {
+  box-sizing: border-box;
+  width: min(100%, 560px);
+  margin: auto;
+  padding: 28px;
+  border: 1px solid #d5e0ec;
+  border-radius: 24px;
+  background: #fffefc;
+  color: #173b66;
+  box-shadow: 0 8px 28px rgb(23 59 102 / 8%);
+}
+
+.auth-logo {
+  display: block;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+}
+
+.auth-logo-small {
+  width: 72px;
+  height: 72px;
+  margin: 20px auto;
+}
+
+.auth-eyebrow {
+  margin: 0 0 8px;
+  color: #4d6f91;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.auth-panel h1 {
+  margin: 0;
+  color: #173b66;
+  font-size: clamp(1.75rem, 6vw, 2.25rem);
+  line-height: 1.2;
+  text-align: center;
+}
+
+.auth-intro {
+  margin: 12px 0 20px;
+  color: #294d73;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.welcome-banner {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 0 20px;
+  border-radius: 16px;
+}
+
+.auth-actions,
+.auth-form {
+  display: grid;
+  gap: 16px;
+}
+
+.auth-form ion-input,
+.auth-form ion-select {
+  --border-radius: 12px;
+  --highlight-color-focused: #0052cc;
+  --highlight-color-valid: #0052cc;
+  font-size: 1rem;
+}
+
+.auth-form ion-button,
+.auth-actions ion-button {
+  min-height: 48px;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.prototype-note {
+  margin: 16px 0 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.auth-back {
+  display: inline-flex;
+  margin: 0 0 22px;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: #0052cc;
+  font: inherit;
+  font-size: 1rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.identity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.identity-option {
+  display: flex;
+  min-height: 104px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 10px;
+  border: 2px solid #c8d6e5;
+  border-radius: 16px;
+  background: #fffefc;
+  color: #173b66;
+  font: inherit;
+  font-size: 0.96rem;
+  line-height: 1.3;
+  text-align: center;
+  cursor: pointer;
+}
+
+.identity-option ion-icon {
+  color: #0052cc;
+  font-size: 1.8rem;
+}
+
+.identity-option.selected {
+  border-color: #0052cc;
+  background: #edf4ff;
+  box-shadow: inset 0 0 0 1px #0052cc;
+}
+
+.identity-option:focus-visible,
+.auth-back:focus-visible {
+  outline: 3px solid #0052cc;
+  outline-offset: 3px;
+}
+
+.prototype-card {
+  margin: 20px 0 0;
+  padding: 4px 16px;
+  border-radius: 12px;
+  color: #294d73;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 380px) {
+  .auth-panel {
+    padding: 22px 18px;
+  }
+
+  .identity-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
