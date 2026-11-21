@@ -31,3 +31,8 @@ yarn-error.log*
 .eslintcache
 
 .fake
+# API (backend)
+/server/node_modules
+/server/.env
+/server/uploads
+/server/library

@@ -1,9 +1,8 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { mockData, type UserProfile } from '../data/mockData';
-import { createId, hashPassword, safeLocalStorage } from '../utils/helpers';
-
-type StoredUser = UserProfile & { passwordHash: string };
+import type { UserProfile } from '../data/mockData';
+import { api, errorMessage, setAuthToken, setUnauthorizedHandler } from '../api/client';
+import { safeLocalStorage } from '../utils/helpers';
 
 export type RegisterInput = {
   name: string;
@@ -17,102 +16,92 @@ export type RegisterInput = {
 };
 
 type AuthResult = { ok: true } | { ok: false; error: string };
+type AuthResponse = { token: string; user: UserProfile };
 
 type AuthStore = {
-  users: StoredUser[];
-  currentUserId: string | null;
-  seedDemoUser: () => Promise<void>;
+  token: string | null;
+  user: UserProfile | null;
   register: (input: RegisterInput) => Promise<AuthResult>;
   login: (email: string, password: string) => Promise<AuthResult>;
   logout: () => void;
-  updateProfile: (changes: Partial<Omit<UserProfile, 'id' | 'email'>>) => void;
+  refreshUser: () => Promise<void>;
+  updateProfile: (
+    changes: Partial<Pick<UserProfile, 'name' | 'profession' | 'bio' | 'skills' | 'interests'>>,
+  ) => Promise<AuthResult>;
 };
 
-export const DEMO_EMAIL = mockData.profile.email;
+// Cuenta creada por `npm run db:init` en el servidor.
+export const DEMO_EMAIL = 'demo@teotea.app';
 export const DEMO_PASSWORD = 'demo1234';
-
-const normalizeEmail = (email: string) => email.trim().toLocaleLowerCase();
-const normalizeUsername = (username: string) =>
-  `@${username.trim().replace(/^@+/, '').toLocaleLowerCase()}`;
 
 export const useAuthStore = create<AuthStore>()(
   persist(
-    (set, get) => ({
-      users: [],
-      currentUserId: null,
+    (set) => {
+      const startSession = ({ token, user }: AuthResponse) => {
+        setAuthToken(token);
+        set({ token, user });
+      };
 
-      seedDemoUser: async () => {
-        if (get().users.some((user) => user.id === mockData.profile.id)) return;
-        const passwordHash = await hashPassword(DEMO_PASSWORD);
-        set((state) => ({
-          users: [...state.users, { ...mockData.profile, passwordHash }],
-        }));
-      },
+      return {
+        token: null,
+        user: null,
 
-      register: async (input) => {
-        const email = normalizeEmail(input.email);
-        const username = normalizeUsername(input.username);
-        const { users } = get();
+        register: async (input) => {
+          try {
+            startSession(await api<AuthResponse>('/auth/register', { method: 'POST', body: input }));
+            return { ok: true };
+          } catch (error) {
+            return { ok: false, error: errorMessage(error) };
+          }
+        },
 
-        if (users.some((user) => user.email === email)) {
-          return { ok: false, error: 'Ya existe una cuenta con este correo. Prueba iniciar sesión.' };
-        }
-        if (users.some((user) => user.username === username)) {
-          return { ok: false, error: 'Ese nombre de usuario ya está en uso. Elige otro.' };
-        }
+        login: async (email, password) => {
+          try {
+            startSession(await api<AuthResponse>('/auth/login', { method: 'POST', body: { email, password } }));
+            return { ok: true };
+          } catch (error) {
+            return { ok: false, error: errorMessage(error) };
+          }
+        },
 
-        const user: StoredUser = {
-          id: createId('user'),
-          email,
-          username,
-          name: input.name.trim(),
-          role: input.role,
-          profession: '',
-          birthdate: input.birthdate,
-          city: input.city.trim(),
-          country: input.country,
-          bio: '',
-          skills: [],
-          interests: [],
-          passwordHash: await hashPassword(input.password),
-        };
+        logout: () => {
+          setAuthToken(null);
+          set({ token: null, user: null });
+        },
 
-        set({ users: [...users, user], currentUserId: user.id });
-        return { ok: true };
-      },
+        refreshUser: async () => {
+          try {
+            const { user } = await api<{ user: UserProfile }>('/auth/me');
+            set({ user });
+          } catch {
+            // Sin conexión: se conserva el usuario guardado. Un 401 cierra la sesión (ver abajo).
+          }
+        },
 
-      login: async (email, password) => {
-        const user = get().users.find((item) => item.email === normalizeEmail(email));
-        if (!user || user.passwordHash !== (await hashPassword(password))) {
-          return { ok: false, error: 'Correo o contraseña incorrectos. Revisa los datos e inténtalo de nuevo.' };
-        }
-        set({ currentUserId: user.id });
-        return { ok: true };
-      },
-
-      logout: () => set({ currentUserId: null }),
-
-      updateProfile: (changes) =>
-        set((state) => ({
-          users: state.users.map((user) =>
-            user.id === state.currentUserId ? { ...user, ...changes } : user,
-          ),
-        })),
-    }),
+        updateProfile: async (changes) => {
+          try {
+            const { user } = await api<{ user: UserProfile }>('/auth/me', { method: 'PATCH', body: changes });
+            set({ user });
+            return { ok: true };
+          } catch (error) {
+            return { ok: false, error: errorMessage(error) };
+          }
+        },
+      };
+    },
     {
-      name: 'teo-tea-auth',
-      version: 1,
+      name: 'teo-tea-session',
+      version: 2,
       storage: createJSONStorage(() => safeLocalStorage),
+      partialize: ({ token, user }) => ({ token, user }),
+      onRehydrateStorage: () => (state) => setAuthToken(state?.token ?? null),
     },
   ),
 );
 
-/** Usuario con sesión activa (sin el hash de la contraseña). */
-export const useCurrentUser = (): UserProfile | null =>
-  useAuthStore((state) => {
-    const user = state.users.find((item) => item.id === state.currentUserId);
-    return user ?? null;
-  });
+// Si el servidor rechaza el token, se cierra la sesión automáticamente.
+setUnauthorizedHandler(() => useAuthStore.getState().logout());
 
-export const useIsLoggedIn = () =>
-  useAuthStore((state) => state.users.some((user) => user.id === state.currentUserId));
+export const useCurrentUser = () => useAuthStore((state) => state.user);
+
+export const useIsLoggedIn = () => useAuthStore((state) => Boolean(state.token && state.user));

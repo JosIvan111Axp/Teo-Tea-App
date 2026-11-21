@@ -14,10 +14,12 @@ import {
   IonModal,
   IonNote,
   IonPage,
+  IonSpinner,
   IonTextarea,
   IonTitle,
   IonToast,
   IonToolbar,
+  useIonViewWillEnter,
 } from '@ionic/react';
 import {
   briefcaseOutline,
@@ -26,11 +28,13 @@ import {
   heartOutline,
   locationOutline,
   logOutOutline,
+  shieldHalfOutline,
   mailOutline,
 } from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 import { useAuthStore, useCurrentUser } from '../store/useAuthStore';
+import { ACCOUNT_TYPE_LABELS } from '../api/staff';
 import { calculateAge, getInitials } from '../utils/helpers';
 import './Tab3.css';
 
@@ -46,10 +50,16 @@ const Tab3: React.FC = () => {
   const profile = useCurrentUser();
   const logout = useAuthStore((state) => state.logout);
   const updateProfile = useAuthStore((state) => state.updateProfile);
-  const syncAuthor = useAppStore((state) => state.syncAuthor);
+  const fetchPosts = useAppStore((state) => state.fetchPosts);
+  const hasLoadedPosts = useAppStore((state) => state.hasLoaded);
   const postCount = useAppStore(
     (state) => state.posts.filter((post) => post.authorId === profile?.id).length,
   );
+  const [isSaving, setIsSaving] = useState(false);
+
+  useIonViewWillEnter(() => {
+    if (!hasLoadedPosts) void fetchPosts();
+  });
 
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -73,21 +83,28 @@ const Tab3: React.FC = () => {
     setIsEditing(true);
   };
 
-  const saveProfile = (event: FormEvent<HTMLFormElement>) => {
+  const saveProfile = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const name = editForm.name.trim();
     if (!name) {
       setEditError('El nombre no puede quedar vacío.');
       return;
     }
-    updateProfile({
+    setIsSaving(true);
+    const result = await updateProfile({
       name,
       profession: editForm.profession.trim(),
       bio: editForm.bio.trim(),
       skills: toList(editForm.skills),
       interests: toList(editForm.interests),
     });
-    syncAuthor({ id: profile.id, name, role: profile.role });
+    setIsSaving(false);
+    if (!result.ok) {
+      setEditError(result.error);
+      return;
+    }
+    // Las publicaciones muestran el nombre desde la base de datos: se recargan para reflejar el cambio.
+    void fetchPosts();
     setIsEditing(false);
     setToast('Perfil actualizado.');
   };
@@ -106,7 +123,7 @@ const Tab3: React.FC = () => {
         <IonToolbar>
           <IonTitle>Perfil</IonTitle>
           <IonButtons slot="end">
-            <IonButton color="primary" onClick={() => setConfirmLogout(true)}>
+            <IonButton onClick={() => setConfirmLogout(true)}>
               <IonIcon slot="start" icon={logOutOutline} aria-hidden="true" />
               Salir
             </IonButton>
@@ -157,6 +174,17 @@ const Tab3: React.FC = () => {
                 <IonIcon slot="start" icon={createOutline} aria-hidden="true" />
                 Editar perfil
               </IonButton>
+              {(profile.accountType === 'moderator' || profile.accountType === 'admin') && (
+                <div className="profile-staff">
+                  <span className="profile-staff-label">
+                    <IonIcon icon={shieldHalfOutline} aria-hidden="true" />
+                    Cuenta de {ACCOUNT_TYPE_LABELS[profile.accountType].toLowerCase()}
+                  </span>
+                  <IonButton onClick={() => navigate('/equipo')}>
+                    {profile.accountType === 'admin' ? 'Panel de administración' : 'Panel de moderación'}
+                  </IonButton>
+                </div>
+              )}
             </IonCardContent>
           </IonCard>
 
@@ -284,8 +312,8 @@ const Tab3: React.FC = () => {
                   {editError}
                 </IonNote>
               )}
-              <IonButton expand="block" type="submit">
-                Guardar cambios
+              <IonButton expand="block" type="submit" disabled={isSaving}>
+                {isSaving ? <IonSpinner name="dots" /> : 'Guardar cambios'}
               </IonButton>
             </form>
           </IonContent>

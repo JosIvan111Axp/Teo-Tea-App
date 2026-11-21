@@ -378,3 +378,45 @@
     font-size: 0.84rem;
   }
 }
+
+.community-error p {
+  margin: 0 0 12px;
+  color: #b3261e;
+}
+
+/* Insignias del equipo */
+.staff-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  color: #ffffff !important;
+  font-size: 0.72rem !important;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.staff-badge-moderator {
+  background: var(--teo-green-strong);
+}
+
+.staff-badge-admin {
+  background: var(--teo-purple);
+}
+
+.comment-head .staff-badge {
+  margin-left: 0;
+}
+
+.comment-report {
+  margin-left: auto;
+}
+
+.comment-report + .comment-delete {
+  margin-left: 0;
+}
+
+.comment-report:hover,
+.comment-report:focus-visible {
+  color: #8a5a00;
+}

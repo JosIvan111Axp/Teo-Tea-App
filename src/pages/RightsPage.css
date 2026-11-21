@@ -1,0 +1,227 @@
+.rights-content {
+  --background: var(--teo-bg);
+}
+
+.rights-segment-toolbar {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  border-bottom: 0 !important;
+}
+
+.rights-segment-toolbar ion-segment {
+  --background: var(--teo-purple-soft);
+  border-radius: 12px;
+}
+
+.rights-segment-toolbar ion-segment-button {
+  --color: var(--teo-ink-soft);
+  --color-checked: #ffffff;
+  --indicator-color: var(--teo-purple);
+  min-height: 46px;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.rights-segment-toolbar ion-segment-button ion-label {
+  white-space: normal;
+  line-height: 1.2;
+}
+
+.rights-layout {
+  box-sizing: border-box;
+  width: min(100%, 820px);
+  margin: 0 auto;
+  padding: 16px 16px 40px;
+}
+
+.rights-area-description {
+  margin: 0 4px 14px;
+  color: var(--teo-ink-soft);
+  line-height: 1.5;
+}
+
+.rights-countries {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.rights-countries::-webkit-scrollbar {
+  display: none;
+}
+
+.rights-country {
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 6px 18px;
+  border: 1px solid var(--teo-border-strong);
+  border-radius: 999px;
+  background: var(--teo-surface);
+  color: var(--teo-ink-soft);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rights-country.is-selected {
+  border-color: var(--teo-green);
+  background: var(--teo-green);
+  color: #ffffff;
+}
+
+.rights-country:focus-visible {
+  outline: 3px solid var(--teo-purple);
+  outline-offset: 2px;
+}
+
+.rights-panel h1 {
+  margin: 0 4px 6px;
+  color: var(--teo-ink);
+  font-size: clamp(1.35rem, 5vw, 1.7rem);
+}
+
+.rights-intro {
+  margin: 0 4px 16px;
+  color: var(--teo-ink-soft);
+  line-height: 1.55;
+}
+
+.law-list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.law-card {
+  padding: 18px;
+  border: 1px solid var(--teo-border);
+  border-left: 5px solid var(--teo-purple);
+  border-radius: 16px;
+  background: var(--teo-surface);
+  box-shadow: 0 3px 12px rgb(var(--teo-shadow) / 5%);
+}
+
+.law-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.law-icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--teo-purple-soft);
+  color: var(--teo-purple);
+  font-size: 1.2rem;
+}
+
+.law-heading h2 {
+  margin: 0;
+  color: var(--teo-ink);
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+.law-tag {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--teo-green-soft);
+  color: var(--teo-green-strong);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.law-summary {
+  margin: 12px 0 8px;
+  color: var(--teo-ink);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.law-points {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 20px;
+  color: var(--teo-ink-soft);
+  line-height: 1.5;
+}
+
+.law-points li::marker {
+  color: var(--teo-green);
+}
+
+.help-card {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid var(--teo-border);
+  border-top: 5px solid var(--teo-green);
+  border-radius: 16px;
+  background: linear-gradient(160deg, var(--teo-surface) 55%, var(--teo-green-soft));
+}
+
+.help-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  color: var(--teo-ink);
+  font-size: 1.05rem;
+}
+
+.help-card h2 ion-icon {
+  color: var(--teo-green-strong);
+}
+
+.help-card ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.help-card li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--teo-ink-soft);
+  font-size: 0.93rem;
+  line-height: 1.45;
+}
+
+.help-card strong {
+  color: var(--teo-ink);
+}
+
+.rights-disclaimer {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #fff6e0;
+  color: #6a4a00;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.rights-disclaimer ion-icon {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  font-size: 1.2rem;
+}
+
+.rights-disclaimer p {
+  margin: 0;
+}

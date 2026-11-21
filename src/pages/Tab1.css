@@ -187,7 +187,7 @@
 
 /* Fundación Sendero Azul */
 .foundation-card {
-  margin: 0 0 18px;
+  margin: 26px 0 18px;
   padding: 20px 18px;
   border: 1px solid var(--teo-border);
   border-top: 5px solid var(--teo-green);

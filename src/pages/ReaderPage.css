@@ -1,0 +1,304 @@
+/* Lector EPUB estilo "Google Libros": texto paginado, controles que se ocultan al tocar. */
+
+.reader-page {
+  --reader-chrome-bg: var(--teo-surface);
+}
+
+.reader-theme-sepia {
+  --reader-chrome-bg: #f6ecd9;
+}
+
+.reader-theme-oscuro {
+  --reader-chrome-bg: #1c1724;
+}
+
+.reader-header,
+.reader-footer {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.reader-header ion-toolbar {
+  --background: var(--reader-chrome-bg);
+}
+
+.reader-theme-oscuro .reader-header ion-toolbar {
+  --color: #e8e2f0;
+  --ion-toolbar-color: #e8e2f0;
+  color: #e8e2f0;
+}
+
+.reader-theme-oscuro .reader-header ion-button {
+  --color: #e8e2f0;
+}
+
+.reader-header.is-hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.reader-title,
+.reader-chapter {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reader-title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.reader-chapter {
+  margin-top: 1px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  opacity: 0.75;
+}
+
+.reader-stage {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 16px 20px 8px;
+}
+
+.reader-viewer {
+  width: 100%;
+  height: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Zonas invisibles en los bordes para pasar página tocando. */
+.reader-tap {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 14%;
+  max-width: 90px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.reader-tap:disabled {
+  cursor: default;
+}
+
+.reader-tap:focus-visible {
+  outline: 3px solid var(--teo-purple);
+  outline-offset: -3px;
+}
+
+.reader-tap-prev {
+  left: 0;
+}
+
+.reader-tap-next {
+  right: 0;
+}
+
+.reader-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  color: inherit;
+  text-align: center;
+  z-index: 3;
+}
+
+.reader-theme-oscuro .reader-overlay {
+  color: #e8e2f0;
+}
+
+.reader-footer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px calc(6px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgb(var(--teo-shadow) / 10%);
+}
+
+.reader-footer.is-hidden {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.reader-footer ion-button {
+  --color: currentColor;
+  margin: 0;
+}
+
+.reader-progress {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.reader-progress ion-range {
+  --bar-background: rgb(var(--teo-shadow) / 18%);
+  --bar-background-active: var(--teo-purple);
+  --knob-background: var(--teo-purple);
+  --knob-size: 18px;
+  padding: 0 6px;
+}
+
+.reader-theme-oscuro .reader-progress ion-range {
+  --bar-background: rgb(255 255 255 / 20%);
+  --bar-background-active: #c6a8f0;
+  --knob-background: #c6a8f0;
+}
+
+.reader-progress span {
+  margin-top: -6px;
+  font-size: 0.8rem;
+  opacity: 0.8;
+  text-align: center;
+}
+
+/* Índice */
+.reader-toc ion-item {
+  --min-height: 52px;
+  font-size: 0.98rem;
+}
+
+.reader-toc ion-item.is-current {
+  --background: var(--teo-purple-soft);
+  font-weight: 700;
+}
+
+/* Ajustes */
+.reader-settings {
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --padding-top: 16px;
+}
+
+.reader-settings h2 {
+  margin: 4px 0 12px;
+  color: var(--teo-ink);
+  font-size: 1.2rem;
+}
+
+.reader-settings h3 {
+  margin: 18px 0 8px;
+  color: var(--teo-green-strong);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.rs-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.rs-row ion-button {
+  --border-radius: 12px;
+  min-width: 56px;
+  min-height: 44px;
+  margin: 0;
+}
+
+.rs-value {
+  min-width: 56px;
+  color: var(--teo-ink);
+  font-weight: 700;
+  text-align: center;
+}
+
+.rs-a-small {
+  font-size: 0.85rem;
+}
+
+.rs-a-large {
+  font-size: 1.35rem;
+}
+
+.rs-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.rs-option,
+.rs-theme {
+  min-width: 88px;
+  min-height: 46px;
+  padding: 8px 14px;
+  border: 2px solid var(--teo-border);
+  border-radius: 12px;
+  background: var(--teo-surface);
+  color: var(--teo-ink);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.rs-option.is-selected,
+.rs-theme.is-selected {
+  border-color: var(--teo-purple);
+  box-shadow: inset 0 0 0 1px var(--teo-purple);
+  font-weight: 700;
+}
+
+.rs-option:focus-visible,
+.rs-theme:focus-visible {
+  outline: 3px solid var(--teo-green);
+  outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+  .reader-stage {
+    padding: 10px 14px 4px;
+  }
+
+  .reader-progress span {
+    font-size: 0.74rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-header,
+  .reader-footer {
+    transition: none;
+  }
+}
+
+/* El lector conserva barras del color del tema de lectura (no las moradas globales). */
+.reader-page {
+  --reader-chrome-fg: var(--teo-ink);
+}
+
+.reader-theme-sepia {
+  --reader-chrome-fg: #4a3a28;
+}
+
+.reader-theme-oscuro {
+  --reader-chrome-fg: #e8e2f0;
+}
+
+.reader-page .reader-header ion-toolbar {
+  --color: var(--reader-chrome-fg);
+  border-bottom: 1px solid rgb(var(--teo-shadow) / 10%);
+}
+
+.reader-page .reader-header ion-toolbar ion-title,
+.reader-page .reader-header ion-toolbar ion-button {
+  --color: var(--reader-chrome-fg);
+  color: var(--reader-chrome-fg);
+}

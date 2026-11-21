@@ -59,11 +59,11 @@
   --ion-background-color-rgb: 255, 254, 252;
   --ion-text-color: #33204f;
   --ion-text-color-rgb: 51, 32, 79;
-  --ion-toolbar-background: #fffefc;
-  --ion-toolbar-color: #33204f;
-  --ion-tab-bar-background: #fffefc;
-  --ion-tab-bar-color: #6b5f7a;
-  --ion-tab-bar-color-selected: #6a3ea1;
+  --ion-toolbar-background: #55308a;
+  --ion-toolbar-color: #ffffff;
+  --ion-tab-bar-background: #55308a;
+  --ion-tab-bar-color: rgb(255 255 255 / 72%);
+  --ion-tab-bar-color-selected: #ffffff;
   --ion-item-background: #fffefc;
   --ion-card-background: #fffefc;
 }
@@ -73,12 +73,54 @@ body {
   font-family: var(--ion-font-family);
 }
 
-/* Línea de acento verde bajo la barra superior */
+/* Barras moradas: superior (encabezado) e inferior (pestañas), con acento verde. */
 ion-header ion-toolbar {
-  --border-color: var(--teo-border);
+  --border-color: transparent;
+  --color: #ffffff;
   border-bottom: 3px solid var(--teo-green);
 }
 
+ion-header ion-toolbar ion-title {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+ion-header ion-toolbar ion-button,
+ion-header ion-toolbar ion-back-button {
+  --color: #ffffff;
+}
+
+/* Segunda barra (p. ej. selector de la Biblioteca) y encabezados de ventanas: fondo claro. */
+ion-header ion-toolbar.toolbar-light,
+ion-modal ion-header ion-toolbar {
+  --background: var(--teo-surface);
+  --color: var(--teo-ink);
+}
+
+ion-modal ion-header ion-toolbar ion-title {
+  color: var(--teo-ink);
+}
+
+ion-modal ion-header ion-toolbar ion-button {
+  --color: var(--teo-purple);
+}
+
 ion-tab-bar {
-  border-top: 1px solid var(--teo-border);
+  --border: 0;
+  border-top: 3px solid var(--teo-green);
+}
+
+ion-tab-button {
+  font-weight: 600;
+}
+
+ion-tab-button.tab-selected ion-icon {
+  transform: scale(1.08);
+}
+
+.route-loading {
+  display: grid;
+  height: 100%;
+  place-items: center;
+  background: var(--teo-bg);
 }

@@ -14,9 +14,9 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { chevronForwardOutline } from 'ionicons/icons';
 import { mockData } from '../data/mockData';
-import './LibraryPage.css';
+import './InfoPage.css';
 
-const LibraryPage: React.FC = () => {
+const InfoPage: React.FC = () => {
   const navigate = useNavigate();
   const { articleId } = useParams<{ articleId: string }>();
   const article = mockData.articles.find((item) => item.id === articleId);
@@ -27,10 +27,10 @@ const LibraryPage: React.FC = () => {
         <IonToolbar>
           {articleId && (
             <IonButtons slot="start">
-              <IonBackButton defaultHref="/biblioteca" text="Biblioteca" />
+              <IonBackButton defaultHref="/informacion" text="Información" />
             </IonButtons>
           )}
-          <IonTitle>{article?.title ?? 'Biblioteca'}</IonTitle>
+          <IonTitle>{article?.title ?? 'Información'}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="library-content" fullscreen>
@@ -54,8 +54,8 @@ const LibraryPage: React.FC = () => {
           <main className="library-layout">
             <section className="library-empty" role="status">
               <h1>No encontramos ese artículo</h1>
-              <p>Vuelve a la Biblioteca para explorar los temas disponibles.</p>
-              <IonButton onClick={() => navigate('/biblioteca')}>Ir a la Biblioteca</IonButton>
+              <p>Vuelve a Información para explorar los temas disponibles.</p>
+              <IonButton onClick={() => navigate('/informacion')}>Ir a Información</IonButton>
             </section>
           </main>
         ) : (
@@ -71,7 +71,7 @@ const LibraryPage: React.FC = () => {
                   key={item.id}
                   className="article-card"
                   button
-                  onClick={() => navigate(`/biblioteca/${item.id}`)}
+                  onClick={() => navigate(`/informacion/${item.id}`)}
                 >
                   <IonCardContent>
                     <span className="article-card-icon">
@@ -97,4 +97,4 @@ const LibraryPage: React.FC = () => {
   );
 };
 
-export default LibraryPage;
+export default InfoPage;

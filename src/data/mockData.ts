@@ -15,10 +15,13 @@ export type LibraryArticle = {
   paragraphs: string[];
 };
 
+export type AccountType = 'user' | 'moderator' | 'admin';
+
 export type CommunityComment = {
   id: string;
   authorId: string;
   author: string;
+  authorType?: AccountType;
   text: string;
   createdAt: number;
 };
@@ -28,6 +31,7 @@ export type CommunityPost = {
   authorId: string;
   author: string;
   role: string;
+  authorType?: AccountType;
   createdAt: number;
   body: string;
   likedBy: string[];
@@ -49,6 +53,7 @@ export type UserProfile = {
   bio: string;
   skills: string[];
   interests: string[];
+  accountType?: AccountType;
 };
 
 export type FoundationInfo = {
@@ -58,13 +63,9 @@ export type FoundationInfo = {
   pillars: { title: string; description: string; icon: string }[];
 };
 
-const HOUR = 60 * 60 * 1000;
-const seedTime = Date.now();
 
 export const mockData: {
   articles: LibraryArticle[];
-  posts: CommunityPost[];
-  profile: UserProfile;
   foundation: FoundationInfo;
 } = {
   articles: [
@@ -102,60 +103,6 @@ export const mockData: {
       ],
     },
   ],
-  posts: [
-    {
-      id: 'post-1',
-      authorId: 'demo-marina',
-      author: 'Marina López',
-      role: 'Persona TEA',
-      createdAt: seedTime - 2 * HOUR,
-      body: 'Hoy probé usar una lista visual para organizar mi mañana. Me ayudó a empezar con más calma. ¿Qué herramientas les sirven a ustedes?',
-      likedBy: ['seed-sofia', 'seed-diego'],
-      comments: [
-        {
-          id: 'comment-1',
-          authorId: 'seed-sofia',
-          author: 'Sofía Herrera',
-          text: 'A mí también me ayudan mucho las listas. Gracias por compartirlo.',
-          createdAt: seedTime - HOUR,
-        },
-      ],
-    },
-    {
-      id: 'post-2',
-      authorId: 'seed-sofia',
-      author: 'Sofía Herrera',
-      role: 'Familia de persona con TEA',
-      createdAt: seedTime - 26 * HOUR,
-      body: 'Estamos aprendiendo a preguntar qué apoyos son útiles en lugar de suponer. Escuchar con atención hace una gran diferencia.',
-      likedBy: ['seed-diego'],
-      comments: [],
-    },
-    {
-      id: 'post-3',
-      authorId: 'seed-diego',
-      author: 'Diego Ramírez',
-      role: 'Sin diagnóstico',
-      createdAt: seedTime - 50 * HOUR,
-      body: 'Un recordatorio amable: está bien pedir instrucciones por escrito o solicitar una pausa cuando la necesitas.',
-      likedBy: [],
-      comments: [],
-    },
-  ],
-  profile: {
-    id: 'demo-marina',
-    email: 'demo@teotea.app',
-    name: 'Marina López',
-    username: '@marina.lopez',
-    role: 'Persona TEA',
-    profession: 'Diseñadora gráfica',
-    birthdate: '1997-04-12',
-    city: 'Medellín',
-    country: 'Colombia',
-    bio: 'Me gusta compartir ideas visuales, aprender cosas nuevas y encontrar formas tranquilas de organizar el día.',
-    skills: ['Diseño gráfico', 'Ilustración', 'Organización visual'],
-    interests: ['Ilustración', 'Naturaleza', 'Música'],
-  },
   // Texto provisional: reemplázalo con la información oficial de la fundación.
   foundation: {
     name: 'Fundación Sendero Azul',

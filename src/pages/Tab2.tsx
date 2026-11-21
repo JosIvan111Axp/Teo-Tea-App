@@ -12,6 +12,8 @@ import {
   IonLabel,
   IonNote,
   IonPage,
+  IonRefresher,
+  IonRefresherContent,
   IonSearchbar,
   IonSegment,
   IonSegmentButton,
@@ -20,11 +22,13 @@ import {
   IonTitle,
   IonToast,
   IonToolbar,
+  useIonViewWillEnter,
 } from '@ionic/react';
 import {
   chatbubbleEllipsesOutline,
   closeCircle,
   ellipsisHorizontal,
+  flagOutline,
   heart,
   heartOutline,
   imageOutline,
@@ -32,7 +36,9 @@ import {
   shareSocialOutline,
   trashOutline,
 } from 'ionicons/icons';
-import type { CommunityPost } from '../data/mockData';
+import { errorMessage } from '../api/client';
+import { REPORT_REASONS, reportContent } from '../api/staff';
+import type { AccountType, CommunityPost } from '../data/mockData';
 import { useAppStore } from '../store/useAppStore';
 import { useCurrentUser } from '../store/useAuthStore';
 import { compressImage, formatRelativeTime, getInitials } from '../utils/helpers';
@@ -43,9 +49,19 @@ const MAX_COMMENT_LENGTH = 300;
 
 type Filter = 'todas' | 'mias' | 'gustan';
 
+/** Insignia visible junto al nombre de moderadores y administradores. */
+const StaffBadge: React.FC<{ type?: AccountType }> = ({ type }) =>
+  type === 'moderator' || type === 'admin' ? (
+    <span className={`staff-badge staff-badge-${type}`}>{type === 'admin' ? 'Administración' : 'Moderación'}</span>
+  ) : null;
+
 const Tab2: React.FC = () => {
   const user = useCurrentUser();
   const posts = useAppStore((state) => state.posts);
+  const isLoading = useAppStore((state) => state.isLoading);
+  const loadError = useAppStore((state) => state.loadError);
+  const hasLoaded = useAppStore((state) => state.hasLoaded);
+  const fetchPosts = useAppStore((state) => state.fetchPosts);
   const toggleLike = useAppStore((state) => state.toggleLike);
   const addPost = useAppStore((state) => state.addPost);
   const editPost = useAppStore((state) => state.editPost);
@@ -65,8 +81,16 @@ const Tab2: React.FC = () => {
   const [menuPost, setMenuPost] = useState<CommunityPost | null>(null);
   const [editingPost, setEditingPost] = useState<CommunityPost | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<CommunityPost | null>(null);
+  const [reportTarget, setReportTarget] = useState<{ postId: string; commentId: string | null } | null>(null);
   const [shareMessage, setShareMessage] = useState('');
   const [toast, setToast] = useState('');
+  const [errorToast, setErrorToast] = useState('');
+  const [isPublishing, setIsPublishing] = useState(false);
+
+  // Carga las publicaciones desde el servidor cada vez que se entra a la Comunidad.
+  useIonViewWillEnter(() => {
+    void fetchPosts();
+  });
 
   const visiblePosts = useMemo(() => {
     const term = search.trim().toLocaleLowerCase();
@@ -82,7 +106,15 @@ const Tab2: React.FC = () => {
 
   if (!user) return null;
 
-  const author = { id: user.id, name: user.name, role: user.role };
+  const isStaff = user.accountType === 'moderator' || user.accountType === 'admin';
+
+  /** Ejecuta una acción y muestra el error del servidor si falla. */
+  const run = async (action: Promise<{ ok: boolean; error?: string }>, successMessage?: string) => {
+    const result = await action;
+    if (!result.ok) setErrorToast(result.error ?? 'No se pudo completar la acción.');
+    else if (successMessage) setToast(successMessage);
+    return result.ok;
+  };
 
   const resetComposer = () => {
     setDraft('');
@@ -108,25 +140,32 @@ const Tab2: React.FC = () => {
     }
   };
 
-  const submitPost = (event: FormEvent<HTMLFormElement>) => {
+  const submitPost = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const body = draft.trim();
     if (!body && !image) {
       setPostError('Escribe algo o adjunta una imagen para publicar.');
       return;
     }
-    addPost(author, body, image ?? undefined);
+    setIsPublishing(true);
+    const result = await addPost(body, image ?? undefined);
+    setIsPublishing(false);
+    if (!result.ok) {
+      setPostError(result.error);
+      return;
+    }
     resetComposer();
     setFilter('todas');
     setToast('Tu publicación se compartió con la comunidad.');
   };
 
-  const submitComment = (event: FormEvent<HTMLFormElement>, postId: string) => {
+  const submitComment = async (event: FormEvent<HTMLFormElement>, postId: string) => {
     event.preventDefault();
     const text = (commentDrafts[postId] ?? '').trim();
     if (!text) return;
-    addComment(postId, author, text);
     setCommentDrafts((current) => ({ ...current, [postId]: '' }));
+    const ok = await run(addComment(postId, text));
+    if (!ok) setCommentDrafts((current) => ({ ...current, [postId]: text }));
   };
 
   const sharePost = async (post: CommunityPost) => {
@@ -164,6 +203,15 @@ const Tab2: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="community-content" fullscreen>
+        <IonRefresher
+          slot="fixed"
+          onIonRefresh={async (event) => {
+            await fetchPosts();
+            event.detail.complete();
+          }}
+        >
+          <IonRefresherContent pullingText="Desliza para actualizar" refreshingSpinner="dots" />
+        </IonRefresher>
         <main className="community-layout">
           <section className="community-intro" aria-labelledby="community-title">
             <p className="community-eyebrow">Un espacio para compartir con respeto</p>
@@ -241,9 +289,15 @@ const Tab2: React.FC = () => {
                     <IonIcon slot="start" icon={imageOutline} aria-hidden="true" />
                     {image ? 'Cambiar imagen' : 'Adjuntar imagen'}
                   </IonButton>
-                  <IonButton type="submit" disabled={isProcessingImage}>
-                    <IonIcon slot="start" icon={paperPlaneOutline} aria-hidden="true" />
-                    Publicar
+                  <IonButton type="submit" disabled={isProcessingImage || isPublishing}>
+                    {isPublishing ? (
+                      <IonSpinner name="dots" />
+                    ) : (
+                      <>
+                        <IonIcon slot="start" icon={paperPlaneOutline} aria-hidden="true" />
+                        Publicar
+                      </>
+                    )}
                   </IonButton>
                 </div>
               </form>
@@ -276,7 +330,20 @@ const Tab2: React.FC = () => {
           </div>
 
           <section className="community-feed" aria-label="Publicaciones de la comunidad">
-            {visiblePosts.length === 0 && (
+            {isLoading && !hasLoaded && (
+              <p className="community-empty" role="status">
+                <IonSpinner name="dots" /> Cargando publicaciones...
+              </p>
+            )}
+            {loadError && (
+              <div className="community-empty community-error" role="alert">
+                <p>{loadError}</p>
+                <IonButton fill="outline" onClick={() => void fetchPosts()}>
+                  Reintentar
+                </IonButton>
+              </div>
+            )}
+            {hasLoaded && !loadError && visiblePosts.length === 0 && (
               <p className="community-empty" role="status">
                 {emptyMessage}
               </p>
@@ -298,21 +365,20 @@ const Tab2: React.FC = () => {
                         <strong>
                           {post.author}
                           {isMine && <span className="post-badge">Tú</span>}
+                          <StaffBadge type={post.authorType} />
                         </strong>
                         <span>{post.role}</span>
                         <span>{formatRelativeTime(post.createdAt)}</span>
                       </div>
-                      {isMine && (
-                        <IonButton
-                          className="post-menu"
-                          fill="clear"
-                          color="medium"
-                          aria-label="Opciones de la publicación"
-                          onClick={() => setMenuPost(post)}
-                        >
-                          <IonIcon slot="icon-only" icon={ellipsisHorizontal} aria-hidden="true" />
-                        </IonButton>
-                      )}
+                      <IonButton
+                        className="post-menu"
+                        fill="clear"
+                        color="medium"
+                        aria-label="Opciones de la publicación"
+                        onClick={() => setMenuPost(post)}
+                      >
+                        <IonIcon slot="icon-only" icon={ellipsisHorizontal} aria-hidden="true" />
+                      </IonButton>
                     </header>
                     {post.body && <p className="post-body">{post.body}</p>}
                     {post.image && (
@@ -329,7 +395,7 @@ const Tab2: React.FC = () => {
                         className={isLiked ? 'is-liked' : ''}
                         aria-label={isLiked ? 'Quitar Me gusta' : 'Me gusta'}
                         aria-pressed={isLiked}
-                        onClick={() => toggleLike(post.id, user.id)}
+                        onClick={() => void run(toggleLike(post.id))}
                       >
                         <IonIcon slot="start" icon={isLiked ? heart : heartOutline} aria-hidden="true" />
                         {post.likedBy.length}
@@ -358,13 +424,28 @@ const Tab2: React.FC = () => {
                               <li key={comment.id}>
                                 <div className="comment-head">
                                   <strong>{comment.author}</strong>
+                                  <StaffBadge type={comment.authorType} />
                                   <span>{formatRelativeTime(comment.createdAt)}</span>
-                                  {comment.authorId === user.id && (
+                                  {comment.authorId !== user.id && (
+                                    <button
+                                      type="button"
+                                      className="comment-delete comment-report"
+                                      aria-label={`Reportar comentario de ${comment.author}`}
+                                      onClick={() => setReportTarget({ postId: post.id, commentId: comment.id })}
+                                    >
+                                      <IonIcon icon={flagOutline} aria-hidden="true" />
+                                    </button>
+                                  )}
+                                  {(comment.authorId === user.id || isStaff) && (
                                     <button
                                       type="button"
                                       className="comment-delete"
-                                      aria-label="Eliminar mi comentario"
-                                      onClick={() => deleteComment(post.id, comment.id, user.id)}
+                                      aria-label={
+                                        comment.authorId === user.id
+                                          ? 'Eliminar mi comentario'
+                                          : `Eliminar comentario de ${comment.author} (moderación)`
+                                      }
+                                      onClick={() => void run(deleteComment(post.id, comment.id))}
                                     >
                                       <IonIcon icon={trashOutline} aria-hidden="true" />
                                     </button>
@@ -407,13 +488,50 @@ const Tab2: React.FC = () => {
 
         <IonActionSheet
           isOpen={Boolean(menuPost)}
-          header="Tu publicación"
+          header={menuPost?.authorId === user.id ? 'Tu publicación' : `Publicación de ${menuPost?.author ?? ''}`}
           buttons={[
-            { text: 'Editar', handler: () => setEditingPost(menuPost) },
-            { text: 'Eliminar', role: 'destructive', handler: () => setConfirmDelete(menuPost) },
+            ...(menuPost?.authorId === user.id
+              ? [
+                  { text: 'Editar', handler: () => setEditingPost(menuPost) },
+                  { text: 'Eliminar', role: 'destructive', handler: () => setConfirmDelete(menuPost) },
+                ]
+              : [
+                  {
+                    text: 'Reportar publicación',
+                    handler: () => menuPost && setReportTarget({ postId: menuPost.id, commentId: null }),
+                  },
+                  ...(isStaff
+                    ? [{ text: 'Eliminar (moderación)', role: 'destructive', handler: () => setConfirmDelete(menuPost) }]
+                    : []),
+                ]),
             { text: 'Cancelar', role: 'cancel' },
           ]}
           onDidDismiss={() => setMenuPost(null)}
+        />
+
+        <IonAlert
+          isOpen={Boolean(reportTarget)}
+          header={reportTarget?.commentId ? 'Reportar comentario' : 'Reportar publicación'}
+          subHeader="¿Por qué quieres reportarlo? El equipo de moderación lo revisará."
+          inputs={REPORT_REASONS.map((reason, index) => ({
+            type: 'radio' as const,
+            label: reason,
+            value: reason,
+            checked: index === 0,
+          }))}
+          buttons={[
+            { text: 'Cancelar', role: 'cancel' },
+            {
+              text: 'Enviar reporte',
+              handler: (reason: string) => {
+                if (!reportTarget) return;
+                void reportContent(reportTarget.postId, reportTarget.commentId, reason)
+                  .then(() => setToast('Gracias. El equipo de moderación revisará el reporte.'))
+                  .catch((error: unknown) => setErrorToast(errorMessage(error)));
+              },
+            },
+          ]}
+          onDidDismiss={() => setReportTarget(null)}
         />
 
         <IonAlert
@@ -434,8 +552,7 @@ const Tab2: React.FC = () => {
               handler: (values: { body: string }) => {
                 const body = values.body.trim();
                 if (!body && !editingPost?.image) return false;
-                if (editingPost) editPost(editingPost.id, user.id, body);
-                setToast('Publicación actualizada.');
+                if (editingPost) void run(editPost(editingPost.id, body), 'Publicación actualizada.');
                 return true;
               },
             },
@@ -453,8 +570,7 @@ const Tab2: React.FC = () => {
               text: 'Eliminar',
               role: 'destructive',
               handler: () => {
-                if (confirmDelete) deletePost(confirmDelete.id, user.id);
-                setToast('Publicación eliminada.');
+                if (confirmDelete) void run(deletePost(confirmDelete.id), 'Publicación eliminada.');
               },
             },
           ]}
@@ -476,6 +592,15 @@ const Tab2: React.FC = () => {
           color="secondary"
           position="bottom"
           onDidDismiss={() => setToast('')}
+        />
+
+        <IonToast
+          isOpen={Boolean(errorToast)}
+          message={errorToast}
+          duration={3500}
+          color="danger"
+          position="bottom"
+          onDidDismiss={() => setErrorToast('')}
         />
       </IonContent>
     </IonPage>

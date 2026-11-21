@@ -9,7 +9,11 @@
     "preview": "vite preview",
     "test.e2e": "cypress run",
     "test.unit": "vitest",
-    "lint": "eslint"
+    "lint": "eslint",
+    "api": "npm --prefix server run dev",
+    "api:install": "npm --prefix server install",
+    "db:init": "npm --prefix server run db:init",
+    "books:sync": "npm --prefix server run books:sync"
   },
   "dependencies": {
     "@capacitor/android": "8.5.3",
@@ -20,6 +24,7 @@
     "@capacitor/status-bar": "8.0.4",
     "@ionic/react": "^9.0.0",
     "@ionic/react-router": "^9.0.0",
+    "epubjs": "^0.3.93",
     "ionicons": "^8.1.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",

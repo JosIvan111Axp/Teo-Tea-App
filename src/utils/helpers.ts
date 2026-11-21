@@ -1,27 +1,5 @@
 import type { StateStorage } from 'zustand/middleware';
 
-/**
- * Hash de contraseña para el prototipo local. Usa SHA-256 cuando el navegador lo permite
- * (localhost / HTTPS); en HTTP por red local cae a un hash simple. NO sustituye a un backend real.
- */
-export const hashPassword = async (password: string): Promise<string> => {
-  const salted = `teo-tea:${password}`;
-  if (globalThis.crypto?.subtle) {
-    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salted));
-    return `sha256:${Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('')}`;
-  }
-
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < salted.length; i += 1) {
-    hash ^= salted.charCodeAt(i);
-    hash = Math.imul(hash, 0x01000193);
-  }
-  return `fnv:${(hash >>> 0).toString(16)}`;
-};
-
-export const createId = (prefix: string) =>
-  `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-
 /** Almacenamiento que no rompe la app si localStorage está lleno o bloqueado. */
 export const safeLocalStorage: StateStorage = {
   getItem: (name) => {

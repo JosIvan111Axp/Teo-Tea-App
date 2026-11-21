@@ -13,7 +13,8 @@ import {
 } from '@ionic/react';
 import { useNavigate } from 'react-router-dom';
 import {
-  bookOutline,
+  informationCircleOutline,
+  libraryOutline,
   briefcaseOutline,
   chevronForwardOutline,
   peopleOutline,
@@ -29,13 +30,15 @@ import './Tab1.css';
 const quickLinks = [
   {
     title: 'Biblioteca',
-    description: 'Información clara sobre el TEA y la neurodiversidad.',
-    icon: bookOutline,
+    description: 'Lee gratis clásicos de dominio público, a tu ritmo.',
+    icon: libraryOutline,
+    path: '/biblioteca',
   },
   {
     title: 'Comunidad',
     description: 'Conoce experiencias y conecta con otras personas.',
     icon: peopleOutline,
+    path: '/comunidad',
   },
   {
     title: 'Trabajo',
@@ -46,6 +49,13 @@ const quickLinks = [
     title: 'Leyes y Derechos',
     description: 'Encuentra orientación sobre derechos y apoyos.',
     icon: scaleOutline,
+    path: '/derechos',
+  },
+  {
+    title: 'Información',
+    description: 'Información clara sobre el TEA y la neurodiversidad.',
+    icon: informationCircleOutline,
+    path: '/informacion',
   },
 ];
 
@@ -62,8 +72,9 @@ const Tab1: React.FC = () => {
   );
 
   const openSection = (section: string) => {
-    if (section === 'Comunidad' || section === 'Biblioteca') {
-      navigate(section === 'Comunidad' ? '/comunidad' : '/biblioteca');
+    const link = quickLinks.find((item) => item.title === section);
+    if (link?.path) {
+      navigate(link.path);
       return;
     }
 
@@ -106,30 +117,6 @@ const Tab1: React.FC = () => {
             </IonCardContent>
           </IonCard>
 
-          <section className="foundation-card" aria-labelledby="foundation-title">
-            <div className="foundation-header">
-              <img className="foundation-logo" src={senderoAzulLogo} alt="Logo de Fundación Sendero Azul" />
-              <div>
-                <p className="foundation-eyebrow">Quiénes nos acompañan</p>
-                <h2 id="foundation-title">{foundation.name}</h2>
-                <p className="foundation-tagline">{foundation.tagline}</p>
-              </div>
-            </div>
-            <p className="foundation-description">{foundation.description}</p>
-            <ul className="foundation-pillars">
-              {foundation.pillars.map((pillar) => (
-                <li key={pillar.title}>
-                  <span className="foundation-pillar-icon">
-                    <IonIcon aria-hidden="true" icon={pillar.icon} />
-                  </span>
-                  <span>
-                    <strong>{pillar.title}</strong>
-                    <span>{pillar.description}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
 
           <IonCard className="weekly-quote">
             <IonCardContent>
@@ -176,6 +163,31 @@ const Tab1: React.FC = () => {
                 No encontramos secciones que coincidan con “{query}”.
               </p>
             )}
+          </section>
+
+          <section className="foundation-card" aria-labelledby="foundation-title">
+            <div className="foundation-header">
+              <img className="foundation-logo" src={senderoAzulLogo} alt="Logo de Fundación Sendero Azul" />
+              <div>
+                <p className="foundation-eyebrow">Quiénes nos acompañan</p>
+                <h2 id="foundation-title">{foundation.name}</h2>
+                <p className="foundation-tagline">{foundation.tagline}</p>
+              </div>
+            </div>
+            <p className="foundation-description">{foundation.description}</p>
+            <ul className="foundation-pillars">
+              {foundation.pillars.map((pillar) => (
+                <li key={pillar.title}>
+                  <span className="foundation-pillar-icon">
+                    <IonIcon aria-hidden="true" icon={pillar.icon} />
+                  </span>
+                  <span>
+                    <strong>{pillar.title}</strong>
+                    <span>{pillar.description}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
           </section>
         </main>
         <IonAlert
