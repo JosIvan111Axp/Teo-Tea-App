@@ -29,6 +29,7 @@ import {
 } from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
 import { type CatalogBook, type LibraryBook, useBooksStore } from '../store/useBooksStore';
+import { track } from '../store/useAchievementsStore';
 import './BooksPage.css';
 
 type View = 'mia' | 'explorar';
@@ -108,6 +109,7 @@ const BooksPage: React.FC = () => {
   useIonViewWillEnter(() => {
     void fetchLibrary();
     void fetchFeatured();
+    void track('visit', 'biblioteca');
   });
 
   // Primera vez: si no hay libros guardados, abrir directamente "Explorar".
@@ -133,6 +135,7 @@ const BooksPage: React.FC = () => {
 
   const handleAdd = async (book: CatalogBook) => {
     const result = await addToLibrary(book.id);
+    if (result.ok) void track('check');
     setToast(
       result.ok
         ? { message: `“${book.title}” se agregó a tu biblioteca.`, color: 'secondary' }

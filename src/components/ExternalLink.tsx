@@ -6,7 +6,7 @@ import { ExternalLinkContext, type OpenExternal, useExternalLink } from './exter
  * Enlaces externos con confirmación: antes de salir de la app se pregunta
  * "¿Seguro que quieres ir a …?" mostrando el destino exacto.
  */
-type LinkTarget = { url: string; label: string };
+type LinkTarget = { url: string; label: string; onOpen?: () => void };
 const hostOf = (url: string) => {
   try {
     return new URL(url).hostname.replace(/^www\./, '');
@@ -17,7 +17,7 @@ const hostOf = (url: string) => {
 
 export const ExternalLinkProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [target, setTarget] = useState<LinkTarget | null>(null);
-  const open = useCallback<OpenExternal>((url, label) => setTarget({ url, label }), []);
+  const open = useCallback<OpenExternal>((url, label, onOpen) => setTarget({ url, label, onOpen }), []);
 
   return (
     <ExternalLinkContext.Provider value={open}>
@@ -33,7 +33,10 @@ export const ExternalLinkProvider: React.FC<{ children: ReactNode }> = ({ childr
           {
             text: 'Sí, ir al sitio',
             handler: () => {
-              if (target) window.open(target.url, '_blank', 'noopener,noreferrer');
+              if (target) {
+                window.open(target.url, '_blank', 'noopener,noreferrer');
+                target.onOpen?.();
+              }
             },
           },
         ]}
@@ -48,8 +51,9 @@ export const ExternalLinkButton: React.FC<{
   url: string;
   label: string;
   className?: string;
+  onOpen?: () => void;
   children: ReactNode;
-}> = ({ url, label, className, children }) => {
+}> = ({ url, label, className, onOpen, children }) => {
   const open = useExternalLink();
   return (
     <a
@@ -57,7 +61,7 @@ export const ExternalLinkButton: React.FC<{
       className={className}
       onClick={(event) => {
         event.preventDefault();
-        open(url, label);
+        open(url, label, onOpen);
       }}
     >
       {children}

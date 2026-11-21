@@ -4,12 +4,53 @@ import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pool } from '../db.js';
-import { isStaff, logAction, requireAuth } from '../auth.js';
+import { communityFrozenMessage, isCommunityFrozen, isStaff, logAction, requireAuth } from '../auth.js';
 
 export const UPLOADS_DIR = fileURLToPath(new URL('../../uploads', import.meta.url));
 
 const router = Router();
 router.use(requireAuth);
+
+/* ------------------------- Normas de la comunidad ------------------------- */
+
+/** Bloquea a quien tiene la comunidad congelada (puede seguir leyendo). */
+const requireNotFrozen = (req, res, next) =>
+  isCommunityFrozen(req.user)
+    ? res.status(403).json({ error: communityFrozenMessage(req.user), code: 'COMMUNITY_FROZEN' })
+    : next();
+
+/** Para publicar o comentar hay que aceptar antes las normas de la comunidad. */
+const requireRulesAccepted = (req, res, next) =>
+  req.user.community_rules_accepted_at
+    ? next()
+    : res
+        .status(403)
+        .json({ error: 'Para participar, primero acepta las normas de la comunidad.', code: 'RULES_NOT_ACCEPTED' });
+
+const LINK_PATTERN =
+  /(https?:\/\/|www\.)\S+|\b[a-z0-9-]+\.(com|net|org|edu|gov|ec|co|pe|ve|io|me|ly|gl|app|info|xyz|link|site|online|store|shop|tk|ru)(\/\S*)?\b/i;
+const EMAIL_PATTERN = /[\w.+-]+@[\w-]+\.[a-z]{2,}/i;
+const PHONE_CANDIDATES = /[+(]?\d[\d\s().-]{5,}\d/g;
+
+/** Por seguridad no se permiten enlaces, correos ni teléfonos (contactos fuera de la app). */
+export const findForbiddenContent = (text) => {
+  if (LINK_PATTERN.test(text)) return 'enlaces';
+  if (EMAIL_PATTERN.test(text)) return 'correos electrónicos';
+  for (const match of text.match(PHONE_CANDIDATES) ?? []) {
+    if (match.replace(/\D/g, '').length >= 7) return 'números de teléfono';
+  }
+  return null;
+};
+
+const rejectForbidden = (res, text) => {
+  const found = findForbiddenContent(text);
+  if (!found) return false;
+  res.status(400).json({
+    error: `Por seguridad, la comunidad no permite ${found} ni datos para contactarse fuera de la app. Edita tu mensaje e inténtalo de nuevo.`,
+    code: 'FORBIDDEN_CONTENT',
+  });
+  return true;
+};
 
 const MAX_POST_LENGTH = 500;
 const MAX_COMMENT_LENGTH = 300;
@@ -113,9 +154,10 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', requireNotFrozen, requireRulesAccepted, async (req, res, next) => {
   try {
     const body = String(req.body.body ?? '').trim().slice(0, MAX_POST_LENGTH);
+    if (rejectForbidden(res, body)) return undefined;
     if (!body && !req.body.image) {
       return res.status(400).json({ error: 'Escribe algo o adjunta una imagen para publicar.' });
     }
@@ -131,11 +173,12 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id', requireNotFrozen, async (req, res, next) => {
   try {
     const post = await findPost(req, res, { mustOwn: true });
     if (!post) return undefined;
     const body = String(req.body.body ?? '').trim().slice(0, MAX_POST_LENGTH);
+    if (rejectForbidden(res, body)) return undefined;
     if (!body && !post.image_path) {
       return res.status(400).json({ error: 'La publicación no puede quedar vacía.' });
     }
@@ -166,7 +209,7 @@ router.delete('/:id', async (req, res, next) => {
   }
 });
 
-router.post('/:id/like', async (req, res, next) => {
+router.post('/:id/like', requireNotFrozen, async (req, res, next) => {
   try {
     const post = await findPost(req, res);
     if (!post) return undefined;
@@ -183,12 +226,13 @@ router.post('/:id/like', async (req, res, next) => {
   }
 });
 
-router.post('/:id/comments', async (req, res, next) => {
+router.post('/:id/comments', requireNotFrozen, requireRulesAccepted, async (req, res, next) => {
   try {
     const post = await findPost(req, res);
     if (!post) return undefined;
     const text = String(req.body.text ?? '').trim().slice(0, MAX_COMMENT_LENGTH);
     if (!text) return res.status(400).json({ error: 'El comentario está vacío.' });
+    if (rejectForbidden(res, text)) return undefined;
     await pool.query('INSERT INTO comments (post_id, user_id, text) VALUES (?, ?, ?)', [
       post.id,
       req.user.id,

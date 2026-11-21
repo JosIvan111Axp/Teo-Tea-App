@@ -12,6 +12,7 @@ import {
   IonSearchbar,
   IonTitle,
   IonToolbar,
+  useIonViewWillEnter,
 } from '@ionic/react';
 import { useNavigate } from 'react-router-dom';
 import { ExternalLinkButton } from '../components/ExternalLink';
@@ -35,10 +36,19 @@ import {
   scaleOutline,
 } from 'ionicons/icons';
 import senderoAzulLogo from '../../assets/SenderoAzul Logo.png';
-import welcomeBanner from '../../assets/TeoyTeaBienvenido.png';
+import welcomeBanner from '../../assets/BienvenidoArreglado.png';
 import { mockData } from '../data/mockData';
 import { useCurrentUser } from '../store/useAuthStore';
 import { getGreeting } from '../utils/helpers';
+import { track } from '../store/useAchievementsStore';
+import artAtencion from '../../assets/icons/ilustrado/atencion.svg';
+import artAutonomia from '../../assets/icons/ilustrado/autonomia.svg';
+import artBiblioteca from '../../assets/icons/ilustrado/biblioteca.svg';
+import artClub from '../../assets/icons/ilustrado/club.svg';
+import artComunidad from '../../assets/icons/ilustrado/comunidad.svg';
+import artDerechos from '../../assets/icons/ilustrado/derechos.svg';
+import artInformacion from '../../assets/icons/ilustrado/informacion.svg';
+import artTrabajo from '../../assets/icons/ilustrado/trabajo.svg';
 import './Tab1.css';
 
 const quickLinks = [
@@ -74,6 +84,18 @@ const quickLinks = [
   },
 ];
 
+/** Ilustraciones propias (assets/icons/ilustrado). Se usan si el estilo de íconos es "Ilustrado". */
+const ART: Record<string, string> = {
+  Biblioteca: artBiblioteca,
+  Comunidad: artComunidad,
+  Trabajo: artTrabajo,
+  'Leyes y Derechos': artDerechos,
+  Información: artInformacion,
+  'Atención y asesoría': artAtencion,
+  'Club Senderos': artClub,
+  'Autonomía e inclusión': artAutonomia,
+};
+
 const LINK_ICONS: Record<FoundationLink['kind'], string> = {
   web: globeOutline,
   whatsapp: logoWhatsapp,
@@ -86,6 +108,10 @@ const LINK_ICONS: Record<FoundationLink['kind'], string> = {
 
 const Tab1: React.FC = () => {
   const themeMode = useThemeStore((state) => state.mode);
+  const illustrated = useThemeStore((state) => state.iconStyle) === 'ilustrado';
+  useIonViewWillEnter(() => {
+    void track('visit', 'inicio');
+  });
   const toggleTheme = useThemeStore((state) => state.toggle);
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
@@ -117,7 +143,10 @@ const Tab1: React.FC = () => {
             <IonButton
               className="theme-toggle-button"
               aria-label={themeMode === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-              onClick={toggleTheme}
+              onClick={() => {
+                if (themeMode !== 'dark') void track('dark_mode');
+                toggleTheme();
+              }}
             >
               <IonIcon slot="icon-only" icon={themeMode === 'dark' ? sunnyOutline : moonOutline} />
             </IonButton>
@@ -167,9 +196,13 @@ const Tab1: React.FC = () => {
             <ul className="foundation-pillars">
               {foundation.pillars.map((pillar) => (
                 <li key={pillar.title}>
-                  <span className="foundation-pillar-icon">
-                    <IonIcon aria-hidden="true" icon={pillar.icon} />
-                  </span>
+                  {illustrated && ART[pillar.title] ? (
+                    <img className="art-icon art-icon-small" src={ART[pillar.title]} alt="" aria-hidden="true" />
+                  ) : (
+                    <span className="foundation-pillar-icon">
+                      <IonIcon aria-hidden="true" icon={pillar.icon} />
+                    </span>
+                  )}
                   <span>
                     <strong>{pillar.title}</strong>
                     <span>{pillar.description}</span>
@@ -203,9 +236,13 @@ const Tab1: React.FC = () => {
                     onClick={() => openSection(link.title)}
                   >
                     <IonCardContent>
-                      <span className="quick-link-icon">
-                        <IonIcon aria-hidden="true" icon={link.icon} />
-                      </span>
+                      {illustrated && ART[link.title] ? (
+                        <img className="art-icon" src={ART[link.title]} alt="" aria-hidden="true" />
+                      ) : (
+                        <span className="quick-link-icon">
+                          <IonIcon aria-hidden="true" icon={link.icon} />
+                        </span>
+                      )}
                       <span className="quick-link-copy">
                         <strong>{link.title}</strong>
                         <span>{link.description}</span>
@@ -242,6 +279,7 @@ const Tab1: React.FC = () => {
                 <ExternalLinkButton
                   key={link.kind}
                   url={link.url}
+                  onOpen={() => void track('foundation_link', link.kind)}
                   label={`${link.label} de la Fundación Sendero Azul`}
                   className={`foundation-link foundation-link-${link.kind}`}
                 >

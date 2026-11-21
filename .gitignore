@@ -36,3 +36,6 @@ yarn-error.log*
 /server/.env
 /server/uploads
 /server/library
+
+# Música de prueba (dominio público, solo para testear localmente)
+/test-music

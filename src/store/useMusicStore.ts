@@ -12,6 +12,7 @@ import {
   saveTrack,
   type TrackMeta,
 } from '../music/musicDb';
+import { track } from './useAchievementsStore';
 
 /* =============================================================================
  * Reproductor local de TEO + TEA
@@ -383,6 +384,7 @@ audio.addEventListener('loadedmetadata', () => {
   if (Number.isFinite(audio.duration)) useMusicStore.setState({ duration: audio.duration });
 });
 audio.addEventListener('ended', () => {
+  void track('music_play'); // logro: canciones escuchadas completas
   void useMusicStore.getState().next(true);
 });
 audio.addEventListener('pause', () => {

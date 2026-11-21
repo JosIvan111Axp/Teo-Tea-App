@@ -11,15 +11,21 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
+import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { chevronForwardOutline } from 'ionicons/icons';
 import { mockData } from '../data/mockData';
+import { track } from '../store/useAchievementsStore';
 import './InfoPage.css';
 
 const InfoPage: React.FC = () => {
   const navigate = useNavigate();
   const { articleId } = useParams<{ articleId: string }>();
   const article = mockData.articles.find((item) => item.id === articleId);
+  useEffect(() => {
+    void track('visit', 'informacion');
+    if (article) void track('info_article', article.id);
+  }, [article]);
 
   return (
     <IonPage>

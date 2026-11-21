@@ -12,6 +12,7 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
+  useIonViewWillEnter,
 } from '@ionic/react';
 import {
   briefcaseOutline,
@@ -31,6 +32,7 @@ import indeedLogo from '../../assets/logos/indeed.png';
 import linkedinLogo from '../../assets/logos/linkedin.png';
 import multitrabajosLogo from '../../assets/logos/multitrabajos.png';
 import servicioEmpleoLogo from '../../assets/logos/servicio-empleo.jpg';
+import { track } from '../store/useAchievementsStore';
 import './WorkPage.css';
 
 /* Frases para empezar el día con ánimo (cambia cada día). */
@@ -162,6 +164,9 @@ const TIPS = [
 
 const WorkPage: React.FC = () => {
   const user = useCurrentUser();
+  useIonViewWillEnter(() => {
+    void track('visit', 'trabajo');
+  });
   const [country, setCountry] = useState<CountryCode | 'todos'>(() => countryFromProfile(user?.country) ?? 'todos');
   const sites = JOB_SITES.filter((site) => site.scope === 'todos' || country === 'todos' || site.scope === country);
 
@@ -204,7 +209,12 @@ const WorkPage: React.FC = () => {
             <ul className="work-sites">
               {sites.map((site) => (
                 <li key={site.name}>
-                  <ExternalLinkButton url={site.url} label={site.name} className="work-site">
+                  <ExternalLinkButton
+                    url={site.url}
+                    label={site.name}
+                    className="work-site"
+                    onOpen={() => void track('job_site', site.name)}
+                  >
                     <span className="site-logo" aria-hidden="true">
                       {site.logo ? <img src={site.logo} alt="" /> : <IonIcon icon={briefcaseOutline} />}
                     </span>
@@ -233,7 +243,12 @@ const WorkPage: React.FC = () => {
               <h2 id="linkedin-title">Tutorial: tu perfil de LinkedIn paso a paso</h2>
             </div>
             <p className="work-help">Toca cada paso para ver el detalle. Puedes avanzar uno por día.</p>
-            <IonAccordionGroup>
+            <IonAccordionGroup
+              onIonChange={(e) => {
+                const step = String(e.detail.value ?? '').match(/^(\d)\./)?.[1];
+                if (step) void track('linkedin_step', step);
+              }}
+            >
               {LINKEDIN_STEPS.map((step) => (
                 <IonAccordion key={step.title} value={step.title}>
                   <IonItem slot="header" lines="full">

@@ -40,7 +40,9 @@ import { errorMessage } from '../api/client';
 import { REPORT_REASONS, reportContent } from '../api/staff';
 import type { AccountType, CommunityPost } from '../data/mockData';
 import { useAppStore } from '../store/useAppStore';
-import { useCurrentUser } from '../store/useAuthStore';
+import { useAuthStore, useCurrentUser } from '../store/useAuthStore';
+import { track } from '../store/useAchievementsStore';
+import CommunityRulesModal from '../components/CommunityRulesModal';
 import { compressImage, formatRelativeTime, getInitials } from '../utils/helpers';
 import './Tab2.css';
 
@@ -88,8 +90,13 @@ const Tab2: React.FC = () => {
   const [isPublishing, setIsPublishing] = useState(false);
 
   // Carga las publicaciones desde el servidor cada vez que se entra a la Comunidad.
+  const acceptCommunityRules = useAuthStore((state) => state.acceptCommunityRules);
+  const [showRules, setShowRules] = useState(false);
+  const pendingAction = useRef<(() => Promise<void>) | null>(null);
+
   useIonViewWillEnter(() => {
     void fetchPosts();
+    void track('visit', 'comunidad');
   });
 
   const visiblePosts = useMemo(() => {
@@ -107,6 +114,7 @@ const Tab2: React.FC = () => {
   if (!user) return null;
 
   const isStaff = user.accountType === 'moderator' || user.accountType === 'admin';
+  const isFrozen = Boolean(user.communityFrozenUntil && user.communityFrozenUntil > Date.now());
 
   /** Ejecuta una acción y muestra el error del servidor si falla. */
   const run = async (action: Promise<{ ok: boolean; error?: string }>, successMessage?: string) => {
@@ -140,13 +148,18 @@ const Tab2: React.FC = () => {
     }
   };
 
-  const submitPost = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const body = draft.trim();
-    if (!body && !image) {
-      setPostError('Escribe algo o adjunta una imagen para publicar.');
+  /** Antes de la primera publicación o comentario se piden aceptar las normas. */
+  const withRules = (action: () => Promise<void>) => {
+    if (user.communityRulesAccepted) {
+      void action();
       return;
     }
+    pendingAction.current = action;
+    setShowRules(true);
+  };
+
+  const doPublish = async () => {
+    const body = draft.trim();
     setIsPublishing(true);
     const result = await addPost(body, image ?? undefined);
     setIsPublishing(false);
@@ -157,15 +170,42 @@ const Tab2: React.FC = () => {
     resetComposer();
     setFilter('todas');
     setToast('Tu publicación se compartió con la comunidad.');
+    void track('check');
   };
 
-  const submitComment = async (event: FormEvent<HTMLFormElement>, postId: string) => {
+  const submitPost = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!draft.trim() && !image) {
+      setPostError('Escribe algo o adjunta una imagen para publicar.');
+      return;
+    }
+    withRules(doPublish);
+  };
+
+  const submitComment = (event: FormEvent<HTMLFormElement>, postId: string) => {
     event.preventDefault();
     const text = (commentDrafts[postId] ?? '').trim();
     if (!text) return;
-    setCommentDrafts((current) => ({ ...current, [postId]: '' }));
-    const ok = await run(addComment(postId, text));
-    if (!ok) setCommentDrafts((current) => ({ ...current, [postId]: text }));
+    withRules(async () => {
+      setCommentDrafts((current) => ({ ...current, [postId]: '' }));
+      const ok = await run(addComment(postId, text));
+      if (!ok) setCommentDrafts((current) => ({ ...current, [postId]: text }));
+      else void track('check');
+    });
+  };
+
+  const acceptRules = async () => {
+    const result = await acceptCommunityRules();
+    if (!result.ok) {
+      setErrorToast(result.error);
+      return false;
+    }
+    setShowRules(false);
+    void track('check');
+    const action = pendingAction.current;
+    pendingAction.current = null;
+    if (action) await action();
+    return true;
   };
 
   const sharePost = async (post: CommunityPost) => {
@@ -217,8 +257,31 @@ const Tab2: React.FC = () => {
             <p className="community-eyebrow">Un espacio para compartir con respeto</p>
             <h1 id="community-title">Comunidad</h1>
             <p>Lee experiencias, conversa y conecta a tu manera.</p>
+            <button type="button" className="rules-link" onClick={() => setShowRules(true)}>
+              Ver las normas de la comunidad
+            </button>
           </section>
 
+          {isFrozen && (
+            <section className="frozen-banner" role="status">
+              <strong>Tu participación está en pausa</strong>
+              <p>
+                {user.communityFreezeReason ? `Motivo: ${user.communityFreezeReason}. ` : ''}
+                Hasta el{' '}
+                {new Date(user.communityFrozenUntil ?? 0).getFullYear() >= 9000
+                  ? 'aviso del equipo'
+                  : new Date(user.communityFrozenUntil ?? 0).toLocaleDateString('es', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}{' '}
+                podrás leer la comunidad, pero no publicar, comentar ni reaccionar.
+              </p>
+          </section>
+
+          )}
+
+          {!isFrozen && (
           <IonCard className="composer-card">
             <IonCardContent>
               <div className="composer-heading">
@@ -303,6 +366,7 @@ const Tab2: React.FC = () => {
               </form>
             </IonCardContent>
           </IonCard>
+          )}
 
           <div className="community-tools">
             <IonSegment
@@ -395,7 +459,12 @@ const Tab2: React.FC = () => {
                         className={isLiked ? 'is-liked' : ''}
                         aria-label={isLiked ? 'Quitar Me gusta' : 'Me gusta'}
                         aria-pressed={isLiked}
-                        onClick={() => void run(toggleLike(post.id))}
+                        disabled={isFrozen}
+                        onClick={() =>
+                          void run(toggleLike(post.id)).then((ok) => {
+                            if (ok) void track('check');
+                          })
+                        }
                       >
                         <IonIcon slot="start" icon={isLiked ? heart : heartOutline} aria-hidden="true" />
                         {post.likedBy.length}
@@ -601,6 +670,15 @@ const Tab2: React.FC = () => {
           color="danger"
           position="bottom"
           onDidDismiss={() => setErrorToast('')}
+        />
+        <CommunityRulesModal
+          isOpen={showRules}
+          readOnly={Boolean(user.communityRulesAccepted)}
+          onAccept={acceptRules}
+          onClose={() => {
+            setShowRules(false);
+            pendingAction.current = null;
+          }}
         />
       </IonContent>
     </IonPage>

@@ -1,0 +1,269 @@
+.ach-content {
+  --background: var(--teo-bg);
+}
+
+.ach-layout {
+  box-sizing: border-box;
+  width: min(100%, 780px);
+  margin: 0 auto;
+  padding: 16px 16px 40px;
+}
+
+/* Tarjeta de nivel */
+.level-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--teo-purple-strong), var(--teo-purple) 55%, var(--teo-green-strong) 140%);
+  box-shadow: 0 8px 22px rgb(var(--teo-shadow) / 20%);
+  color: #ffffff;
+}
+
+.level-badge {
+  display: grid;
+  width: 82px;
+  height: 82px;
+  flex: 0 0 82px;
+  place-items: center;
+  border: 4px solid rgb(255 255 255 / 85%);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 14%);
+  box-shadow: inset 0 0 0 4px rgb(255 255 255 / 12%);
+}
+
+.level-badge span {
+  font-size: 2rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.level-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.level-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  opacity: 0.9;
+  text-transform: uppercase;
+}
+
+.level-copy strong {
+  font-size: 1.3rem;
+  line-height: 1.2;
+}
+
+.level-bar {
+  height: 10px;
+  margin: 6px 0 2px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 25%);
+}
+
+.level-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #ffffff;
+}
+
+.level-xp {
+  font-size: 0.82rem;
+  opacity: 0.92;
+}
+
+.level-card-compact {
+  padding: 16px;
+  box-shadow: none;
+}
+
+.level-card-compact .level-badge {
+  width: 64px;
+  height: 64px;
+  flex-basis: 64px;
+}
+
+.level-card-compact .level-badge span {
+  font-size: 1.55rem;
+}
+
+.ach-help {
+  margin: 14px 4px;
+  color: var(--teo-ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.ach-filters {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.ach-filter {
+  min-height: 40px;
+  padding: 6px 16px;
+  border: 1px solid var(--teo-border-strong);
+  border-radius: 999px;
+  background: var(--teo-surface);
+  color: var(--teo-ink-soft);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ach-filter.is-selected {
+  border-color: var(--teo-purple);
+  background: var(--teo-purple);
+  color: #ffffff;
+}
+
+/* Grupos y logros */
+.ach-group {
+  margin: 0 0 18px;
+  padding: 16px;
+  border: 1px solid var(--teo-border);
+  border-radius: 18px;
+  background: var(--teo-surface);
+}
+
+.ach-group h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  color: var(--teo-ink);
+  font-size: 1.08rem;
+}
+
+.ach-group h2 ion-icon {
+  color: var(--teo-purple);
+}
+
+.ach-group h2 span {
+  margin-left: auto;
+  color: var(--teo-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.ach-group ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ach-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--teo-border);
+  border-radius: 14px;
+  background: var(--teo-bg-alt);
+}
+
+.ach-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--teo-border);
+  color: var(--teo-muted);
+  font-size: 1.25rem;
+}
+
+.ach-item.is-unlocked {
+  border-color: var(--teo-green);
+  background: var(--teo-green-soft);
+}
+
+.ach-item.is-unlocked .ach-icon {
+  background: linear-gradient(135deg, #f5c542, #e09b1a);
+  color: #ffffff;
+}
+
+.ach-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--teo-ink-soft);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.ach-copy strong {
+  color: var(--teo-ink);
+  font-size: 0.98rem;
+}
+
+.ach-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  color: var(--teo-muted);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.ach-bar {
+  height: 6px;
+  flex: 1;
+  max-width: 180px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--teo-border);
+}
+
+.ach-bar span {
+  display: block;
+  height: 100%;
+  background: var(--teo-purple);
+}
+
+.ach-date {
+  color: var(--teo-green-strong);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.ach-xp {
+  flex: 0 0 auto;
+  color: var(--teo-purple);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.ach-item:not(.is-unlocked) .ach-xp {
+  color: var(--teo-muted);
+}
+
+.ach-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--teo-ink-soft);
+}
+
+/* Aviso de logro */
+ion-toast.achievement-toast {
+  --background: var(--teo-purple-strong);
+  --color: #ffffff;
+  --button-color: #ffffff;
+  font-weight: 600;
+}

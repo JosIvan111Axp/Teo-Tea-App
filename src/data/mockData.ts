@@ -17,6 +17,9 @@ export type LibraryArticle = {
 
 export type AccountType = 'user' | 'moderator' | 'admin';
 
+/** Página en la que se abre la app al iniciar sesión. */
+export type StartPage = 'inicio' | 'biblioteca' | 'musica' | 'comunidad';
+
 export type CommunityComment = {
   id: string;
   authorId: string;
@@ -54,6 +57,10 @@ export type UserProfile = {
   skills: string[];
   interests: string[];
   accountType?: AccountType;
+  startPage?: StartPage;
+  communityRulesAccepted?: boolean;
+  communityFrozenUntil?: number | null;
+  communityFreezeReason?: string;
 };
 
 export type FoundationLink = { label: string; url: string; kind: 'web' | 'whatsapp' | 'facebook' | 'instagram' | 'tiktok' | 'youtube' | 'donar' };

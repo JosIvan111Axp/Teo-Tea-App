@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import type { UserProfile } from '../data/mockData';
+import type { StartPage, UserProfile } from '../data/mockData';
 import { api, errorMessage, setAuthToken, setUnauthorizedHandler } from '../api/client';
 import { safeLocalStorage } from '../utils/helpers';
 
@@ -25,6 +25,8 @@ type AuthStore = {
   login: (email: string, password: string) => Promise<AuthResult>;
   logout: () => void;
   refreshUser: () => Promise<void>;
+  setStartPage: (startPage: StartPage) => Promise<AuthResult>;
+  acceptCommunityRules: () => Promise<AuthResult>;
   updateProfile: (
     changes: Partial<Pick<UserProfile, 'name' | 'profession' | 'bio' | 'skills' | 'interests'>>,
   ) => Promise<AuthResult>;
@@ -71,10 +73,39 @@ export const useAuthStore = create<AuthStore>()(
 
         refreshUser: async () => {
           try {
-            const { user } = await api<{ user: UserProfile }>('/auth/me');
-            set({ user });
+            // El servidor devuelve un token renovado: la sesión se extiende cada vez que se abre la app.
+            const { user, token } = await api<{ user: UserProfile; token?: string }>('/auth/me');
+            if (token) {
+              setAuthToken(token);
+              set({ user, token });
+            } else {
+              set({ user });
+            }
           } catch {
             // Sin conexión: se conserva el usuario guardado. Un 401 cierra la sesión (ver abajo).
+          }
+        },
+
+        setStartPage: async (startPage) => {
+          try {
+            const { user } = await api<{ user: UserProfile }>('/auth/me/start-page', {
+              method: 'PUT',
+              body: { startPage },
+            });
+            set({ user });
+            return { ok: true };
+          } catch (error) {
+            return { ok: false, error: errorMessage(error) };
+          }
+        },
+
+        acceptCommunityRules: async () => {
+          try {
+            const { user } = await api<{ user: UserProfile }>('/auth/me/community-rules', { method: 'POST' });
+            set({ user });
+            return { ok: true };
+          } catch (error) {
+            return { ok: false, error: errorMessage(error) };
           }
         },
 

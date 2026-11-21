@@ -83,7 +83,40 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
-router.get('/me', requireAuth, (req, res) => res.json({ user: toPublicUser(req.user) }));
+// Perfil + token renovado: la sesión se extiende cada vez que se abre la app ("sesión deslizante"),
+// así no caduca mientras la persona la use al menos una vez cada 7 días.
+router.get('/me', requireAuth, (req, res) =>
+  res.json({ user: toPublicUser(req.user), token: signToken(req.user.id) }),
+);
+
+export const START_PAGES = ['inicio', 'biblioteca', 'musica', 'comunidad'];
+
+// Página en la que se abre la app al iniciar sesión.
+router.put('/me/start-page', requireAuth, async (req, res, next) => {
+  try {
+    const startPage = String(req.body.startPage ?? '');
+    if (!START_PAGES.includes(startPage)) return res.status(400).json({ error: 'Página de inicio no válida.' });
+    await pool.query('UPDATE users SET start_page = ? WHERE id = ?', [startPage, req.user.id]);
+    const [[row]] = await pool.query('SELECT * FROM users WHERE id = ?', [req.user.id]);
+    return res.json({ user: toPublicUser(row) });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Aceptar las normas de la comunidad (requisito para publicar por primera vez).
+router.post('/me/community-rules', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query(
+      'UPDATE users SET community_rules_accepted_at = COALESCE(community_rules_accepted_at, UTC_TIMESTAMP()) WHERE id = ?',
+      [req.user.id],
+    );
+    const [[row]] = await pool.query('SELECT * FROM users WHERE id = ?', [req.user.id]);
+    return res.json({ user: toPublicUser(row) });
+  } catch (error) {
+    return next(error);
+  }
+});
 
 router.patch('/me', requireAuth, async (req, res, next) => {
   try {

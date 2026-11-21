@@ -25,6 +25,9 @@ import Tab2 from './pages/Tab2';
 import Tab3 from './pages/Tab3';
 import { ExternalLinkProvider } from './components/ExternalLink';
 import MiniPlayer from './components/MiniPlayer';
+import AchievementToast from './components/AchievementToast';
+import AchievementsPage from './pages/AchievementsPage';
+import { track, useAchievementsStore } from './store/useAchievementsStore';
 import MusicPage from './pages/MusicPage';
 import { useMusicStore } from './store/useMusicStore';
 import WorkPage from './pages/WorkPage';
@@ -69,17 +72,22 @@ const RequireStaff: React.FC<{ children: ReactElement }> = ({ children }) => {
   return isStaff ? children : <Navigate to="/perfil" replace />;
 };
 
+/** Ruta de la página en la que la persona eligió abrir la app (Perfil → Al abrir la app). */
+const useStartPath = () => '/' + (useCurrentUser()?.startPage ?? 'inicio');
+
 const GuestOnly: React.FC<{ children: ReactElement }> = ({ children }) => {
   const isLoggedIn = useIsLoggedIn();
-  return isLoggedIn ? <Navigate to="/inicio" replace /> : children;
+  const startPath = useStartPath();
+  return isLoggedIn ? <Navigate to={startPath} replace /> : children;
 };
 
 const AppRoutes: React.FC = () => {
   const { pathname } = useLocation();
   const isLoggedIn = useIsLoggedIn();
+  const startPath = useStartPath();
   const showTabBar =
     isLoggedIn &&
-    (['/inicio', '/comunidad', '/perfil', '/biblioteca', '/derechos', '/trabajo', '/equipo', '/musica'].includes(pathname) ||
+    (['/inicio', '/comunidad', '/perfil', '/biblioteca', '/derechos', '/trabajo', '/equipo', '/musica', '/logros'].includes(pathname) ||
       pathname.startsWith('/informacion'));
 
   return (
@@ -98,6 +106,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/derechos" element={<RequireAuth><RightsPage /></RequireAuth>} />
         <Route path="/trabajo" element={<RequireAuth><WorkPage /></RequireAuth>} />
         <Route path="/musica" element={<RequireAuth><MusicPage /></RequireAuth>} />
+        <Route path="/logros" element={<RequireAuth><AchievementsPage /></RequireAuth>} />
         <Route
           path="/equipo"
           element={
@@ -120,7 +129,7 @@ const AppRoutes: React.FC = () => {
         />
         <Route
           path="/"
-          element={<Navigate to={isLoggedIn ? '/inicio' : '/bienvenida'} replace />}
+          element={<Navigate to={isLoggedIn ? startPath : '/bienvenida'} replace />}
         />
       </IonRouterOutlet>
       {showTabBar && (
@@ -149,12 +158,14 @@ const AppRoutes: React.FC = () => {
       )}
     </IonTabs>
     {isLoggedIn && <MiniPlayer />}
+    {isLoggedIn && <AchievementToast />}
     </>
   );
 };
 
 const App: React.FC = () => {
-  const token = useAuthStore((state) => state.token);
+  // Solo importa si HAY sesión (no el valor del token, que se renueva al abrir la app).
+  const hasToken = useAuthStore((state) => Boolean(state.token));
   const refreshUser = useAuthStore((state) => state.refreshUser);
   const resetPosts = useAppStore((state) => state.reset);
   const resetBooks = useBooksStore((state) => state.reset);
@@ -163,14 +174,18 @@ const App: React.FC = () => {
   // Al abrir la app con sesión guardada, valida el token y trae el perfil actualizado.
   // Al cerrar sesión, limpia las publicaciones en memoria.
   useEffect(() => {
-    if (token) void refreshUser();
+    if (hasToken) {
+      void refreshUser();
+      void track('day');
+    }
     else {
       resetPosts();
       resetBooks();
+      useAchievementsStore.getState().reset();
       // La música es local y personal: al cerrar sesión se detiene y se descarga de memoria.
       useMusicStore.getState().stopAndClear();
     }
-  }, [token, refreshUser, resetPosts, resetBooks]);
+  }, [hasToken, refreshUser, resetPosts, resetBooks]);
 
   return (
     <IonApp>

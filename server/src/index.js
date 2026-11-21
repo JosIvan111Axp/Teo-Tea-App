@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.js';
 import postRoutes, { UPLOADS_DIR } from './routes/posts.js';
 import bookRoutes, { LIBRARY_DIR } from './routes/books.js';
 import staffRoutes from './routes/staff.js';
+import meRoutes from './routes/me.js';
 
 const app = express();
 const PORT = Number(process.env.PORT || 3001);
@@ -35,6 +36,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/staff', staffRoutes);
+app.use('/api/me', meRoutes);
 
 app.use((_req, res) => res.status(404).json({ error: 'Ruta no encontrada.' }));
 

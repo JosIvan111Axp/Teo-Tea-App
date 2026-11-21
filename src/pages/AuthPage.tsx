@@ -23,7 +23,7 @@ import {
 } from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
 import senderoAzulLogo from '../../assets/SenderoAzul Logo.png';
-import welcomeBanner from '../../assets/TeoyTeaBienvenido.png';
+import welcomeBanner from '../../assets/BienvenidoArreglado.png';
 import { DEMO_EMAIL, DEMO_PASSWORD, useAuthStore } from '../store/useAuthStore';
 import './AuthPage.css';
 

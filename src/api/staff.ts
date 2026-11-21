@@ -24,7 +24,14 @@ export type ReportItem = {
   text: string;
   image: string | null;
   contentCreatedAt: number | null;
-  author: { id: string; name: string; accountType: AccountType; suspendedUntil: number | null; strikes: number };
+  author: {
+    id: string;
+    name: string;
+    accountType: AccountType;
+    suspendedUntil: number | null;
+    communityFrozenUntil: number | null;
+    strikes: number;
+  };
   reports: { id: string; reason: string; details: string; reporterName: string; createdAt: number }[];
 };
 
@@ -37,6 +44,8 @@ export type StaffUser = {
   accountType: AccountType;
   suspendedUntil: number | null;
   suspensionReason: string | null;
+  communityFrozenUntil: number | null;
+  communityFreezeReason: string | null;
   createdAt: number;
   posts: number;
 };
@@ -72,6 +81,9 @@ export const staffApi = {
   suspend: (userId: string, days: number, reason: string) =>
     api(`/staff/users/${userId}/suspend`, { method: 'POST', body: { days, reason } }),
   reactivate: (userId: string) => api(`/staff/users/${userId}/reactivate`, { method: 'POST' }),
+  freezeCommunity: (userId: string, days: number, reason: string) =>
+    api(`/staff/users/${userId}/freeze-community`, { method: 'POST', body: { days, reason } }),
+  unfreezeCommunity: (userId: string) => api(`/staff/users/${userId}/unfreeze-community`, { method: 'POST' }),
   stats: () => api<Stats>('/staff/stats'),
   users: (q = '') => api<{ users: StaffUser[] }>(`/staff/users?q=${encodeURIComponent(q)}`),
   setAccountType: (userId: string, accountType: AccountType) =>
@@ -86,4 +98,6 @@ export const ACTION_LABELS: Record<string, string> = {
   suspend_user: 'Suspendió a',
   reactivate_user: 'Reactivó a',
   change_account_type: 'Cambió el tipo de cuenta de',
+  freeze_community: 'Congeló la participación en la comunidad de',
+  unfreeze_community: 'Descongeló la participación en la comunidad de',
 };

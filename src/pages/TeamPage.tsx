@@ -72,6 +72,7 @@ const TeamPage: React.FC = () => {
   const [toast, setToast] = useState<{ message: string; color: string } | null>(null);
   const [confirmRemove, setConfirmRemove] = useState<ReportItem | null>(null);
   const [suspendTarget, setSuspendTarget] = useState<SuspendTarget | null>(null);
+  const [suspendMode, setSuspendMode] = useState<'suspend' | 'freeze'>('suspend');
   const [suspendDays, setSuspendDays] = useState(7);
   const [suspendReason, setSuspendReason] = useState('');
   const [busy, setBusy] = useState(false);
@@ -111,18 +112,27 @@ const TeamPage: React.FC = () => {
     }
   };
 
-  const openSuspend = (target: SuspendTarget) => {
-    setSuspendDays(7);
+  /** mode: 'suspend' = no puede entrar a la app · 'freeze' = no puede participar en la comunidad. */
+  const openSuspend = (target: SuspendTarget, mode: 'suspend' | 'freeze') => {
+    setSuspendDays(mode === 'freeze' ? 3 : 7);
     setSuspendReason('');
+    setSuspendMode(mode);
     setSuspendTarget(target);
   };
 
   const submitSuspend = async () => {
     if (!suspendTarget || !suspendReason.trim()) return;
-    const ok = await act(
-      () => staffApi.suspend(suspendTarget.id, suspendDays, suspendReason.trim()),
-      `${suspendTarget.name} fue suspendido/a.`,
-    );
+    const reason = suspendReason.trim();
+    const ok =
+      suspendMode === 'freeze'
+        ? await act(
+            () => staffApi.freezeCommunity(suspendTarget.id, suspendDays, reason),
+            `La participación de ${suspendTarget.name} en la comunidad quedó congelada.`,
+          )
+        : await act(
+            () => staffApi.suspend(suspendTarget.id, suspendDays, reason),
+            `${suspendTarget.name} fue suspendido/a.`,
+          );
     if (ok) setSuspendTarget(null);
   };
 
@@ -246,20 +256,32 @@ const TeamPage: React.FC = () => {
                         <IonIcon slot="start" icon={trashOutline} aria-hidden="true" />
                         Eliminar contenido
                       </IonButton>
-                      {item.author.accountType === 'user' || isAdmin ? (
-                        item.author.accountType !== 'admin' &&
-                        !item.author.suspendedUntil && (
-                          <IonButton
-                            size="small"
-                            fill="clear"
-                            color="danger"
-                            disabled={busy}
-                            onClick={() => openSuspend({ id: item.author.id, name: item.author.name })}
-                          >
-                            Suspender autor/a
-                          </IonButton>
-                        )
-                      ) : null}
+                      {(item.author.accountType === 'user' || isAdmin) && item.author.accountType !== 'admin' && (
+                        <>
+                          {!item.author.communityFrozenUntil && !item.author.suspendedUntil && (
+                            <IonButton
+                              size="small"
+                              fill="outline"
+                              color="warning"
+                              disabled={busy}
+                              onClick={() => openSuspend({ id: item.author.id, name: item.author.name }, 'freeze')}
+                            >
+                              Congelar comunidad
+                            </IonButton>
+                          )}
+                          {!item.author.suspendedUntil && (
+                            <IonButton
+                              size="small"
+                              fill="clear"
+                              color="danger"
+                              disabled={busy}
+                              onClick={() => openSuspend({ id: item.author.id, name: item.author.name }, 'suspend')}
+                            >
+                              Suspender cuenta
+                            </IonButton>
+                          )}
+                        </>
+                      )}
                     </div>
                   </li>
                 ))}
@@ -342,9 +364,33 @@ const TeamPage: React.FC = () => {
                               fill="clear"
                               color="danger"
                               disabled={busy}
-                              onClick={() => openSuspend({ id: u.id, name: u.name })}
+                              onClick={() => openSuspend({ id: u.id, name: u.name }, 'suspend')}
                             >
                               Suspender
+                            </IonButton>
+                          ))}
+                        {!isMe && u.accountType !== 'admin' &&
+                          (u.communityFrozenUntil ? (
+                            <IonButton
+                              size="small"
+                              fill="outline"
+                              color="secondary"
+                              disabled={busy}
+                              onClick={() =>
+                                void act(() => staffApi.unfreezeCommunity(u.id), `${u.name} puede volver a participar.`)
+                              }
+                            >
+                              Descongelar
+                            </IonButton>
+                          ) : (
+                            <IonButton
+                              size="small"
+                              fill="clear"
+                              color="warning"
+                              disabled={busy}
+                              onClick={() => openSuspend({ id: u.id, name: u.name }, 'freeze')}
+                            >
+                              Congelar comunidad
                             </IonButton>
                           ))}
                       </div>
@@ -462,9 +508,13 @@ const TeamPage: React.FC = () => {
           breakpoints={[0, 0.7, 0.95]}
         >
           <IonContent className="suspend-sheet">
-            <h2>Suspender a {suspendTarget?.name}</h2>
+            <h2>
+              {suspendMode === 'freeze' ? 'Congelar la comunidad de' : 'Suspender a'} {suspendTarget?.name}
+            </h2>
             <p className="team-help">
-              La persona no podrá iniciar sesión mientras dure la suspensión y verá el motivo al intentarlo.
+              {suspendMode === 'freeze'
+                ? 'Podrá usar la app y leer la comunidad, pero no publicar, comentar ni reaccionar mientras dure.'
+                : 'La persona no podrá iniciar sesión mientras dure la suspensión y verá el motivo al intentarlo.'}
             </p>
             <h3>Duración</h3>
             <div className="duration-options" role="radiogroup" aria-label="Duración">
@@ -497,7 +547,7 @@ const TeamPage: React.FC = () => {
               disabled={!suspendReason.trim() || busy}
               onClick={() => void submitSuspend()}
             >
-              {busy ? <IonSpinner name="dots" /> : 'Confirmar suspensión'}
+              {busy ? <IonSpinner name="dots" /> : suspendMode === 'freeze' ? 'Confirmar congelamiento' : 'Confirmar suspensión'}
             </IonButton>
             <IonButton expand="block" fill="clear" onClick={() => setSuspendTarget(null)}>
               Cancelar

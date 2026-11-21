@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   IonBackButton,
   IonButtons,
@@ -11,6 +11,7 @@ import {
   IonSegmentButton,
   IonTitle,
   IonToolbar,
+  useIonViewWillEnter,
 } from '@ionic/react';
 import {
   briefcaseOutline,
@@ -34,6 +35,7 @@ import {
   type RightsArea,
 } from '../data/rights';
 import { useCurrentUser } from '../store/useAuthStore';
+import { track } from '../store/useAchievementsStore';
 import './RightsPage.css';
 
 const RightsPage: React.FC = () => {
@@ -41,6 +43,16 @@ const RightsPage: React.FC = () => {
   const [area, setArea] = useState<RightsArea>('laboral');
   // Por defecto se muestra el país del perfil si está disponible.
   const [country, setCountry] = useState<CountryCode>(() => countryFromProfile(user?.country) ?? 'ecuador');
+
+  useIonViewWillEnter(() => {
+    void track('visit', 'derechos');
+  });
+  useEffect(() => {
+    void track('law_area', area);
+  }, [area]);
+  useEffect(() => {
+    void track('law_country', country);
+  }, [country]);
 
   const content = rights[area][country];
   const areaInfo = AREAS.find((a) => a.code === area)!;
@@ -95,6 +107,7 @@ const RightsPage: React.FC = () => {
             <p className="rights-intro">{content.intro}</p>
             <ExternalLinkButton
               url={CONSTITUTION_LINKS[country].url}
+              onOpen={() => void track('law_link', 'constitucion-' + country)}
               label={CONSTITUTION_LINKS[country].label}
               className="constitution-link"
             >
@@ -125,7 +138,12 @@ const RightsPage: React.FC = () => {
                     ))}
                   </ul>
                   {LAW_LINKS[country][law.name] && (
-                    <ExternalLinkButton url={LAW_LINKS[country][law.name]} label={law.name} className="law-link">
+                    <ExternalLinkButton
+                      url={LAW_LINKS[country][law.name]}
+                      label={law.name}
+                      className="law-link"
+                      onOpen={() => void track('law_link', law.name)}
+                    >
                       Leer el texto oficial <IonIcon icon={openOutline} aria-hidden="true" />
                     </ExternalLinkButton>
                   )}

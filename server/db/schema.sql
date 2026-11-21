@@ -124,3 +124,30 @@ CREATE TABLE IF NOT EXISTS moderation_log (
   CONSTRAINT fk_modlog_actor FOREIGN KEY (actor_id) REFERENCES users (id) ON DELETE SET NULL,
   CONSTRAINT fk_modlog_target FOREIGN KEY (target_user_id) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Logros: acciones únicas (visitas a secciones, días de uso, etc.).
+CREATE TABLE IF NOT EXISTS user_events (
+  user_id INT UNSIGNED NOT NULL,
+  event_key VARCHAR(80) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, event_key),
+  CONSTRAINT fk_events_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Logros: contadores (canciones escuchadas, etc.).
+CREATE TABLE IF NOT EXISTS user_counters (
+  user_id INT UNSIGNED NOT NULL,
+  counter_key VARCHAR(40) NOT NULL,
+  value INT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id, counter_key),
+  CONSTRAINT fk_counters_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Logros desbloqueados (para avisar "¡Logro nuevo!" una sola vez).
+CREATE TABLE IF NOT EXISTS user_achievements (
+  user_id INT UNSIGNED NOT NULL,
+  achievement_id VARCHAR(60) NOT NULL,
+  unlocked_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, achievement_id),
+  CONSTRAINT fk_ach_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

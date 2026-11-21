@@ -38,7 +38,7 @@ router.get('/reports', async (req, res, next) => {
               p.body AS post_body, p.image_path, p.created_at AS post_created,
               c.text AS comment_text, c.created_at AS comment_created,
               au.id AS author_id, au.name AS author_name, au.account_type AS author_type,
-              au.suspended_until AS author_suspended_until,
+              au.suspended_until AS author_suspended_until, au.community_frozen_until AS author_frozen_until,
               (SELECT COUNT(*) FROM moderation_log ml
                  WHERE ml.target_user_id = au.id
                    AND ml.action IN ('delete_post', 'delete_comment', 'suspend_user')) AS author_strikes
@@ -70,6 +70,7 @@ router.get('/reports', async (req, res, next) => {
             name: row.author_name,
             accountType: row.author_type,
             suspendedUntil: suspendedUntil(row.author_suspended_until),
+            communityFrozenUntil: suspendedUntil(row.author_frozen_until),
             strikes: Number(row.author_strikes),
           },
           reports: [],
@@ -184,6 +185,53 @@ router.post('/users/:id/reactivate', async (req, res, next) => {
   }
 });
 
+/* --------------------- Congelar el uso de la comunidad --------------------- */
+// Medida más leve que la suspensión: la persona puede usar la app y leer la comunidad,
+// pero no publicar, comentar ni reaccionar mientras dure.
+
+router.post('/users/:id/freeze-community', async (req, res, next) => {
+  try {
+    const target = await getUser(req.params.id);
+    if (!target) return res.status(404).json({ error: 'Usuario no encontrado.' });
+    if (target.id === req.user.id) return res.status(400).json({ error: 'No puedes aplicarte esta medida.' });
+    const isAdmin = req.user.account_type === 'admin';
+    if (target.account_type === 'admin' || (!isAdmin && target.account_type !== 'user')) {
+      return res.status(403).json({ error: 'No tienes permisos para esta cuenta.' });
+    }
+    const days = Number(req.body.days);
+    const indefinite = isAdmin && days === 0;
+    if (!indefinite && !(isAdmin ? days >= 1 && days <= 365 : MODERATOR_SUSPENSION_DAYS.includes(days))) {
+      return res.status(400).json({ error: 'Duración no válida.' });
+    }
+    const reason = String(req.body.reason ?? '').trim().slice(0, 300);
+    if (!reason) return res.status(400).json({ error: 'Indica el motivo.' });
+
+    await pool.query(
+      `UPDATE users SET community_frozen_until = ${indefinite ? '?' : 'UTC_TIMESTAMP() + INTERVAL ? DAY'}, community_freeze_reason = ? WHERE id = ?`,
+      [indefinite ? INDEFINITE : days, reason, target.id],
+    );
+    await logAction(req.user.id, 'freeze_community', target.id, `${indefinite ? 'Indefinido' : `${days} día(s)`}. ${reason}`);
+    return res.json({ ok: true });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.post('/users/:id/unfreeze-community', async (req, res, next) => {
+  try {
+    const target = await getUser(req.params.id);
+    if (!target) return res.status(404).json({ error: 'Usuario no encontrado.' });
+    if (req.user.account_type !== 'admin' && target.account_type !== 'user') {
+      return res.status(403).json({ error: 'No tienes permisos para esta cuenta.' });
+    }
+    await pool.query('UPDATE users SET community_frozen_until = NULL, community_freeze_reason = NULL WHERE id = ?', [target.id]);
+    await logAction(req.user.id, 'unfreeze_community', target.id, '');
+    return res.json({ ok: true });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 /* ---------------------------- Solo administración ---------------------------- */
 
 router.get('/stats', adminOnly, async (_req, res, next) => {
@@ -224,6 +272,7 @@ router.get('/users', adminOnly, async (req, res, next) => {
     const like = `%${q.replace(/[\\%_]/g, '\\$&')}%`;
     const [rows] = await pool.query(
       `SELECT u.id, u.name, u.email, u.username, u.role, u.account_type, u.suspended_until, u.suspension_reason,
+              u.community_frozen_until, u.community_freeze_reason,
               u.created_at, (SELECT COUNT(*) FROM posts p WHERE p.user_id = u.id) AS posts
          FROM users u
         WHERE ? = '' OR u.name LIKE ? OR u.email LIKE ? OR u.username LIKE ?
@@ -241,6 +290,8 @@ router.get('/users', adminOnly, async (req, res, next) => {
         accountType: u.account_type,
         suspendedUntil: suspendedUntil(u.suspended_until),
         suspensionReason: u.suspension_reason,
+        communityFrozenUntil: suspendedUntil(u.community_frozen_until),
+        communityFreezeReason: u.community_freeze_reason,
         createdAt: ms(u.created_at),
         posts: Number(u.posts),
       })),

@@ -31,6 +31,7 @@ import {
 import { storageEstimate } from '../music/musicDb';
 import { useCurrentUser } from '../store/useAuthStore';
 import { formatBytes, formatTime, useMusicStore } from '../store/useMusicStore';
+import { track } from '../store/useAchievementsStore';
 import './MusicPage.css';
 
 const FADE_OPTIONS = [1, 2, 4];
@@ -65,6 +66,7 @@ const MusicPage: React.FC = () => {
 
   useEffect(() => {
     if (user) void loadFor(user.id);
+    void track('visit', 'musica');
   }, [user, loadFor]);
 
   useEffect(() => {
@@ -78,6 +80,7 @@ const MusicPage: React.FC = () => {
   const handleImport = async (files: FileList | null) => {
     if (!files?.length) return;
     const { added, skipped } = await importFiles(files);
+    if (added) void track('songs_imported', undefined, added);
     if (fileInput.current) fileInput.current.value = '';
     if (skipped.length) {
       setToast({

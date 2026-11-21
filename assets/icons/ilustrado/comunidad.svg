@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Comunidad">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e6f5ec"/>
+      <stop offset="1" stop-color="#c6e8d3"/>
+    </linearGradient>
+  </defs>
+  <rect width="96" height="96" rx="24" fill="url(#bg)"/>
+  <!-- burbuja de conversación -->
+  <path d="M52 12h28a6 6 0 0 1 6 6v14a6 6 0 0 1-6 6h-14l-8 7v-7h-6a6 6 0 0 1-6-6V18a6 6 0 0 1 6-6z" fill="#ffffff" stroke="#2f8a57" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M66 31s-7-4.2-7-8.6a3.6 3.6 0 0 1 7-1.2 3.6 3.6 0 0 1 7 1.2c0 4.4-7 8.6-7 8.6z" fill="#e2557a"/>
+  <!-- persona izquierda -->
+  <circle cx="26" cy="44" r="8" fill="#f2b9a0"/>
+  <path d="M12 78c0-10 6-17 14-17s14 7 14 17z" fill="#6a3ea1"/>
+  <!-- persona derecha -->
+  <circle cx="70" cy="52" r="8" fill="#c98b6d"/>
+  <path d="M56 84c0-10 6-17 14-17s14 7 14 17z" fill="#2f8a57"/>
+  <!-- persona central -->
+  <circle cx="48" cy="50" r="10" fill="#e8a68a"/>
+  <path d="M30 86c0-12 8-20 18-20s18 8 18 20z" fill="#f5c542"/>
+</svg>

@@ -27,6 +27,7 @@ import ePub, { type Book, type Location, type NavItem, type Rendition } from 'ep
 import { useNavigate, useParams } from 'react-router-dom';
 import { errorMessage } from '../api/client';
 import { fetchBookFile, useBooksStore } from '../store/useBooksStore';
+import { track } from '../store/useAchievementsStore';
 import './ReaderPage.css';
 
 /* ------------------------------ Preferencias ------------------------------ */
@@ -251,6 +252,7 @@ const ReaderPage: React.FC = () => {
     return () => {
       cancelled = true;
       flushProgress();
+      window.setTimeout(() => void track('check'), 1200);
       renditionRef.current = null;
       bookRef.current?.destroy();
       bookRef.current = null;

@@ -272,3 +272,121 @@
   font-weight: 600;
   --track-background-checked: var(--teo-purple);
 }
+
+/* Mis logros (resumen) */
+.profile-achievements {
+  margin: 0 0 16px;
+}
+
+.profile-achievements-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 4px 8px;
+}
+
+.profile-achievements-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--teo-ink);
+  font-size: 1.15rem;
+}
+
+.profile-achievements-head h2 ion-icon {
+  color: #e09b1a;
+}
+
+.profile-achievements-head ion-button {
+  margin: 0;
+  text-transform: none;
+  font-weight: 700;
+}
+
+.profile-level-link {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 20px;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.profile-level-link:focus-visible {
+  outline: 3px solid var(--teo-green);
+  outline-offset: 3px;
+}
+
+.recent-achievements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recent-achievements li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--teo-green);
+  border-radius: 999px;
+  background: var(--teo-green-soft);
+  color: var(--teo-ink);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.recent-achievements ion-icon {
+  color: #e09b1a;
+}
+
+/* Al abrir la app, empezar en */
+.start-page-title {
+  margin: 18px 0 2px;
+  color: var(--teo-ink);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.start-page-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.start-page-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 2px solid var(--teo-border);
+  border-radius: 12px;
+  background: var(--teo-surface);
+  color: var(--teo-ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.start-page-option ion-icon {
+  color: var(--teo-purple);
+  font-size: 1.2rem;
+}
+
+.start-page-option.is-selected {
+  border-color: var(--teo-purple);
+  background: var(--teo-purple-soft);
+  font-weight: 800;
+}
+
+.start-page-option:focus-visible {
+  outline: 3px solid var(--teo-green);
+  outline-offset: 2px;
+}

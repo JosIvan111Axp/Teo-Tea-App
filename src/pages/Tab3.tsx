@@ -30,6 +30,11 @@ import {
   locationOutline,
   logOutOutline,
   shieldHalfOutline,
+  homeOutline,
+  libraryOutline,
+  musicalNotesOutline,
+  peopleOutline,
+  trophyOutline,
   brushOutline,
   extensionPuzzleOutline,
   languageOutline,
@@ -52,6 +57,9 @@ import duolingoLogo from '../../assets/logos/duolingo.png';
 import ibispaintLogo from '../../assets/logos/ibispaint.png';
 import khanAcademyLogo from '../../assets/logos/khan-academy.png';
 import lichessLogo from '../../assets/logos/lichess.png';
+import { track, useAchievementsStore } from '../store/useAchievementsStore';
+import LevelCard from '../components/LevelCard';
+import type { StartPage } from '../data/mockData';
 import './Tab3.css';
 
 /** Apps recomendadas para aprender, conectar y ampliar habilidades. */
@@ -103,6 +111,14 @@ const RECOMMENDED_APPS = [
   },
 ];
 
+/** Opciones de "Al abrir la app, empezar en". */
+const START_PAGES: { value: StartPage; label: string; icon: string }[] = [
+  { value: 'inicio', label: 'Inicio', icon: homeOutline },
+  { value: 'biblioteca', label: 'Biblioteca', icon: libraryOutline },
+  { value: 'musica', label: 'Música', icon: musicalNotesOutline },
+  { value: 'comunidad', label: 'Comunidad', icon: peopleOutline },
+];
+
 const toList = (value: string) =>
   value
     .split(',')
@@ -123,6 +139,8 @@ const Tab3: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useIonViewWillEnter(() => {
+    void track('visit', 'perfil');
+    void fetchAchievements();
     if (!hasLoadedPosts) void fetchPosts();
   });
 
@@ -133,6 +151,11 @@ const Tab3: React.FC = () => {
   const [toast, setToast] = useState('');
   const themeMode = useThemeStore((state) => state.mode);
   const setThemeMode = useThemeStore((state) => state.setMode);
+  const setStartPage = useAuthStore((state) => state.setStartPage);
+  const iconStyle = useThemeStore((state) => state.iconStyle);
+  const setIconStyle = useThemeStore((state) => state.setIconStyle);
+  const achievements = useAchievementsStore((state) => state.summary);
+  const fetchAchievements = useAchievementsStore((state) => state.fetchSummary);
 
   if (!profile) return null;
 
@@ -174,6 +197,7 @@ const Tab3: React.FC = () => {
     void fetchPosts();
     setIsEditing(false);
     setToast('Perfil actualizado.');
+    void track('check');
   };
 
   const handleLogout = () => {
@@ -255,6 +279,37 @@ const Tab3: React.FC = () => {
             </IonCardContent>
           </IonCard>
 
+          <section aria-labelledby="profile-achievements-title" className="profile-achievements">
+            <div className="profile-achievements-head">
+              <h2 id="profile-achievements-title">
+                <IonIcon aria-hidden="true" icon={trophyOutline} /> Mis logros
+              </h2>
+              <IonButton fill="clear" size="small" onClick={() => navigate('/logros')}>
+                Ver todos
+              </IonButton>
+            </div>
+            {achievements ? (
+              <button type="button" className="profile-level-link" onClick={() => navigate('/logros')}>
+                <LevelCard summary={achievements} compact />
+              </button>
+            ) : (
+              <p className="profile-empty">Cargando tu nivel...</p>
+            )}
+            {achievements && (
+              <ul className="recent-achievements" aria-label="Logros recientes">
+                {achievements.achievements
+                  .filter((a) => a.unlocked)
+                  .sort((a, b) => (b.unlockedAt ?? 0) - (a.unlockedAt ?? 0))
+                  .slice(0, 3)
+                  .map((a) => (
+                    <li key={a.id}>
+                      <IonIcon icon={trophyOutline} aria-hidden="true" /> {a.name}
+                    </li>
+                  ))}
+              </ul>
+            )}
+          </section>
+
           <section aria-labelledby="profile-bio-title">
             <IonCard className="profile-section">
               <IonCardContent>
@@ -321,7 +376,12 @@ const Tab3: React.FC = () => {
                 <ul className="app-list">
                   {RECOMMENDED_APPS.map((app) => (
                     <li key={app.name}>
-                      <ExternalLinkButton url={app.url} label={app.name} className="app-item">
+                      <ExternalLinkButton
+                        url={app.url}
+                        label={app.name}
+                        className="app-item"
+                        onOpen={() => void track('app_open', app.name)}
+                      >
                         <span className="site-logo" aria-hidden="true">
                           <img src={app.logo} alt="" />
                         </span>
@@ -349,12 +409,68 @@ const Tab3: React.FC = () => {
                 <IonToggle
                   className="theme-toggle"
                   checked={themeMode === 'dark'}
-                  onIonChange={(e) => setThemeMode(e.detail.checked ? 'dark' : 'light')}
+                  onIonChange={(e) => {
+                    setThemeMode(e.detail.checked ? 'dark' : 'light');
+                    if (e.detail.checked) void track('dark_mode');
+                  }}
                   justify="space-between"
                 >
                   Modo oscuro
                 </IonToggle>
                 <p className="profile-apps-intro">Se recuerda en este dispositivo.</p>
+
+                <h3 className="start-page-title" id="icon-style-title">
+                  Estilo de íconos del Inicio
+                </h3>
+                <div className="start-page-options" role="radiogroup" aria-labelledby="icon-style-title">
+                  {(
+                    [
+                      { value: 'ilustrado', label: 'Ilustrado' },
+                      { value: 'lineas', label: 'Líneas' },
+                    ] as const
+                  ).map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      role="radio"
+                      aria-checked={iconStyle === option.value}
+                      className={`start-page-option${iconStyle === option.value ? ' is-selected' : ''}`}
+                      onClick={() => setIconStyle(option.value)}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+
+                <h3 className="start-page-title" id="start-page-title">
+                  Al abrir la app, empezar en
+                </h3>
+                <p className="profile-apps-intro">Ve directo a lo que más usas cada vez que inicias sesión.</p>
+                <div className="start-page-options" role="radiogroup" aria-labelledby="start-page-title">
+                  {START_PAGES.map((option) => {
+                    const selected = (profile.startPage ?? 'inicio') === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected}
+                        className={`start-page-option${selected ? ' is-selected' : ''}`}
+                        onClick={async () => {
+                          if (selected) return;
+                          const result = await setStartPage(option.value);
+                          if (result.ok) {
+                            setToast(`La app se abrirá en ${option.label}.`);
+                            void track('start_page_set');
+                          }
+                        }}
+                      >
+                        <IonIcon icon={option.icon} aria-hidden="true" />
+                        {option.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </IonCardContent>
             </IonCard>
           </section>

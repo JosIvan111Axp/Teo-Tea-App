@@ -22,6 +22,10 @@ try {
     ['users', 'account_type', "ENUM('user', 'moderator', 'admin') NOT NULL DEFAULT 'user' AFTER role"],
     ['users', 'suspended_until', 'DATETIME NULL'],
     ['users', 'suspension_reason', 'VARCHAR(300) NULL'],
+    ['users', 'start_page', "VARCHAR(20) NOT NULL DEFAULT 'inicio'"],
+    ['users', 'community_rules_accepted_at', 'DATETIME NULL'],
+    ['users', 'community_frozen_until', 'DATETIME NULL'],
+    ['users', 'community_freeze_reason', 'VARCHAR(300) NULL'],
   ];
   for (const [table, column, definition] of migrations) {
     const [[exists]] = await pool.query(

@@ -34,7 +34,27 @@ export const toPublicUser = (row) => ({
   skills: parseJsonList(row.skills),
   interests: parseJsonList(row.interests),
   accountType: row.account_type ?? 'user',
+  startPage: row.start_page ?? 'inicio',
+  communityRulesAccepted: Boolean(row.community_rules_accepted_at),
+  communityFrozenUntil: isCommunityFrozen(row) ? new Date(row.community_frozen_until).getTime() : null,
+  communityFreezeReason: isCommunityFrozen(row) ? row.community_freeze_reason ?? '' : '',
 });
+
+/** ¿La persona tiene congelado el uso de la comunidad (publicar, comentar, reaccionar)? */
+export const isCommunityFrozen = (row) =>
+  Boolean(row.community_frozen_until && new Date(row.community_frozen_until) > new Date());
+
+export const communityFrozenMessage = (row) => {
+  const until = new Date(row.community_frozen_until);
+  const when =
+    until.getFullYear() >= 9000
+      ? 'de forma indefinida'
+      : `hasta el ${until.toLocaleDateString('es', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+  const reason = row.community_freeze_reason
+    ? ` Motivo: ${row.community_freeze_reason.replace(/[.\s]+$/, '')}.`
+    : '';
+  return `Tu participación en la comunidad está congelada ${when}.${reason} Puedes seguir leyendo las publicaciones.`;
+};
 
 /** Exige un token válido y deja el usuario en `req.user`. */
 export const requireAuth = async (req, res, next) => {

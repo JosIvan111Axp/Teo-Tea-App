@@ -394,3 +394,19 @@
 .foundation-link-donar ion-icon {
   color: var(--teo-green-strong);
 }
+
+/* Íconos ilustrados (estilo "Ilustrado", assets/icons/ilustrado) */
+.art-icon {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgb(var(--teo-shadow) / 12%);
+}
+
+.art-icon-small {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 13px;
+}

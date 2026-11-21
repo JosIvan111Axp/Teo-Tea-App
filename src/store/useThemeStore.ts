@@ -26,14 +26,37 @@ export const applyTheme = (mode: ThemeMode) => {
   document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', mode);
 };
 
+/** Estilo de los íconos del Inicio: líneas (Ionicons) o ilustraciones propias (assets/icons/ilustrado). */
+export type IconStyle = 'lineas' | 'ilustrado';
+const ICON_STYLE_KEY = 'teo-tea-icon-style';
+
+const readIconStyle = (): IconStyle => {
+  try {
+    return localStorage.getItem(ICON_STYLE_KEY) === 'lineas' ? 'lineas' : 'ilustrado';
+  } catch {
+    return 'ilustrado';
+  }
+};
+
 type ThemeStore = {
   mode: ThemeMode;
+  iconStyle: IconStyle;
   setMode: (mode: ThemeMode) => void;
   toggle: () => void;
+  setIconStyle: (style: IconStyle) => void;
 };
 
 export const useThemeStore = create<ThemeStore>((set, get) => ({
   mode: initialMode(),
+  iconStyle: readIconStyle(),
+  setIconStyle: (iconStyle) => {
+    try {
+      localStorage.setItem(ICON_STYLE_KEY, iconStyle);
+    } catch {
+      /* sin almacenamiento */
+    }
+    set({ iconStyle });
+  },
   setMode: (mode) => {
     try {
       localStorage.setItem(STORAGE_KEY, mode);

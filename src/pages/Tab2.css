@@ -417,3 +417,34 @@
 .comment-report:focus-visible {
   color: #8a5a00;
 }
+
+.rules-link {
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--teo-purple);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.frozen-banner {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border-left: 5px solid #d9822b;
+  border-radius: 14px;
+  background: var(--teo-surface);
+  color: var(--teo-ink-soft);
+  line-height: 1.5;
+}
+
+.frozen-banner strong {
+  color: var(--teo-ink);
+}
+
+.frozen-banner p {
+  margin: 4px 0 0;
+}
