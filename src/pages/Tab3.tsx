@@ -1,6 +1,5 @@
 import { useRef, useState, type FormEvent } from 'react';
 import {
-  IonAlert,
   IonBackButton,
   IonButton,
   IonButtons,
@@ -50,6 +49,9 @@ import {
   mailOutline,
   personCircleOutline,
   globeOutline,
+  trashOutline,
+  warningOutline,
+  linkOutline,
 } from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
@@ -68,6 +70,8 @@ import { track, useAchievementsStore } from '../store/useAchievementsStore';
 import LevelCard from '../components/LevelCard';
 import type { StartPage } from '../data/mockData';
 import BirthdatePicker from '../components/BirthdatePicker';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { usePreferencesStore } from '../store/usePreferencesStore';
 import TagEditor from '../components/TagEditor';
 import {
   COUNTRIES,
@@ -159,6 +163,17 @@ const emptyEdit: EditForm = {
   birthdate: '',
 };
 
+/** Frase para confirmar la eliminación (el servidor la vuelve a comprobar). */
+const DELETE_PHRASE = 'borrar cuenta y datos';
+const normalizePhrase = (value: string) =>
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[.!¡]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
 const appendPrompt = (bio: string, prompt: string) =>
   (bio ? (bio.endsWith(' ') ? bio : bio + ' ') : '') + prompt;
 
@@ -205,6 +220,13 @@ const Tab3: React.FC = () => {
   });
 
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteText, setDeleteText] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const deleteAccount = useAuthStore((state) => state.deleteAccount);
+  const confirmLinks = usePreferencesStore((state) => state.confirmExternalLinks);
+  const setConfirmLinks = usePreferencesStore((state) => state.setConfirmExternalLinks);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<EditForm>(emptyEdit);
   const [editKey, setEditKey] = useState(0);
@@ -271,6 +293,21 @@ const Tab3: React.FC = () => {
     setIsEditing(false);
     setToast('Perfil actualizado.');
     void track('check');
+  };
+
+  const phraseMatches = normalizePhrase(deleteText) === normalizePhrase(DELETE_PHRASE);
+
+  const confirmDelete = async () => {
+    if (!phraseMatches) return;
+    setIsDeleting(true);
+    const result = await deleteAccount(deleteText);
+    setIsDeleting(false);
+    if (!result.ok) {
+      setDeleteError(result.error);
+      return;
+    }
+    // Sin sesión, el guardia de rutas lleva a /bienvenida.
+    setDeleteOpen(false);
   };
 
   const handleLogout = () => {
@@ -519,7 +556,7 @@ const Tab3: React.FC = () => {
               <IonCardContent>
                 <div className="profile-section-heading">
                   <IonIcon aria-hidden="true" icon={themeMode === 'dark' ? moonOutline : sunnyOutline} />
-                  <h2 id="profile-appearance-title">Apariencia</h2>
+                  <h2 id="profile-appearance-title">Apariencia y preferencias</h2>
                 </div>
                 <IonToggle
                   className="theme-toggle"
@@ -533,6 +570,23 @@ const Tab3: React.FC = () => {
                   Modo oscuro
                 </IonToggle>
                 <p className="profile-apps-intro">Se recuerda en este dispositivo.</p>
+
+                <IonToggle
+                  className="theme-toggle"
+                  checked={confirmLinks}
+                  onIonChange={(e) => setConfirmLinks(e.detail.checked)}
+                  justify="space-between"
+                >
+                  <span className="toggle-with-icon">
+                    <IonIcon icon={linkOutline} aria-hidden="true" />
+                    Confirmar antes de abrir enlaces externos
+                  </span>
+                </IonToggle>
+                <p className="profile-apps-intro">
+                  {confirmLinks
+                    ? 'Te preguntaremos antes de salir de la app hacia otro sitio.'
+                    : 'Los enlaces se abrirán directamente, sin preguntar.'}
+                </p>
 
                 <h3 className="start-page-title" id="icon-style-title">
                   Estilo de íconos del Inicio
@@ -600,6 +654,27 @@ const Tab3: React.FC = () => {
             <IonIcon slot="start" icon={logOutOutline} aria-hidden="true" />
             Cerrar sesión
           </IonButton>
+
+          <section className="danger-zone" aria-labelledby="danger-zone-title">
+            <h2 id="danger-zone-title">
+              <IonIcon icon={warningOutline} aria-hidden="true" /> Eliminar cuenta
+            </h2>
+            <p>
+              Borra tu cuenta y todo lo que publicaste. Esta acción es permanente y no se puede deshacer.
+            </p>
+            <IonButton
+              fill="clear"
+              color="danger"
+              onClick={() => {
+                setDeleteText('');
+                setDeleteError('');
+                setDeleteOpen(true);
+              }}
+            >
+              <IonIcon slot="start" icon={trashOutline} aria-hidden="true" />
+              Eliminar mi cuenta
+            </IonButton>
+          </section>
         </main>
 
         <IonModal isOpen={isEditing} onDidDismiss={() => setIsEditing(false)}>
@@ -755,16 +830,54 @@ const Tab3: React.FC = () => {
           </IonContent>
         </IonModal>
 
-        <IonAlert
+        <ConfirmDialog
           isOpen={confirmLogout}
-          header="¿Cerrar sesión?"
-          message="Podrás volver a entrar con tu correo y contraseña."
-          buttons={[
-            { text: 'Cancelar', role: 'cancel' },
-            { text: 'Cerrar sesión', role: 'destructive', handler: handleLogout },
-          ]}
-          onDidDismiss={() => setConfirmLogout(false)}
-        />
+          onClose={() => setConfirmLogout(false)}
+          onConfirm={() => {
+            setConfirmLogout(false);
+            handleLogout();
+          }}
+          icon={logOutOutline}
+          title="¿Cerrar sesión?"
+          confirmText="Cerrar sesión"
+        >
+          <p>Podrás volver a entrar cuando quieras con tu correo y tu contraseña.</p>
+        </ConfirmDialog>
+
+        <ConfirmDialog
+          isOpen={deleteOpen}
+          onClose={() => setDeleteOpen(false)}
+          onConfirm={() => void confirmDelete()}
+          icon={trashOutline}
+          tone="danger"
+          title="¿Eliminar tu cuenta?"
+          confirmText="Eliminar"
+          confirmDisabled={!phraseMatches}
+          busy={isDeleting}
+        >
+          <p>
+            Se borrarán <strong>tu cuenta y todos tus datos</strong> (perfil, publicaciones y logros). No se puede
+            deshacer.
+          </p>
+          <p>Para confirmar, escribe:</p>
+          <div className="teo-dialog-phrase">{DELETE_PHRASE}</div>
+          <IonInput
+            aria-label="Frase de confirmación"
+            fill="outline"
+            placeholder="borrar cuenta y datos"
+            autocapitalize="off"
+            value={deleteText}
+            onIonInput={(e) => {
+              setDeleteText(e.detail.value ?? '');
+              setDeleteError('');
+            }}
+          />
+          {deleteError && (
+            <p className="teo-dialog-error" role="alert">
+              {deleteError}
+            </p>
+          )}
+        </ConfirmDialog>
 
         <IonToast
           isOpen={Boolean(toast)}

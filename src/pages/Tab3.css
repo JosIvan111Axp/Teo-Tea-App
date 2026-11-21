@@ -166,6 +166,57 @@
   padding: 20px 16px 32px;
 }
 
+.toggle-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: normal;
+}
+
+.toggle-with-icon ion-icon {
+  flex: none;
+  color: var(--teo-purple);
+  font-size: 1.2rem;
+}
+
+.danger-zone {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  margin-top: 28px;
+  padding: 18px;
+  border: 1px solid rgb(192 57 43 / 35%);
+  border-radius: 18px;
+  background: rgb(192 57 43 / 5%);
+  color: var(--teo-ink);
+}
+
+.danger-zone h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: #c0392b;
+  font-size: 1.05rem;
+}
+
+.ion-palette-dark .danger-zone h2 {
+  color: #ff8a7a;
+}
+
+.danger-zone p {
+  margin: 0;
+  color: var(--teo-ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.danger-zone ion-button {
+  margin: 4px 0 0 -8px;
+  font-weight: 600;
+  text-transform: none;
+}
+
 .edit-intro {
   margin: 0;
   color: var(--teo-ink-soft);
@@ -519,4 +570,14 @@
   margin: 0;
   text-transform: none;
   font-weight: 700;
+}
+
+/* Más aire entre las preferencias (Ionic reduce los márgenes de h3 dentro de las tarjetas). */
+.profile-section ion-card-content .start-page-title {
+  margin-top: 22px;
+  margin-bottom: 4px;
+}
+
+.profile-section .theme-toggle + .profile-apps-intro + .theme-toggle {
+  margin-top: 16px;
 }

@@ -131,6 +131,50 @@ router.delete('/me/avatar', requireAuth, async (req, res, next) => {
   }
 });
 
+/** Frase que hay que escribir para eliminar la cuenta (se compara sin mayúsculas, tildes ni espacios extra). */
+export const DELETE_PHRASE = 'borrar cuenta y datos';
+export const normalizePhrase = (value) =>
+  String(value ?? '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[.!¡]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+// Eliminar la cuenta de forma permanente (requisito de Google Play).
+// Borra el usuario y, en cascada, sus publicaciones, comentarios, likes, reportes hechos,
+// progreso de lectura y logros; además las imágenes guardadas en disco.
+router.delete('/me', requireAuth, async (req, res, next) => {
+  try {
+    if (normalizePhrase(req.body?.confirmation) !== normalizePhrase(DELETE_PHRASE)) {
+      return res.status(400).json({ error: `Escribe exactamente: "${DELETE_PHRASE}".` });
+    }
+    if (req.user.account_type === 'admin') {
+      const [[{ admins }]] = await pool.query(
+        "SELECT COUNT(*) AS admins FROM users WHERE account_type = 'admin'",
+      );
+      if (admins <= 1) {
+        return res.status(409).json({
+          error: 'Eres la única cuenta de administración. Asigna otro administrador antes de eliminarla.',
+        });
+      }
+    }
+    const [images] = await pool.query(
+      'SELECT image_path FROM posts WHERE user_id = ? AND image_path IS NOT NULL',
+      [req.user.id],
+    );
+    await pool.query('DELETE FROM users WHERE id = ?', [req.user.id]);
+    await Promise.all([
+      removeImage(req.user.avatar_path),
+      ...images.map((row) => removeImage(row.image_path)),
+    ]);
+    return res.json({ ok: true });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 // Aceptar las normas de la comunidad (requisito para publicar por primera vez).
 router.post('/me/community-rules', requireAuth, async (req, res, next) => {
   try {

@@ -273,3 +273,51 @@ ion-header ion-toolbar ion-button.trophy-button {
   --color: #f5c542;
   --ion-toolbar-color: #f5c542;
 }
+
+/* ------------------------------------------------------------------
+   Ventanas emergentes de Ionic (IonAlert): mismo estilo que ConfirmDialog
+   ------------------------------------------------------------------ */
+ion-alert .alert-wrapper {
+  border: 1px solid var(--teo-border);
+  border-radius: 24px;
+  background: var(--teo-surface);
+  box-shadow: 0 24px 60px rgb(var(--teo-shadow) / 28%);
+}
+
+ion-alert .alert-head {
+  padding-top: 24px;
+  text-align: center;
+}
+
+ion-alert .alert-title {
+  color: var(--teo-ink);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+ion-alert .alert-sub-title,
+ion-alert .alert-message {
+  color: var(--teo-ink-soft);
+  text-align: center;
+}
+
+ion-alert .alert-button-group {
+  gap: 8px;
+  padding: 8px 16px 16px;
+}
+
+ion-alert .alert-button {
+  border-radius: 12px;
+  font-weight: 600;
+  text-transform: none;
+}
+
+ion-alert .alert-input {
+  border-radius: 10px;
+}
+
+/* Botón del panel de moderación/administración en la barra del Inicio. */
+ion-header ion-toolbar ion-button.staff-button {
+  --color: #7fdca4;
+  --ion-toolbar-color: #7fdca4;
+}

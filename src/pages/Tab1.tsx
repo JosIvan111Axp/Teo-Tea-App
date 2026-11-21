@@ -29,6 +29,7 @@ import {
   logoYoutube,
   moonOutline,
   trophy,
+  shieldHalf,
   sunnyOutline,
   libraryOutline,
   briefcaseOutline,
@@ -142,6 +143,16 @@ const Tab1: React.FC = () => {
         <IonToolbar>
           <IonTitle>Inicio</IonTitle>
           <IonButtons slot="end">
+            {(user?.accountType === 'moderator' || user?.accountType === 'admin') && (
+              <IonButton
+                className="staff-button"
+                aria-label={user.accountType === 'admin' ? 'Panel de administración' : 'Panel de moderación'}
+                title={user.accountType === 'admin' ? 'Panel de administración' : 'Panel de moderación'}
+                onClick={() => navigate('/equipo')}
+              >
+                <IonIcon slot="icon-only" icon={shieldHalf} />
+              </IonButton>
+            )}
             <IonButton
               className="trophy-button"
               aria-label="Ver mis logros"

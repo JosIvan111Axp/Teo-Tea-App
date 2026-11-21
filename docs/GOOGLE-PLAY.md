@@ -61,7 +61,9 @@ Estos cambios se hacen una sola vez. Puedo hacerlos cuando decidas publicar.
    - un botón para **eliminar la cuenta desde la app**;
    - una **página web** donde pedir el borrado sin tener la app instalada.
 
-   *Hoy la app aún no lo tiene: es lo único que falta en el código para cumplir.*
+   *El botón ya existe (Perfil → al fondo → "Eliminar mi cuenta", escribiendo "borrar cuenta y datos"). Falta
+   la página web: puede ser una sección en fundacionsenderoazul.org con un formulario o un correo
+   de contacto para pedir el borrado.*
 5. **Contenido creado por usuarios.** Google revisa que la Comunidad tenga normas visibles,
    moderación y una forma de **reportar publicaciones**. TEO + TEA ya tiene las tres.
 
@@ -131,7 +133,7 @@ En **Política → Contenido de la app**:
   - Progreso de lectura y logros: funcionamiento de la app.
   - La **música no sale del teléfono**: los archivos se reproducen localmente y no se recopilan.
   - Datos cifrados en tránsito: **sí** (cuando la API ya use HTTPS).
-  - Se puede pedir el borrado de datos: **sí** (cuando exista el botón y la página).
+  - Se puede pedir el borrado de datos: **sí** (botón en la app + página web).
 - **Clasificación de contenido:** cuestionario IARC. Marca que hay interacción entre usuarios
   (comunidad) y que no hay violencia ni compras.
 - **Público objetivo:** se recomienda **13 años o más**. Si eliges menores de 13, aplica la política
@@ -208,7 +210,8 @@ Publicar en Play Store (con la cuenta verificada) resuelve esto. Para pruebas pr
 - [ ] Cuenta de Play Console creada y verificada (USD 25).
 - [ ] `appId` / `applicationId` definitivo.
 - [ ] API en servidor con HTTPS. Sin `cleartext` en la app.
-- [ ] Botón "Eliminar mi cuenta" y página web de borrado.
+- [x] Botón "Eliminar mi cuenta" en la app.
+- [ ] Página web para pedir el borrado de la cuenta.
 - [x] Normas, moderación y reportes en la Comunidad (ya están).
 - [ ] Política de privacidad publicada.
 - [ ] Keystore creado, respaldado y fuera de git.

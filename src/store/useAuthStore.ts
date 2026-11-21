@@ -29,6 +29,8 @@ type AuthStore = {
   acceptCommunityRules: () => Promise<AuthResult>;
   uploadAvatar: (image: string) => Promise<AuthResult>;
   removeAvatar: () => Promise<AuthResult>;
+  /** Elimina la cuenta para siempre y cierra la sesión. */
+  deleteAccount: (confirmation: string) => Promise<AuthResult>;
   updateProfile: (
     changes: Partial<
       Pick<UserProfile, 'name' | 'profession' | 'bio' | 'skills' | 'interests' | 'city' | 'country' | 'birthdate'>
@@ -117,6 +119,17 @@ export const useAuthStore = create<AuthStore>()(
           try {
             const { user } = await api<{ user: UserProfile }>('/auth/me/avatar', { method: 'DELETE' });
             set({ user });
+            return { ok: true };
+          } catch (error) {
+            return { ok: false, error: errorMessage(error) };
+          }
+        },
+
+        deleteAccount: async (confirmation) => {
+          try {
+            await api('/auth/me', { method: 'DELETE', body: { confirmation } });
+            setAuthToken(null);
+            set({ token: null, user: null });
             return { ok: true };
           } catch (error) {
             return { ok: false, error: errorMessage(error) };
