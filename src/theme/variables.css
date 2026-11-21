@@ -267,3 +267,9 @@ ion-segment-button.segment-button-checked ion-icon {
   height: 34px;
   object-fit: contain;
 }
+
+/* Trofeo de logros en la barra del Inicio */
+ion-header ion-toolbar ion-button.trophy-button {
+  --color: #f5c542;
+  --ion-toolbar-color: #f5c542;
+}

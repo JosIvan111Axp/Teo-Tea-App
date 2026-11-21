@@ -28,6 +28,7 @@ import {
   logoWhatsapp,
   logoYoutube,
   moonOutline,
+  trophy,
   sunnyOutline,
   libraryOutline,
   briefcaseOutline,
@@ -141,6 +142,13 @@ const Tab1: React.FC = () => {
         <IonToolbar>
           <IonTitle>Inicio</IonTitle>
           <IonButtons slot="end">
+            <IonButton
+              className="trophy-button"
+              aria-label="Ver mis logros"
+              onClick={() => navigate('/logros')}
+            >
+              <IonIcon slot="icon-only" icon={trophy} />
+            </IonButton>
             <IonButton
               className="theme-toggle-button"
               aria-label={themeMode === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}

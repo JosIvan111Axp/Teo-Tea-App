@@ -32,6 +32,7 @@ import {
   volumeHighOutline,
   volumeLowOutline,
 } from 'ionicons/icons';
+import { Capacitor } from '@capacitor/core';
 import { storageEstimate, type Playlist } from '../music/musicDb';
 import PlaylistModal from '../components/PlaylistModal';
 import { useCurrentUser } from '../store/useAuthStore';
@@ -233,8 +234,21 @@ const MusicPage: React.FC = () => {
             </IonToggle>
             <p className="music-help">
               {settings.backgroundPlay
-                ? 'La música sigue sonando si sales de la app o bloqueas la pantalla.'
-                : 'La música se pausa al salir de la app o bloquear la pantalla.'}
+                ? 'La música sigue sonando si cambias a otra app.'
+                : 'La música se pausa al cambiar a otra app.'}
+            </p>
+            <IonToggle
+              className="music-toggle"
+              checked={settings.screenOffPlay}
+              justify="space-between"
+              onIonChange={(e) => updateSettings({ screenOffPlay: e.detail.checked })}
+            >
+              Música con la pantalla apagada
+            </IonToggle>
+            <p className="music-help">
+              {settings.screenOffPlay
+                ? 'La música sigue sonando aunque bloquees o apagues la pantalla.'
+                : 'La música se pausa al bloquear o apagar la pantalla.'}
             </p>
             <IonToggle
               className="music-toggle"
@@ -249,6 +263,12 @@ const MusicPage: React.FC = () => {
                 ? 'Mientras suena música la pantalla no se apaga sola (usa más batería).'
                 : 'La pantalla se apaga sola como siempre, aunque suene música.'}
             </p>
+            {!Capacitor.isNativePlatform() && (
+              <p className="music-note">
+                En el navegador, cambiar de app y bloquear la pantalla se ven igual: si desactivas cualquiera de los
+                dos, la música se pausa en ambos casos. En la app Android se distinguen.
+              </p>
+            )}
           </section>
 
           {/* --------------------------- Cuidado auditivo --------------------------- */}

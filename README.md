@@ -1,465 +1,216 @@
-# Teo & Tea
+# TEO + TEA
 
-**Plataforma de información, acompañamiento e inclusión para personas con Trastorno del Espectro Autista (TEA), sus familias y su entorno.**
+**Un espacio para explorar, aprender y conectar a tu manera.**
+Aplicación de información, acompañamiento e inclusión para personas con Trastorno del Espectro Autista (TEA),
+otras personas neurodivergentes, sus familias y su entorno. Es un espacio de la
+[Fundación Sendero Azul](https://fundacionsenderoazul.org/).
 
-## 1. Descripción del proyecto
+> Estado: **prototipo funcional en desarrollo**. La app web y la API funcionan de punta a punta con MySQL, y ya se
+> compila como app Android (APK de depuración). Aún no está publicada en tiendas ni desplegada en un servidor público.
 
-Teo & Tea es una plataforma digital orientada a centralizar información, recursos educativos, herramientas prácticas y espacios de interacción relacionados con el autismo y la neurodiversidad.
+---
 
-El proyecto busca facilitar el acceso a contenidos útiles según las necesidades, los intereses y los objetivos de cada usuario, promoviendo la comprensión del TEA, el acompañamiento y la inclusión social y laboral.
+## 1. ¿Qué incluye la app hoy?
 
-La propuesta integra cuatro áreas principales: una biblioteca de contenidos educativos, una comunidad de intercambio y apoyo, un módulo de orientación laboral y un espacio de recursos para empresas interesadas en fomentar entornos de trabajo inclusivos.
-
-Además, contempla un proceso de bienvenida personalizado que permitirá orientar a los usuarios hacia contenidos y recursos relevantes según su perfil y sus preferencias.
-
-Teo & Tea se encuentra en proceso de definición y desarrollo. Las funcionalidades descritas en este documento representan los requerimientos y objetivos del proyecto, y no implican que todos los módulos estén implementados actualmente.
-
-## 2. Objetivos del proyecto
-
-### 2.1. Objetivo general
-
-Desarrollar una plataforma digital que reúna información, recursos de apoyo, comunidad y herramientas de orientación laboral para personas autistas, sus familias y su entorno, contribuyendo a una sociedad más inclusiva y consciente de la neurodiversidad.
-
-### 2.2. Objetivos específicos
-
-- Centralizar información educativa sobre el autismo mediante artículos, guías e infografías.
-- Facilitar el intercambio de experiencias y el apoyo entre personas con intereses y necesidades similares.
-- Proporcionar recursos para la preparación laboral y el acceso a oportunidades de empleo inclusivas.
-- Orientar a las empresas en la implementación de prácticas de inclusión laboral.
-- Personalizar la experiencia inicial de los usuarios mediante un cuestionario de bienvenida.
-- Organizar los recursos según los perfiles, objetivos e intereses de cada persona.
-- Promover el respeto por las diferencias individuales y las distintas formas de aprender, comunicarse y participar en la sociedad.
-
-## 3. Personajes y perfiles de referencia
-
-Teo & Tea utiliza dos personajes representativos para explorar diferentes perspectivas, necesidades y fortalezas. Estos perfiles sirven como referencia para el diseño de la experiencia de usuario y la organización de los contenidos.
-
-### 3.1. Teo
-
-**Edad:** 28 años.
-
-**Perfil:** Neurotípico.
-
-**Características:** Espontáneo, sociable, expresivo y orientado a actuar con rapidez.
-
-**Fortalezas de referencia:**
-
-- Interacción social.
-- Comunicación y expresión.
-- Espontaneidad.
-- Confianza.
-- Creación de contactos y networking.
-
-**Aplicación en el proyecto:** Teo representa una perspectiva que puede ayudar a identificar recursos relacionados con las habilidades sociales, la comunicación, la colaboración y la interacción con otras personas.
-
-### 3.2. Tea
-
-**Edad:** 26 años.
-
-**Perfil:** Neurodivergente, específicamente autista.
-
-**Características:** Reservada, tranquila, perspicaz, detallista y orientada a la planificación.
-
-**Fortalezas de referencia:**
-
-- Organización.
-- Concentración.
-- Preparación anticipada.
-- Análisis.
-- Desarrollo de estrategias personales.
-
-**Aplicación en el proyecto:** Tea representa una perspectiva que ayuda a considerar la necesidad de información estructurada, preparación, claridad y herramientas que permitan organizar actividades de acuerdo con las preferencias individuales.
-
-Estos personajes son perfiles de referencia para el diseño del producto. Sus características no deben interpretarse como reglas universales: las habilidades, necesidades y preferencias varían entre personas neurotípicas, autistas y otras personas neurodivergentes.
-
-## 4. Módulos principales
-
-### 4.1. Biblioteca
-
-Espacio destinado a centralizar información y materiales educativos relacionados con el autismo y la neurodiversidad.
-
-**Requerimientos principales:**
-
-- Artículos informativos.
-- Guías educativas.
-- Infografías y recursos visuales.
-- Organización de contenidos por temas.
-- Acceso a materiales relevantes para los distintos perfiles de usuarios.
-
-**Propósito:** facilitar la consulta de información comprensible y útil para personas autistas, familiares, cuidadores y personas interesadas en la inclusión.
-
-### 4.2. Comunidad
-
-Espacio de interacción para fomentar el intercambio de experiencias, la conexión entre personas y el apoyo entre pares.
-
-**Requerimientos principales:**
-
-- Foros de conversación.
-- Intercambio de experiencias.
-- Grupos de interés.
-- Espacios de apoyo entre pares.
-
-**Propósito:** favorecer la participación, el sentido de comunidad y el aprendizaje compartido, procurando un entorno respetuoso y seguro.
-
-### 4.3. Empleo: TeoWorks / Tu camino laboral
-
-Módulo enfocado en la orientación y preparación para el mundo laboral, con especial atención a las oportunidades inclusivas.
-
-**Requerimientos principales:**
-
-- Perfiles laborales.
-- Información sobre oportunidades de empleo inclusivo.
-- Recursos de preparación para el empleo.
-- Orientación para identificar intereses y objetivos profesionales.
-
-**Propósito:** facilitar el acceso a recursos que acompañen a los usuarios en su preparación laboral y en la búsqueda de oportunidades acordes con sus habilidades, intereses y necesidades.
-
-### 4.4. Empresas
-
-Módulo dirigido a empresas y organizaciones interesadas en mejorar sus prácticas de inclusión laboral.
-
-**Requerimientos principales:**
-
-- Orientación sobre inclusión laboral.
-- Materiales de formación.
-- Recursos para promover entornos de trabajo accesibles.
-- Información para comprender y atender distintas necesidades de apoyo.
-
-**Propósito:** contribuir a la creación de entornos laborales más inclusivos, mediante información y recursos que ayuden a las organizaciones a reconocer la diversidad y reducir barreras de participación.
-
-### 4.5. Onboarding personalizado
-
-Proceso de bienvenida diseñado para conocer las preferencias y los objetivos iniciales del usuario, con el fin de orientar su experiencia dentro de la plataforma.
-
-**Criterios de personalización previstos:**
-
-- Perfil del usuario: persona neurotípica, persona neurodivergente, familiar o cuidador, empleador u otro perfil pertinente.
-- Tipo de neurodivergencia: información opcional que permita orientar los contenidos según las preferencias y necesidades declaradas por el usuario.
-- Objetivos personales: buscar empleo, hacer amigos, acceder a información, encontrar apoyo u otros objetivos.
-- Intereses: temas y áreas de interés que ayuden a priorizar los recursos mostrados.
-
-**Propósito:** ofrecer una experiencia inicial más relevante y facilitar el acceso a los módulos y contenidos que mejor respondan a los objetivos de cada usuario.
-
-El cuestionario deberá diseñarse con criterios de accesibilidad, claridad y privacidad. Las respuestas personales no deben utilizarse para realizar diagnósticos ni para imponer limitaciones a los usuarios.
-
-## 5. Público objetivo
-
-Teo & Tea está dirigido a los siguientes grupos:
-
-- Personas autistas: interesadas en acceder a información, recursos, comunidad y herramientas de apoyo.
-- Personas neurodivergentes: que buscan contenidos y recursos relacionados con sus intereses y necesidades.
-- Familiares y cuidadores: que desean comprender mejor el autismo y encontrar recursos de orientación.
-- Personas neurotípicas: interesadas en aprender sobre neurodiversidad y contribuir a la inclusión.
-- Empleadores y empresas: que buscan información y recursos para desarrollar entornos laborales inclusivos.
-- Personas en búsqueda de empleo: interesadas en la orientación y preparación para oportunidades laborales inclusivas.
-
-## 6. Enfoque de accesibilidad e inclusión
-
-La accesibilidad debe formar parte de las decisiones de diseño y desarrollo de Teo & Tea.
-
-Se consideran los siguientes principios:
-
-- Navegación clara y consistente.
-- Contenidos organizados y fáciles de localizar.
-- Lenguaje comprensible y estructura visual coherente.
-- Diseño adaptable a dispositivos móviles, tabletas y computadoras.
-- Opciones de presentación que respeten distintas preferencias sensoriales y cognitivas.
-- Respeto por las diferentes formas de comunicación e interacción.
-- Protección de la privacidad y tratamiento responsable de la información personal.
-
-La experiencia deberá evaluarse y mejorarse de forma continua, considerando la participación de personas autistas y otros usuarios representativos del público objetivo.
-
-## 7. Cronograma de desarrollo
-
-El cronograma de trabajo contempla la recopilación de información, las etapas de desarrollo, la presentación de la propuesta y el cierre del proyecto.
-
-### 7.1. Cronograma general
-
-| Fecha | Actividad o hito |
+| Sección | Qué se puede hacer |
 |---|---|
-| 7 de noviembre | Recopilación de información |
-| 14 de noviembre | Trabajo de desarrollo |
-| 21 de noviembre | Trabajo de desarrollo |
-| 28 de noviembre | Trabajo de desarrollo |
-| 5 de diciembre | Trabajo de desarrollo |
-| 12 de diciembre | Presentación de la propuesta |
-| 19 de diciembre | Celebración de Navidad: hito de entrega y cierre |
+| **Cuenta** | Registro en 2 pasos (datos + "¿cómo te identificas?"), inicio y cierre de sesión. La sesión se renueva sola cada vez que se abre la app. |
+| **Inicio** | Saludo personalizado, accesos a cada sección, "Quiénes nos acompañan" y "Conoce a la Fundación Sendero Azul" (misión, sitio web, redes y donaciones). Trofeo de logros, modo oscuro y perfil en la esquina superior. |
+| **Biblioteca** | Catálogo abierto de libros de dominio público de [Project Gutenberg](https://www.gutenberg.org) (≈78 000 títulos, ≈800 en español disponibles por derechos). Libro recomendado: *La isla del tesoro*. Lector EPUB con páginas, índice, tamaño y tipo de letra (incl. "Legible"), fondo claro/sepia/oscuro, interlineado y progreso sincronizado. |
+| **Música** | Reproductor **solo local**: cada persona importa sus propios archivos (MP3, M4A, OGG, WAV…), que nunca salen del dispositivo. Playlists (crear, reordenar, aleatorio), cola de reproducción, mini reproductor y controles en la pantalla de bloqueo. **Cuidado auditivo**: limitador de volumen, suavizado de sonidos fuertes con potencia ajustable y transición suave. Opciones de música en segundo plano, con la pantalla apagada y mantener la pantalla encendida. |
+| **Comunidad** | Publicaciones con imagen, comentarios, "Me gusta", compartir, búsqueda y filtros. **Normas de uso** que se aceptan antes de la primera publicación; el servidor bloquea enlaces, correos y teléfonos. Reportes de contenido. |
+| **Leyes y Derechos** | Derechos **laborales** y de **protección al ciudadano** de Ecuador, Colombia, Perú y Venezuela, en lenguaje claro, con enlaces a los textos oficiales y "¿A dónde acudir?". |
+| **Trabajo** | Frase motivacional, portales de empleo por país (incl. Incluyeme.com, empleo inclusivo), tutorial de LinkedIn paso a paso y consejos para la búsqueda. |
+| **Información** | Artículos claros sobre el TEA, la neurodiversidad y la sensibilidad sensorial. |
+| **Perfil** | Foto de perfil, biografía, habilidades y gustos, resumen de logros, apps recomendadas (Chess.com, Lichess, Khan Academy, ibisPaint X, Duolingo), modo oscuro, estilo de íconos y **página en la que se abre la app**. |
+| **Logros** | 47 logros en 9 categorías (Biblioteca, Música, Comunidad, Leyes, Trabajo, Fundación, Información, Perfil y Constancia) y niveles del 1 al 100 con curva progresiva. |
 
-Las fechas corresponden al cronograma documentado del proyecto. El año, los responsables y el estado de cumplimiento de cada hito deberán confirmarse y actualizarse por el equipo.
+Todos los enlaces externos piden confirmación ("¿Seguro que quieres ir a…?") antes de salir de la app.
 
-### 7.2. Planificación técnica inicial: frontend, cuentas y base de datos
+### Roles y moderación
 
-Durante la primera semana de desarrollo se priorizará la preparación de la arquitectura inicial de la aplicación, la construcción de las primeras interfaces y la integración de los componentes necesarios para gestionar usuarios y almacenar información.
+| Acción | Usuario | Moderador | Administrador |
+|---|:-:|:-:|:-:|
+| Reportar publicaciones o comentarios | ✅ | ✅ | ✅ |
+| Revisar reportes, descartar o eliminar contenido | | ✅ | ✅ |
+| **Congelar la participación** en la comunidad (puede leer, no publicar) | | 1–30 días | hasta indefinido |
+| **Suspender la cuenta** | | 1–30 días | hasta indefinido |
+| Gestionar usuarios y roles, estadísticas, registro de auditoría | | | ✅ |
 
-**Periodo de trabajo: 5 al 8 de noviembre.**
+Toda acción del equipo queda en un registro de auditoría. Las cuentas de equipo (`moderador@teotea.app`,
+`admin@teotea.app`) se crean con contraseña aleatoria al ejecutar `npm run db:init` (se muestra una sola vez).
 
-| Fecha | Fase | Actividades | Entregable esperado |
-|---|---|---|---|
-| 5 de noviembre | Preparación del entorno | Revisar el proyecto Ionic + React, configurar dependencias, revisar estructura de carpetas y preparar el repositorio. | Proyecto organizado y entorno de desarrollo funcional. |
-| 5-6 de noviembre | Estructura del frontend | Crear la estructura de páginas, componentes reutilizables, estilos globales, rutas y navegación principal. | Base de frontend implementada. |
-| 6 de noviembre | Identidad visual y componentes | Incorporar colores, tipografías, botones, tarjetas, iconografía y recursos gráficos del diseñador. | Sistema visual inicial de Teo & Tea. |
-| 6-7 de noviembre | Pantallas iniciales | Implementar las interfaces de bienvenida, inicio y panel principal, utilizando datos de prueba cuando sea necesario. | Primeras pantallas navegables. |
-| 7 de noviembre | Sistema de cuentas | Definir el flujo de registro, inicio de sesión, cierre de sesión y estructura del perfil de usuario. Preparar los formularios y su validación. | Interfaces iniciales del sistema de cuentas. |
-| 7-8 de noviembre | Base de datos y autenticación | Seleccionar o definir el servicio de base de datos y autenticación, establecer el modelo inicial de usuarios y preparar la conexión desde el frontend. | Diseño inicial de datos y conexión de prueba, según disponibilidad del servicio. |
-| 8 de noviembre | Integración y revisión | Revisar navegación, formularios, persistencia de datos, errores de interfaz y funcionamiento general. | Primera versión funcional para revisión interna. |
+### Accesibilidad
 
-**Resultados esperados al finalizar esta etapa:**
+- Navegación simple: 4 pestañas (Inicio, Biblioteca, Música, Comunidad) y perfil arriba a la derecha.
+- Modo claro y oscuro con contraste verificado; paleta morado + verde definida en un solo lugar (`src/theme/variables.css`).
+- Textos en lenguaje claro, botones grandes, etiquetas para lectores de pantalla y respeto de "reducir movimiento".
+- Opciones sensoriales en la lectura y en la música (fuentes legibles, fondos, limitador y suavizado de volumen).
 
-- Estructura inicial del proyecto Ionic + React.
-- Navegación entre las primeras pantallas.
-- Componentes visuales reutilizables.
-- Interfaces iniciales de registro e inicio de sesión.
-- Definición del modelo de datos de usuario.
-- Selección y preparación del servicio de base de datos.
-- Primera integración de autenticación, si el servicio está disponible.
-- Revisión inicial de la aplicación en navegador y dispositivo móvil.
+---
 
-Esta planificación representa los objetivos de trabajo de la semana y no implica que las actividades se encuentren completadas.
+## 2. Personajes de referencia
 
-### 7.3. Fases posteriores de desarrollo
+El diseño se apoya en dos perfiles representativos (no son reglas universales: cada persona es distinta).
 
-| Fase | Actividades principales | Resultado esperado |
-|---|---|---|
-| Fase 1: Base del proyecto | Arquitectura, frontend inicial, navegación y sistema de cuentas. | Aplicación con estructura funcional. |
-| Fase 2: Personalización | Desarrollo del onboarding, perfiles, preferencias e intereses. | Experiencia inicial personalizada. |
-| Fase 3: Biblioteca | Implementación de categorías, artículos, guías y recursos educativos. | Biblioteca de contenidos navegable. |
-| Fase 4: Comunidad | Diseño e implementación de foros, grupos y herramientas de interacción. | Espacio de comunidad funcional. |
-| Fase 5: TeoWorks | Desarrollo de ofertas laborales, perfiles y recursos de orientación. | Módulo de empleo. |
-| Fase 6: Empresas | Incorporación de recursos y contenidos para organizaciones. | Espacio de empresas inclusivas. |
-| Fase 7: Integración y pruebas | Validación de funcionalidades, accesibilidad, seguridad y adaptación a dispositivos. | Versión integrada y revisada. |
-| Fase 8: Presentación y despliegue | Preparación de la versión de entrega, compilación y distribución mediante Appflow. | Versión preparada para presentación. |
+- **Teo** (28 años, neurotípico): espontáneo, sociable y expresivo. Representa la comunicación, la colaboración y el networking.
+- **Tea** (26 años, autista): tranquila, perspicaz, detallista y planificadora. Representa la necesidad de información estructurada, preparación y claridad.
 
-Las fechas específicas de estas fases deberán asignarse de acuerdo con el avance real del equipo.
+## 3. Público objetivo
 
-## 8. Documentación técnica y organización del trabajo
+Personas autistas y neurodivergentes, familias y cuidadores, personas neurotípicas que quieren aprender sobre
+neurodiversidad, personas en búsqueda de empleo y empleadores interesados en la inclusión.
 
-Esta sección registra las decisiones técnicas, los recursos de diseño y el seguimiento del trabajo en equipo.
+---
 
-### 8.1. Stack tecnológico
+## 4. Arquitectura
 
-El desarrollo de Teo & Tea se realizará utilizando tecnologías orientadas a la construcción de aplicaciones web y móviles.
-
-| Tecnología / Herramienta | Uso dentro del proyecto |
-|---|---|
-| React | Biblioteca principal para desarrollar la interfaz y gestionar los componentes de la aplicación. |
-| Ionic Framework | Framework de interfaz para construir aplicaciones multiplataforma con componentes adaptados a dispositivos móviles. |
-| TypeScript | Lenguaje para desarrollar componentes y lógica con tipado estático, facilitando el mantenimiento del código. |
-| CSS | Personalización visual, estilos, distribución de elementos y adaptación responsive. |
-| Ionic Appflow | Plataforma para gestionar procesos de compilación, despliegue y distribución de la aplicación. |
-| Base de datos | Servicio para almacenar información de usuarios, perfiles, contenidos y demás módulos. Pendiente de selección. |
-| Autenticación | Servicio para gestionar registro, inicio de sesión y acceso de usuarios. Pendiente de selección e integración. |
-| Git / GitHub | Control de versiones, colaboración y seguimiento del desarrollo. |
-
-**Arquitectura general prevista:**
-
-- **Frontend:** React + Ionic + TypeScript.
-- **Interfaz de usuario:** componentes Ionic y componentes personalizados de React.
-- **Estilos:** CSS y variables globales para mantener la identidad visual.
-- **Navegación:** React Router y mecanismos de navegación de Ionic.
-- **Persistencia:** base de datos externa mediante servicios o API.
-- **Autenticación:** sistema de cuentas conectado al servicio seleccionado.
-- **Despliegue:** Ionic Appflow para los procesos de compilación y distribución.
-
-La selección definitiva de la base de datos, el proveedor de autenticación y los servicios externos se documentará una vez evaluadas las necesidades técnicas y del proyecto.
-
-### 8.2. Organización inicial del frontend
-
-Se propone organizar el código mediante una estructura modular que permita separar las pantallas, componentes, servicios y recursos de la aplicación.
-
-```text
-src/
-├── components/
-│   ├── AppHeader.tsx
-│   ├── BottomNavigation.tsx
-│   ├── QuickAccessCard.tsx
-│   └── JobCard.tsx
-│
-├── pages/
-│   ├── HomePage.tsx
-│   ├── DashboardPage.tsx
-│   ├── LibraryPage.tsx
-│   ├── CommunityPage.tsx
-│   ├── OpportunitiesPage.tsx
-│   ├── CompaniesPage.tsx
-│   ├── LoginPage.tsx
-│   ├── RegisterPage.tsx
-│   └── ProfilePage.tsx
-│
-├── services/
-│   ├── authService.ts
-│   └── databaseService.ts
-│
-├── data/
-│   └── mockData.ts
-│
-├── theme/
-│   └── variables.css
-│
-├── App.tsx
-└── main.tsx
+```
+App (Ionic + React)  ──HTTP/JSON──▶  API (Node.js + Express)  ──▶  MySQL 8 (base "teotea")
+   web / Android (Capacitor)               │
+   └─ música e IndexedDB: solo local       ├─▶ server/uploads/   imágenes y fotos de perfil
+                                           └─▶ server/library/   EPUB y portadas descargados
+                                                 ▲
+                         Catálogo y libros ──────┘  espejo oficial de Project Gutenberg
 ```
 
-Esta estructura es una propuesta de organización y podrá modificarse según las necesidades de implementación.
-
-### 8.3. Sistema de cuentas y gestión de usuarios
-
-Se contempla la incorporación de un sistema de cuentas que permita identificar a los usuarios y conservar sus preferencias dentro de la plataforma.
-
-**Funcionalidades previstas:**
-
-- Registro de usuarios.
-- Inicio y cierre de sesión.
-- Recuperación de contraseña.
-- Gestión del perfil personal.
-- Almacenamiento de preferencias.
-- Asociación de respuestas del onboarding con el perfil del usuario.
-- Control de acceso a funcionalidades según el tipo de cuenta, cuando corresponda.
-
-**Información inicial prevista para el modelo de usuario:**
-
-| Campo | Descripción |
+| Capa | Tecnología |
 |---|---|
-| id | Identificador único del usuario. |
-| nombre | Nombre del usuario. |
-| correo | Dirección de correo electrónico. |
-| perfil | Tipo de usuario declarado voluntariamente. |
-| intereses | Intereses seleccionados durante el onboarding. |
-| objetivos | Objetivos personales dentro de la plataforma. |
-| preferencias | Preferencias de presentación y experiencia. |
-| fecha_registro | Fecha de creación de la cuenta. |
+| Interfaz | React 19, Ionic 9, TypeScript, React Router 6, Zustand |
+| Lector de libros | epub.js (carga diferida) |
+| Música | Web Audio API (compresor, limitador, fundidos), IndexedDB, Media Session |
+| App nativa | Capacitor 8 (Android) + plugins `@capgo/capacitor-media-session`, `@capacitor-community/keep-awake` y el plugin propio `ScreenState` |
+| API | Node.js 22, Express 4, `mysql2`, `bcryptjs`, JWT |
+| Base de datos | MySQL 8 |
+| Pruebas y calidad | Vitest, ESLint, TypeScript estricto |
 
-El modelo definitivo deberá considerar qué información es realmente necesaria, evitando almacenar datos sensibles que no sean indispensables.
+### Estructura del repositorio
 
-### 8.4. Base de datos y servicios
+```text
+├── src/                      App (Ionic + React)
+│   ├── pages/                Pantallas (Inicio, Biblioteca, Lector, Música, Comunidad, Leyes, Trabajo, Perfil, Logros, Equipo…)
+│   ├── components/           Componentes reutilizables (avatar, mini reproductor, normas, playlists, enlaces externos…)
+│   ├── store/                Estado (sesión, comunidad, libros, música, logros, tema)
+│   ├── music/                Almacenamiento local, sesión multimedia y pantalla encendida
+│   ├── api/                  Cliente HTTP y llamadas del panel del equipo
+│   ├── data/                 Contenidos (información, leyes, fundación)
+│   └── theme/variables.css   Paleta y modo oscuro
+├── server/                   API (Express + MySQL)
+│   ├── src/routes/           auth, posts, books, staff, me (logros)
+│   ├── src/achievements.js   Catálogo de logros y cálculo de niveles
+│   └── db/                   schema.sql, init.js (tablas + migraciones), sync-catalog.js (Gutenberg)
+├── android/                  Proyecto Android (Capacitor)
+├── assets/                   Imágenes, logos e íconos ilustrados (assets/icons/ilustrado)
+├── resources/                Logo fuente para generar los íconos de la app
+└── docs/FASE2-ANDROID.md     Guía para compilar e instalar la app Android
+```
 
-La base de datos permitirá almacenar y organizar la información necesaria para el funcionamiento de los distintos módulos.
+---
 
-**Entidades iniciales previstas:**
+## 5. Puesta en marcha (desarrollo)
 
-- Usuarios.
-- Perfiles.
-- Preferencias.
-- Intereses.
-- Contenidos educativos.
-- Categorías de biblioteca.
-- Publicaciones de comunidad.
-- Grupos de interés.
-- Oportunidades laborales.
-- Empresas.
-- Recursos educativos y laborales.
+### Requisitos
 
-**Aspectos pendientes de definición:**
+- Node.js 22 y npm.
+- MySQL 8 con una base y un usuario propios para la app (no usar root):
 
-| Elemento | Estado |
+  ```sql
+  CREATE DATABASE IF NOT EXISTS teotea CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  CREATE USER IF NOT EXISTS 'teotea_app'@'localhost' IDENTIFIED BY 'TU_CLAVE';
+  GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, REFERENCES ON teotea.* TO 'teotea_app'@'localhost';
+  ```
+
+### Pasos
+
+```bash
+npm install                 # dependencias de la app
+npm run api:install         # dependencias de la API
+cp server/.env.example server/.env   # y completar DB_PASSWORD y JWT_SECRET
+npm run db:init             # crea tablas, aplica migraciones y carga datos de ejemplo
+npm run books:sync          # importa el catálogo de Project Gutenberg (≈1 min)
+
+npm run api                 # API en http://localhost:3001/api
+npm run dev                 # App en http://localhost:5173
+```
+
+Cuenta de prueba: `demo@teotea.app` / `demo1234`.
+Para usarla desde el celular en la misma Wi-Fi: `http://<IP-de-tu-PC>:5173` (permite el puerto 3001 en el firewall).
+
+### Scripts
+
+| Comando | Qué hace |
 |---|---|
-| Motor de base de datos | Pendiente de selección. |
-| Proveedor de autenticación | Pendiente de selección. |
-| Modelo entidad-relación | Pendiente de diseño. |
-| API y servicios externos | Pendiente de definición. |
-| Reglas de acceso y permisos | Pendientes de especificación. |
-| Estrategia de respaldo y seguridad | Pendiente de documentación. |
+| `npm run dev` | Servidor de desarrollo de la app (Vite). |
+| `npm run build` | Compila la app para producción (`dist/`). |
+| `npm run lint` · `npx tsc --noEmit` | Revisión de código y de tipos. |
+| `npm run test.unit` | Pruebas unitarias (Vitest). |
+| `npm run api` | API con recarga automática. |
+| `npm run db:init` | Tablas, migraciones, datos de ejemplo y cuentas de equipo (seguro de repetir). |
+| `npm run books:sync` | Actualiza el catálogo de libros. |
 
-La arquitectura deberá separar la interfaz de usuario de la lógica de acceso a datos, facilitando futuras modificaciones del backend.
+---
 
-### 8.5. Despliegue y distribución mediante Ionic Appflow
+## 6. App Android
 
-Se utilizará **Ionic Appflow** como plataforma de apoyo para gestionar los procesos de compilación y distribución de la aplicación.
+El proyecto ya compila como APK. Requisitos: **JDK 21** y **Android SDK** (plataforma 36, build-tools 35); ver la guía
+completa en [`docs/FASE2-ANDROID.md`](docs/FASE2-ANDROID.md).
 
-Las actividades previstas incluyen:
+```bash
+# .env.local → VITE_NATIVE_API_URL=http://<IP-de-tu-PC>:3001/api   (ver .env.example)
+npm run build
+npx cap sync android
+cd android && ./gradlew assembleDebug      # → android/app/build/outputs/apk/debug/app-debug.apk
+```
 
-- Vinculación del repositorio del proyecto con Appflow.
-- Configuración del entorno de compilación.
-- Preparación de las variables y configuraciones necesarias.
-- Ejecución de compilaciones de prueba.
-- Validación de las versiones generadas.
-- Preparación de los procesos de distribución para las plataformas correspondientes.
+La música usa un servicio en primer plano de tipo "reproducción multimedia" para seguir sonando en segundo plano y
+con la pantalla apagada, con controles en la notificación. Íconos y pantalla de carga se generan desde
+`resources/logo.png` con `npx capacitor-assets generate --android --assetPath resources`.
 
-El despliegue se realizará progresivamente, comenzando por versiones de prueba para validar el funcionamiento de la aplicación antes de preparar una versión de entrega.
+---
 
-La disponibilidad de determinadas funciones dependerá del plan y la configuración de Appflow utilizados por el equipo.
+## 7. Base de datos
 
-### 8.6. Diseño UI/UX y flujos de pantalla
-
-Espacio para documentar la interfaz, la experiencia de usuario y los recorridos principales de la aplicación.
-
-| Elemento | Información |
+| Tabla | Contenido |
 |---|---|
-| Herramienta de diseño | Pendiente de definición. |
-| Archivo de diseño principal | Enlace o archivo pendiente. |
-| Wireframes | Pendientes de documentación. |
-| Flujos de pantalla | Pendientes de documentación. |
-| Revisión de prototipos | Evento de calendario pendiente. |
-| Criterios de accesibilidad | Pendientes de especificación. |
+| `users` | Cuentas, perfil, rol de equipo, suspensión, congelamiento de comunidad, página de inicio, foto. |
+| `posts`, `comments`, `post_likes` | Comunidad. |
+| `reports`, `moderation_log` | Reportes y auditoría del equipo. |
+| `catalog_books` | Catálogo de Project Gutenberg (búsqueda local). |
+| `books`, `user_books` | Libros descargados al servidor y biblioteca/progreso de cada persona. |
+| `user_events`, `user_counters`, `user_achievements` | Logros y niveles. |
 
-### 8.7. Reuniones y avances
+Los EPUB y las imágenes se guardan en disco (`server/library`, `server/uploads`), no dentro de MySQL.
+La música **no** pasa por el servidor: vive en el almacenamiento del dispositivo de cada persona.
 
-Registro de las reuniones, los acuerdos del equipo y el seguimiento de las tareas.
+---
 
-| Elemento | Información |
-|---|---|
-| Próxima sincronización | Fecha pendiente. |
-| Registro de notas | Archivo o enlace pendiente. |
-| Acuerdos de reuniones | Pendientes de registro. |
-| Bloqueos identificados | Pendientes de registro. |
-| Próximos pasos | Pendientes de definición. |
-| Responsables técnicos | Pendientes de asignación. |
+## 8. Próximos pasos
 
-Se recomienda actualizar esta sección después de cada reunión o hito de desarrollo para mantener la documentación alineada con el avance real del proyecto.
+- Módulo **Empresas** (recursos para organizaciones inclusivas) y ofertas laborales propias.
+- Onboarding con objetivos e intereses para personalizar el Inicio.
+- Recuperación y cambio de contraseña.
+- Revisión legal del contenido de Leyes y Derechos antes de publicar.
+- Despliegue con HTTPS, identificador propio de la app (`appId`) y firma para Play Store.
+- Pruebas con personas usuarias del público objetivo.
 
-## 9. Estado del proyecto
+---
 
-El proyecto contempla la definición, el diseño y el desarrollo progresivo de los módulos descritos en este documento.
+## 9. Privacidad y uso responsable
 
-Los siguientes aspectos deben completarse o confirmarse por el equipo:
+- La app ofrece información general y **no sustituye** el diagnóstico ni la atención profesional, ni la asesoría legal.
+- Contraseñas cifradas con bcrypt; sesiones con tokens que caducan si no se usa la app en 7 días.
+- La identidad declarada en el registro es voluntaria y no se usa para diagnosticar ni limitar a nadie.
+- La comunidad tiene normas, reportes y moderación; por seguridad no permite enlaces ni datos de contacto.
+- La música importada nunca se sube al servidor.
+- Las credenciales (`server/.env`, `.env.local`) y los archivos subidos están fuera del control de versiones.
 
-- Definición de la arquitectura técnica.
-- Organización inicial del frontend con React e Ionic.
-- Selección de la base de datos y los servicios externos.
-- Implementación del sistema de cuentas y autenticación.
-- Documentación de la arquitectura.
-- Diseño de la interfaz y los flujos de pantalla.
-- Especificación detallada de los requerimientos funcionales.
-- Asignación de responsables y seguimiento de tareas.
-- Implementación y validación de los módulos.
-- Configuración de Ionic Appflow.
-- Pruebas de accesibilidad y experiencia de usuario.
+## 10. Créditos y licencias de contenido
 
-Este apartado deberá actualizarse a medida que se implementen y validen las funcionalidades.
+- Libros: obras de dominio público de **Project Gutenberg**.
+- Información de la fundación: [fundacionsenderoazul.org](https://fundacionsenderoazul.org/).
+- Logos de terceros (portales de empleo y apps recomendadas): pertenecen a sus respectivos dueños y se usan solo para identificar los enlaces.
+- La licencia del código está **pendiente de definición** (agregar un archivo `LICENSE` cuando se decida).
 
-## 10. Privacidad y uso responsable
+---
 
-Teo & Tea busca proporcionar información educativa y recursos de orientación. Los contenidos relacionados con la salud y el bienestar deberán basarse en fuentes confiables y revisarse de manera responsable.
-
-La plataforma no sustituye el diagnóstico, la evaluación ni la atención profesional cuando estos sean necesarios.
-
-Dado que el onboarding podría recopilar información relacionada con la neurodivergencia y las preferencias personales, su diseño deberá considerar la minimización de datos, el consentimiento informado, la seguridad y las medidas de protección de la información aplicables.
-
-Los espacios de comunidad también deberán contemplar normas de participación, mecanismos para reportar contenido inapropiado y medidas orientadas a proteger a sus integrantes.
-
-## 11. Contribuciones
-
-Las contribuciones que ayuden a mejorar Teo & Tea podrán incluir:
-
-- Desarrollo de funcionalidades.
-- Mejoras en la interfaz y la experiencia de usuario.
-- Revisión de accesibilidad.
-- Corrección de errores.
-- Mejoras en la documentación.
-- Propuestas de recursos educativos.
-- Sugerencias relacionadas con la inclusión laboral y la comunidad.
-
-Las contribuciones deberán documentarse y revisarse de acuerdo con las pautas de colaboración que establezca el equipo.
-
-## 12. Licencia
-
-La licencia del proyecto está pendiente de definición.
-
-Una vez seleccionada, se deberá incorporar el archivo LICENSE al repositorio y documentar las condiciones de uso, modificación y distribución del código.
-
-## 13. Propósito de Teo & Tea
-
-Teo & Tea busca conectar información, acompañamiento, comunidad e inclusión en un mismo espacio digital.
-
-A través de sus módulos y de una experiencia personalizada, el proyecto aspira a facilitar el acceso a recursos relevantes para las personas autistas, sus familias, su entorno y las organizaciones que desean promover una participación más inclusiva.
-
-**Teo & Tea: información, acompañamiento e inclusión.**
+**TEO + TEA: información, acompañamiento e inclusión.**

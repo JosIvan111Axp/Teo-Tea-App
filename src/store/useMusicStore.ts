@@ -19,7 +19,7 @@ import {
 import { mediaSession } from '../music/mediaSession';
 import { setScreenAwake } from '../music/screenAwake';
 import { App as CapacitorApp } from '@capacitor/app';
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { track } from './useAchievementsStore';
 
 /* =============================================================================
@@ -45,7 +45,8 @@ export type MusicSettings = {
   fadeSeconds: number; // 1 | 2 | 4
   shuffle: boolean;
   repeat: RepeatMode;
-  backgroundPlay: boolean; // seguir sonando al salir de la app / bloquear la pantalla
+  backgroundPlay: boolean; // seguir sonando al cambiar a otra app
+  screenOffPlay: boolean; // seguir sonando con la pantalla apagada / bloqueada
   keepScreenOn: boolean; // no apagar la pantalla mientras suena música
 };
 
@@ -69,6 +70,7 @@ const DEFAULT_SETTINGS: MusicSettings = {
   shuffle: false,
   repeat: 'all',
   backgroundPlay: true,
+  screenOffPlay: true,
   keepScreenOn: false,
 };
 
@@ -559,18 +561,41 @@ function syncScreenAwake() {
   void setScreenAwake(isPlaying && settings.keepScreenOn);
 }
 
-/* -------------------- Música en segundo plano (activar / desactivar) -------------------- */
-// Si "Música en segundo plano" está desactivado, se pausa al salir de la app o bloquear la pantalla.
-const pauseIfBackgroundDisabled = () => {
-  const { isPlaying, settings, pause } = useMusicStore.getState();
-  if (isPlaying && !settings.backgroundPlay) void pause();
+/* ------------- Segundo plano y pantalla apagada (activar / desactivar) ------------- */
+// - "Música en segundo plano": seguir sonando al cambiar a otra app (pantalla encendida).
+// - "Música con la pantalla apagada": seguir sonando al bloquear / apagar la pantalla.
+// En la app Android, el plugin propio ScreenState (MainActivity) distingue ambos casos.
+// En el navegador no se pueden distinguir: al ocultarse la app se pausa si cualquiera está desactivado.
+type ScreenStatePlugin = {
+  isScreenOn: () => Promise<{ screenOn: boolean }>;
+  addListener: (event: 'screenChange', cb: (data: { screenOn: boolean }) => void) => Promise<unknown>;
 };
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') pauseIfBackgroundDisabled();
-});
-if (Capacitor.isNativePlatform()) {
+const ScreenState = registerPlugin<ScreenStatePlugin>('ScreenState');
+const isNativeApp = Capacitor.isNativePlatform();
+
+const pauseIf = (shouldPause: (settings: MusicSettings) => boolean) => {
+  const { isPlaying, settings, pause } = useMusicStore.getState();
+  if (isPlaying && shouldPause(settings)) void pause();
+};
+
+if (isNativeApp) {
+  // Pantalla apagada (aunque la app ya estuviera en segundo plano).
+  void ScreenState.addListener('screenChange', ({ screenOn }) => {
+    if (!screenOn) pauseIf((s) => !s.screenOffPlay);
+  }).catch(() => undefined);
+  // La app pasó a segundo plano: ¿fue por bloquear la pantalla o por cambiar de app?
   void CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-    if (!isActive) pauseIfBackgroundDisabled();
+    if (isActive) return;
+    window.setTimeout(async () => {
+      const screenOn = await ScreenState.isScreenOn()
+        .then((r) => r.screenOn)
+        .catch(() => true);
+      pauseIf((s) => (screenOn ? !s.backgroundPlay : !s.screenOffPlay));
+    }, 700);
+  });
+} else {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') pauseIf((s) => !s.backgroundPlay || !s.screenOffPlay);
   });
 }
 

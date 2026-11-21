@@ -592,3 +592,13 @@ body.has-mini-player ion-content {
   color: var(--teo-muted);
   font-size: 0.85rem;
 }
+
+.music-note {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--teo-bg-alt);
+  color: var(--teo-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
