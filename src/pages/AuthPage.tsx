@@ -1,14 +1,16 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import {
   IonButton,
   IonCard,
   IonContent,
   IonIcon,
   IonInput,
+  IonInputPasswordToggle,
   IonNote,
   IonPage,
   IonSelect,
   IonSelectOption,
+  IonSpinner,
   IonText,
 } from '@ionic/react';
 import {
@@ -22,6 +24,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import senderoAzulLogo from '../../assets/SenderoAzul Logo.png';
 import welcomeBanner from '../../assets/TeoyTeaBienvenido.png';
+import { DEMO_EMAIL, DEMO_PASSWORD, useAuthStore } from '../store/useAuthStore';
 import './AuthPage.css';
 
 type AuthMode = 'welcome' | 'register' | 'login';
@@ -39,31 +42,115 @@ const identities = [
   { label: 'Sin diagnóstico', icon: helpCircleOutline },
 ];
 
+const countries = ['Argentina', 'Chile', 'Colombia', 'Ecuador', 'España', 'México', 'Perú', 'Otro'];
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MIN_PASSWORD = 6;
+
+const emptyForm = {
+  name: '',
+  username: '',
+  email: '',
+  password: '',
+  country: '',
+  city: '',
+  birthdate: '',
+};
+
 const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
   const navigate = useNavigate();
+  const register = useAuthStore((state) => state.register);
+  const login = useAuthStore((state) => state.login);
+
   const [registrationStep, setRegistrationStep] = useState(1);
+  const [form, setForm] = useState(emptyForm);
   const [identity, setIdentity] = useState('');
-  const [identityError, setIdentityError] = useState('');
+  const [formError, setFormError] = useState('');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Limpia mensajes al cambiar de pantalla.
+  useEffect(() => {
+    setFormError('');
+    setRegistrationStep(1);
+  }, [mode]);
+
+  const updateField = (field: keyof typeof emptyForm) => (value: string | null | undefined) => {
+    setForm((current) => ({ ...current, [field]: value ?? '' }));
+    setFormError('');
+  };
 
   const submitProfile = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const missing = Object.entries(form).find(([, value]) => !String(value).trim());
+    if (missing) {
+      setFormError('Completa todos los campos para continuar.');
+      return;
+    }
+    if (!EMAIL_PATTERN.test(form.email.trim())) {
+      setFormError('Escribe un correo electrónico válido.');
+      return;
+    }
+    if (form.password.length < MIN_PASSWORD) {
+      setFormError(`La contraseña debe tener al menos ${MIN_PASSWORD} caracteres.`);
+      return;
+    }
+    if (new Date(form.birthdate) > new Date()) {
+      setFormError('La fecha de nacimiento no puede ser futura.');
+      return;
+    }
+    setFormError('');
     setRegistrationStep(2);
   };
 
-  const submitRegistration = (event: FormEvent<HTMLFormElement>) => {
+  const submitRegistration = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!identity) {
-      setIdentityError('Selecciona una opción para continuar.');
+      setFormError('Selecciona una opción para continuar.');
       return;
     }
 
-    navigate('/inicio');
+    setIsSubmitting(true);
+    const result = await register({ ...form, role: identity });
+    setIsSubmitting(false);
+
+    if (!result.ok) {
+      setFormError(result.error);
+      setRegistrationStep(1);
+      return;
+    }
+
+    setForm(emptyForm);
+    setIdentity('');
+    navigate('/inicio', { replace: true });
   };
 
-  const submitLogin = (event: FormEvent<HTMLFormElement>) => {
+  const submitLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    navigate('/inicio');
+    if (!loginEmail.trim() || !loginPassword) {
+      setFormError('Escribe tu correo y tu contraseña.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    const result = await login(loginEmail, loginPassword);
+    setIsSubmitting(false);
+
+    if (!result.ok) {
+      setFormError(result.error);
+      return;
+    }
+
+    setLoginPassword('');
+    navigate('/inicio', { replace: true });
   };
+
+  const errorNote = formError && (
+    <IonNote className="auth-error" color="danger" role="alert">
+      {formError}
+    </IonNote>
+  );
 
   return (
     <IonPage>
@@ -84,13 +171,18 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
                 <IonButton expand="block" onClick={() => navigate('/registro')}>
                   Registrarse
                 </IonButton>
-                <IonButton expand="block" fill="outline" onClick={() => navigate('/iniciar-sesion')}>
+                <IonButton
+                  expand="block"
+                  fill="outline"
+                  color="secondary"
+                  onClick={() => navigate('/iniciar-sesion')}
+                >
                   Iniciar sesión
                 </IonButton>
               </div>
               <IonText color="medium">
                 <p className="prototype-note">
-                  Prototipo de demostración: no se envían datos a un servidor.
+                  Prototipo: las cuentas se guardan solo en este navegador.
                 </p>
               </IonText>
             </section>
@@ -112,12 +204,14 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
               </p>
 
               {registrationStep === 1 ? (
-                <form className="auth-form" onSubmit={submitProfile}>
+                <form className="auth-form" onSubmit={submitProfile} noValidate>
                   <IonInput
                     label="Nombre"
                     labelPlacement="stacked"
                     fill="outline"
                     autocomplete="name"
+                    value={form.name}
+                    onIonInput={(e) => updateField('name')(e.detail.value)}
                     required
                   />
                   <IonInput
@@ -125,28 +219,56 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
                     labelPlacement="stacked"
                     fill="outline"
                     autocomplete="username"
+                    placeholder="ej. alex.teo"
+                    value={form.username}
+                    onIonInput={(e) => updateField('username')(e.detail.value)}
                     required
                   />
+                  <IonInput
+                    label="Correo electrónico"
+                    labelPlacement="stacked"
+                    fill="outline"
+                    type="email"
+                    autocomplete="email"
+                    value={form.email}
+                    onIonInput={(e) => updateField('email')(e.detail.value)}
+                    required
+                  />
+                  <IonInput
+                    label="Contraseña"
+                    labelPlacement="stacked"
+                    fill="outline"
+                    type="password"
+                    autocomplete="new-password"
+                    helperText={`Mínimo ${MIN_PASSWORD} caracteres`}
+                    value={form.password}
+                    onIonInput={(e) => updateField('password')(e.detail.value)}
+                    required
+                  >
+                    <IonInputPasswordToggle slot="end" />
+                  </IonInput>
                   <IonSelect
                     label="País"
                     labelPlacement="stacked"
                     fill="outline"
                     interface="popover"
                     placeholder="Selecciona tu país"
-                    required
+                    value={form.country}
+                    onIonChange={(e) => updateField('country')(e.detail.value)}
                   >
-                    <IonSelectOption value="argentina">Argentina</IonSelectOption>
-                    <IonSelectOption value="chile">Chile</IonSelectOption>
-                    <IonSelectOption value="colombia">Colombia</IonSelectOption>
-                    <IonSelectOption value="espana">España</IonSelectOption>
-                    <IonSelectOption value="mexico">México</IonSelectOption>
-                    <IonSelectOption value="otro">Otro</IonSelectOption>
+                    {countries.map((country) => (
+                      <IonSelectOption key={country} value={country}>
+                        {country}
+                      </IonSelectOption>
+                    ))}
                   </IonSelect>
                   <IonInput
                     label="Ciudad"
                     labelPlacement="stacked"
                     fill="outline"
                     autocomplete="address-level2"
+                    value={form.city}
+                    onIonInput={(e) => updateField('city')(e.detail.value)}
                     required
                   />
                   <IonInput
@@ -155,11 +277,20 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
                     fill="outline"
                     type="date"
                     autocomplete="bday"
+                    value={form.birthdate}
+                    onIonInput={(e) => updateField('birthdate')(e.detail.value)}
                     required
                   />
+                  {errorNote}
                   <IonButton expand="block" type="submit">
                     Continuar
                   </IonButton>
+                  <p className="auth-switch">
+                    ¿Ya tienes cuenta?{' '}
+                    <button type="button" onClick={() => navigate('/iniciar-sesion')}>
+                      Inicia sesión
+                    </button>
+                  </p>
                 </form>
               ) : (
                 <form className="auth-form" onSubmit={submitRegistration}>
@@ -172,7 +303,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
                         aria-pressed={identity === option.label}
                         onClick={() => {
                           setIdentity(option.label);
-                          setIdentityError('');
+                          setFormError('');
                         }}
                       >
                         <IonIcon aria-hidden="true" icon={option.icon} />
@@ -180,19 +311,18 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
                       </button>
                     ))}
                   </div>
-                  {identityError && (
-                    <IonNote color="danger" role="alert">
-                      {identityError}
-                    </IonNote>
-                  )}
-                  <IonButton expand="block" type="submit">
-                    Crear perfil
+                  {errorNote}
+                  <IonButton expand="block" type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? <IonSpinner name="dots" /> : 'Crear perfil'}
                   </IonButton>
                   <IonButton
                     expand="block"
                     fill="clear"
                     type="button"
-                    onClick={() => setRegistrationStep(1)}
+                    onClick={() => {
+                      setFormError('');
+                      setRegistrationStep(1);
+                    }}
                   >
                     Volver a mis datos
                   </IonButton>
@@ -210,13 +340,18 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
               <p className="auth-eyebrow">Qué bueno tenerte de vuelta</p>
               <h1 id="login-title">Iniciar sesión</h1>
               <p className="auth-intro">Ingresa tus datos para continuar.</p>
-              <form className="auth-form" onSubmit={submitLogin}>
+              <form className="auth-form" onSubmit={submitLogin} noValidate>
                 <IonInput
                   label="Correo electrónico"
                   labelPlacement="stacked"
                   fill="outline"
                   type="email"
                   autocomplete="email"
+                  value={loginEmail}
+                  onIonInput={(e) => {
+                    setLoginEmail(e.detail.value ?? '');
+                    setFormError('');
+                  }}
                   required
                 />
                 <IonInput
@@ -225,14 +360,42 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
                   fill="outline"
                   type="password"
                   autocomplete="current-password"
+                  value={loginPassword}
+                  onIonInput={(e) => {
+                    setLoginPassword(e.detail.value ?? '');
+                    setFormError('');
+                  }}
                   required
-                />
-                <IonButton expand="block" type="submit">
-                  Iniciar sesión
+                >
+                  <IonInputPasswordToggle slot="end" />
+                </IonInput>
+                {errorNote}
+                <IonButton expand="block" type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? <IonSpinner name="dots" /> : 'Iniciar sesión'}
                 </IonButton>
+                <p className="auth-switch">
+                  ¿Aún no tienes cuenta?{' '}
+                  <button type="button" onClick={() => navigate('/registro')}>
+                    Regístrate
+                  </button>
+                </p>
               </form>
               <IonCard className="prototype-card">
-                <p>Este prototipo simula el acceso. No se validan ni almacenan credenciales.</p>
+                <p>
+                  Cuenta de prueba: <strong>{DEMO_EMAIL}</strong> / <strong>{DEMO_PASSWORD}</strong>
+                </p>
+                <IonButton
+                  size="small"
+                  fill="outline"
+                  color="secondary"
+                  onClick={() => {
+                    setLoginEmail(DEMO_EMAIL);
+                    setLoginPassword(DEMO_PASSWORD);
+                    setFormError('');
+                  }}
+                >
+                  Usar cuenta de prueba
+                </IonButton>
               </IonCard>
             </section>
           )}

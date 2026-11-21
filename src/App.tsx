@@ -1,3 +1,4 @@
+import { useEffect, type ReactElement } from 'react';
 import { Navigate, Route, useLocation } from 'react-router-dom';
 import {
   IonApp,
@@ -16,6 +17,7 @@ import LibraryPage from './pages/LibraryPage';
 import Tab1 from './pages/Tab1';
 import Tab2 from './pages/Tab2';
 import Tab3 from './pages/Tab3';
+import { useAuthStore, useIsLoggedIn } from './store/useAuthStore';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -38,23 +40,38 @@ import './theme/variables.css';
 
 setupIonicReact();
 
+const RequireAuth: React.FC<{ children: ReactElement }> = ({ children }) => {
+  const isLoggedIn = useIsLoggedIn();
+  return isLoggedIn ? children : <Navigate to="/bienvenida" replace />;
+};
+
+const GuestOnly: React.FC<{ children: ReactElement }> = ({ children }) => {
+  const isLoggedIn = useIsLoggedIn();
+  return isLoggedIn ? <Navigate to="/inicio" replace /> : children;
+};
+
 const AppRoutes: React.FC = () => {
   const { pathname } = useLocation();
-  const showTabBar = ['/inicio', '/comunidad', '/perfil'].includes(pathname) ||
-    pathname.startsWith('/biblioteca');
+  const isLoggedIn = useIsLoggedIn();
+  const showTabBar =
+    isLoggedIn &&
+    (['/inicio', '/comunidad', '/perfil'].includes(pathname) || pathname.startsWith('/biblioteca'));
 
   return (
     <IonTabs>
       <IonRouterOutlet>
-        <Route path="/bienvenida" element={<AuthPage mode="welcome" />} />
-        <Route path="/registro" element={<AuthPage mode="register" />} />
-        <Route path="/iniciar-sesion" element={<AuthPage mode="login" />} />
-        <Route path="/inicio" element={<Tab1 />} />
-        <Route path="/comunidad" element={<Tab2 />} />
-        <Route path="/perfil" element={<Tab3 />} />
-        <Route path="/biblioteca/:articleId" element={<LibraryPage />} />
-        <Route path="/biblioteca" element={<LibraryPage />} />
-        <Route path="/" element={<Navigate to="/bienvenida" replace />} />
+        <Route path="/bienvenida" element={<GuestOnly><AuthPage mode="welcome" /></GuestOnly>} />
+        <Route path="/registro" element={<GuestOnly><AuthPage mode="register" /></GuestOnly>} />
+        <Route path="/iniciar-sesion" element={<GuestOnly><AuthPage mode="login" /></GuestOnly>} />
+        <Route path="/inicio" element={<RequireAuth><Tab1 /></RequireAuth>} />
+        <Route path="/comunidad" element={<RequireAuth><Tab2 /></RequireAuth>} />
+        <Route path="/perfil" element={<RequireAuth><Tab3 /></RequireAuth>} />
+        <Route path="/biblioteca/:articleId" element={<RequireAuth><LibraryPage /></RequireAuth>} />
+        <Route path="/biblioteca" element={<RequireAuth><LibraryPage /></RequireAuth>} />
+        <Route
+          path="/"
+          element={<Navigate to={isLoggedIn ? '/inicio' : '/bienvenida'} replace />}
+        />
       </IonRouterOutlet>
       {showTabBar && (
         <IonTabBar slot="bottom">
@@ -76,12 +93,20 @@ const AppRoutes: React.FC = () => {
   );
 };
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <AppRoutes />
-    </IonReactRouter>
-  </IonApp>
-);
+const App: React.FC = () => {
+  const seedDemoUser = useAuthStore((state) => state.seedDemoUser);
+
+  useEffect(() => {
+    void seedDemoUser();
+  }, [seedDemoUser]);
+
+  return (
+    <IonApp>
+      <IonReactRouter>
+        <AppRoutes />
+      </IonReactRouter>
+    </IonApp>
+  );
+};
 
 export default App;

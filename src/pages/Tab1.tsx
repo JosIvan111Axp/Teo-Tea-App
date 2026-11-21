@@ -19,7 +19,11 @@ import {
   peopleOutline,
   scaleOutline,
 } from 'ionicons/icons';
+import senderoAzulLogo from '../../assets/SenderoAzul Logo.png';
 import welcomeBanner from '../../assets/TeoyTeaBienvenido.png';
+import { mockData } from '../data/mockData';
+import { useCurrentUser } from '../store/useAuthStore';
+import { getGreeting } from '../utils/helpers';
 import './Tab1.css';
 
 const quickLinks = [
@@ -49,6 +53,9 @@ const Tab1: React.FC = () => {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [pendingSection, setPendingSection] = useState('');
+  const user = useCurrentUser();
+  const { foundation } = mockData;
+  const firstName = user?.name.split(' ')[0] ?? '';
 
   const filteredLinks = quickLinks.filter((link) =>
     `${link.title} ${link.description}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
@@ -74,7 +81,9 @@ const Tab1: React.FC = () => {
         <main className="home-layout">
           <section className="home-intro" aria-labelledby="home-greeting">
             <p className="home-eyebrow">Tu espacio para explorar y conectar</p>
-            <h1 id="home-greeting">Buenos días, Alex</h1>
+            <h1 id="home-greeting">
+              {getGreeting()}{firstName ? `, ${firstName}` : ''}
+            </h1>
             <p>Un paso a la vez. Encuentra lo que necesitas, a tu ritmo.</p>
           </section>
 
@@ -96,6 +105,31 @@ const Tab1: React.FC = () => {
               <p>Un espacio inclusivo para aprender, compartir y descubrir oportunidades.</p>
             </IonCardContent>
           </IonCard>
+
+          <section className="foundation-card" aria-labelledby="foundation-title">
+            <div className="foundation-header">
+              <img className="foundation-logo" src={senderoAzulLogo} alt="Logo de Fundación Sendero Azul" />
+              <div>
+                <p className="foundation-eyebrow">Quiénes nos acompañan</p>
+                <h2 id="foundation-title">{foundation.name}</h2>
+                <p className="foundation-tagline">{foundation.tagline}</p>
+              </div>
+            </div>
+            <p className="foundation-description">{foundation.description}</p>
+            <ul className="foundation-pillars">
+              {foundation.pillars.map((pillar) => (
+                <li key={pillar.title}>
+                  <span className="foundation-pillar-icon">
+                    <IonIcon aria-hidden="true" icon={pillar.icon} />
+                  </span>
+                  <span>
+                    <strong>{pillar.title}</strong>
+                    <span>{pillar.description}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
 
           <IonCard className="weekly-quote">
             <IonCardContent>

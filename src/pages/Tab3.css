@@ -1,5 +1,5 @@
 .profile-content {
-  --background: #f0f4f8;
+  --background: var(--teo-bg);
 }
 
 .profile-layout {
@@ -12,10 +12,10 @@
 .profile-hero,
 .profile-section {
   margin: 0 0 16px;
-  border: 1px solid #d5e0ec;
+  border: 1px solid var(--teo-border);
   border-radius: 20px;
-  background: #fffefc;
-  box-shadow: 0 4px 16px rgb(23 59 102 / 5%);
+  background: var(--teo-surface);
+  box-shadow: 0 4px 16px rgb(var(--teo-shadow) / 5%);
 }
 
 .profile-hero ion-card-content {
@@ -29,11 +29,11 @@
   height: 104px;
   margin: 0 auto 16px;
   place-items: center;
-  border: 4px solid #fffefc;
+  border: 4px solid var(--teo-surface);
   border-radius: 50%;
-  background: #dce8f5;
-  box-shadow: 0 0 0 2px #9fb6cf;
-  color: #173b66;
+  background: var(--teo-purple-soft);
+  box-shadow: 0 0 0 2px var(--teo-border-strong);
+  color: var(--teo-ink);
   font-size: 2rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -41,14 +41,14 @@
 
 .profile-hero h1 {
   margin: 0;
-  color: #173b66;
+  color: var(--teo-ink);
   font-size: clamp(1.7rem, 6vw, 2.2rem);
   line-height: 1.25;
 }
 
 .profile-username {
   margin: 6px 0 18px;
-  color: #4d6f91;
+  color: var(--teo-green-strong);
   font-size: 1rem;
 }
 
@@ -57,7 +57,7 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px 18px;
-  color: #294d73;
+  color: var(--teo-ink-soft);
   font-size: 0.98rem;
 }
 
@@ -68,7 +68,7 @@
 }
 
 .profile-meta ion-icon {
-  color: #0052cc;
+  color: var(--teo-purple);
   font-size: 1.15rem;
 }
 
@@ -97,13 +97,13 @@
 
 .profile-section h2 {
   margin: 0;
-  color: #173b66;
+  color: var(--teo-ink);
   font-size: 1.2rem;
 }
 
 .profile-section > ion-card-content > p {
   margin: 12px 0 0;
-  color: #294d73;
+  color: var(--teo-ink-soft);
   font-size: 1rem;
   line-height: 1.6;
 }
@@ -116,7 +116,7 @@
 }
 
 .profile-section-heading ion-icon {
-  color: #0052cc;
+  color: var(--teo-purple);
   font-size: 1.35rem;
 }
 
@@ -125,8 +125,8 @@
 }
 
 .profile-chip-list ion-chip {
-  --background: #e6eef7;
-  --color: #173b66;
+  --background: var(--teo-purple-soft);
+  --color: var(--teo-ink);
   min-height: 38px;
   padding-inline: 8px;
 }
@@ -139,4 +139,29 @@
   .profile-section ion-card-content {
     padding: 18px 16px;
   }
+}
+
+.profile-edit {
+  margin-top: 16px;
+  text-transform: none;
+}
+
+.profile-empty {
+  color: var(--teo-muted) !important;
+  font-style: italic;
+}
+
+.profile-logout {
+  margin: 8px 0 0;
+  min-height: 48px;
+  text-transform: none;
+}
+
+.profile-edit-form {
+  display: grid;
+  gap: 16px;
+  box-sizing: border-box;
+  width: min(100%, 620px);
+  margin: 0 auto;
+  padding: 20px 16px 32px;
 }

@@ -1,7 +1,10 @@
 import {
+  bookOutline,
   eyeOutline,
+  handLeftOutline,
   helpCircleOutline,
   informationCircleOutline,
+  peopleCircleOutline,
 } from 'ionicons/icons';
 
 export type LibraryArticle = {
@@ -14,28 +17,33 @@ export type LibraryArticle = {
 
 export type CommunityComment = {
   id: string;
+  authorId: string;
   author: string;
   text: string;
+  createdAt: number;
 };
 
 export type CommunityPost = {
   id: string;
+  authorId: string;
   author: string;
   role: string;
-  time: string;
+  createdAt: number;
   body: string;
-  likes: number;
-  isLiked: boolean;
+  likedBy: string[];
   comments: CommunityComment[];
-  attachmentName?: string;
+  /** Imagen comprimida como data URL (prototipo: se guarda en el navegador). */
+  image?: string;
 };
 
 export type UserProfile = {
+  id: string;
+  email: string;
   name: string;
   username: string;
   role: string;
   profession: string;
-  age: number;
+  birthdate: string;
   city: string;
   country: string;
   bio: string;
@@ -43,10 +51,21 @@ export type UserProfile = {
   interests: string[];
 };
 
+export type FoundationInfo = {
+  name: string;
+  tagline: string;
+  description: string;
+  pillars: { title: string; description: string; icon: string }[];
+};
+
+const HOUR = 60 * 60 * 1000;
+const seedTime = Date.now();
+
 export const mockData: {
   articles: LibraryArticle[];
   posts: CommunityPost[];
   profile: UserProfile;
+  foundation: FoundationInfo;
 } = {
   articles: [
     {
@@ -86,51 +105,79 @@ export const mockData: {
   posts: [
     {
       id: 'post-1',
+      authorId: 'demo-marina',
       author: 'Marina López',
       role: 'Persona TEA',
-      time: 'Hace 2 horas',
+      createdAt: seedTime - 2 * HOUR,
       body: 'Hoy probé usar una lista visual para organizar mi mañana. Me ayudó a empezar con más calma. ¿Qué herramientas les sirven a ustedes?',
-      likes: 8,
-      isLiked: false,
+      likedBy: ['seed-sofia', 'seed-diego'],
       comments: [
         {
           id: 'comment-1',
+          authorId: 'seed-sofia',
           author: 'Sofía Herrera',
           text: 'A mí también me ayudan mucho las listas. Gracias por compartirlo.',
+          createdAt: seedTime - HOUR,
         },
       ],
     },
     {
       id: 'post-2',
+      authorId: 'seed-sofia',
       author: 'Sofía Herrera',
-      role: 'Familiar de persona con TEA',
-      time: 'Ayer',
+      role: 'Familia de persona con TEA',
+      createdAt: seedTime - 26 * HOUR,
       body: 'Estamos aprendiendo a preguntar qué apoyos son útiles en lugar de suponer. Escuchar con atención hace una gran diferencia.',
-      likes: 12,
-      isLiked: false,
+      likedBy: ['seed-diego'],
       comments: [],
     },
     {
       id: 'post-3',
+      authorId: 'seed-diego',
       author: 'Diego Ramírez',
-      role: 'Persona neurodivergente',
-      time: 'Hace 2 días',
+      role: 'Sin diagnóstico',
+      createdAt: seedTime - 50 * HOUR,
       body: 'Un recordatorio amable: está bien pedir instrucciones por escrito o solicitar una pausa cuando la necesitas.',
-      likes: 6,
-      isLiked: false,
+      likedBy: [],
       comments: [],
     },
   ],
   profile: {
+    id: 'demo-marina',
+    email: 'demo@teotea.app',
     name: 'Marina López',
     username: '@marina.lopez',
     role: 'Persona TEA',
     profession: 'Diseñadora gráfica',
-    age: 29,
+    birthdate: '1997-04-12',
     city: 'Medellín',
     country: 'Colombia',
     bio: 'Me gusta compartir ideas visuales, aprender cosas nuevas y encontrar formas tranquilas de organizar el día.',
     skills: ['Diseño gráfico', 'Ilustración', 'Organización visual'],
     interests: ['Ilustración', 'Naturaleza', 'Música'],
+  },
+  // Texto provisional: reemplázalo con la información oficial de la fundación.
+  foundation: {
+    name: 'Fundación Sendero Azul',
+    tagline: 'Acompañando caminos diversos',
+    description:
+      'TEO + TEA es un espacio impulsado por Fundación Sendero Azul para que personas autistas, sus familias y la comunidad encuentren información, apoyo y oportunidades en un entorno respetuoso.',
+    pillars: [
+      {
+        title: 'Acompañamiento',
+        description: 'Orientación cercana para personas y familias.',
+        icon: handLeftOutline,
+      },
+      {
+        title: 'Información accesible',
+        description: 'Contenidos claros sobre el TEA y la neurodiversidad.',
+        icon: bookOutline,
+      },
+      {
+        title: 'Comunidad inclusiva',
+        description: 'Redes de apoyo y espacios para conectar.',
+        icon: peopleCircleOutline,
+      },
+    ],
   },
 };
