@@ -17,6 +17,9 @@ import {
   type TrackMeta,
 } from '../music/musicDb';
 import { mediaSession } from '../music/mediaSession';
+import { setScreenAwake } from '../music/screenAwake';
+import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import { track } from './useAchievementsStore';
 
 /* =============================================================================
@@ -42,6 +45,8 @@ export type MusicSettings = {
   fadeSeconds: number; // 1 | 2 | 4
   shuffle: boolean;
   repeat: RepeatMode;
+  backgroundPlay: boolean; // seguir sonando al salir de la app / bloquear la pantalla
+  keepScreenOn: boolean; // no apagar la pantalla mientras suena música
 };
 
 /** Potencia del suavizado → ajustes del compresor (umbral en dB y proporción). */
@@ -63,6 +68,8 @@ const DEFAULT_SETTINGS: MusicSettings = {
   fadeSeconds: 2,
   shuffle: false,
   repeat: 'all',
+  backgroundPlay: true,
+  keepScreenOn: false,
 };
 
 const loadSettings = (): MusicSettings => {
@@ -363,6 +370,7 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
       await audio.play();
       set({ isPlaying: true });
       mediaSession.setPlaybackState('playing');
+      syncScreenAwake();
       await fadeTo(1, fadeSeconds());
     } catch {
       set({ isPlaying: false, error: 'El navegador bloqueó la reproducción. Toca ▶ de nuevo.' });
@@ -371,6 +379,7 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
 
   pause: async () => {
     set({ isPlaying: false });
+    syncScreenAwake();
     mediaSession.setPlaybackState('paused');
     await fadeTo(0, fadeSeconds() / 2);
     if (!get().isPlaying) audio.pause();
@@ -449,6 +458,7 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
       /* sin almacenamiento */
     }
     applyLevels();
+    syncScreenAwake();
   },
 
   /* ------------------------------- Playlists ------------------------------- */
@@ -494,6 +504,7 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
   },
 
   stopAndClear: () => {
+    void setScreenAwake(false);
     audio.pause();
     audio.removeAttribute('src');
     if (currentUrl) URL.revokeObjectURL(currentUrl);
@@ -542,11 +553,33 @@ audio.addEventListener('ended', () => {
   void track('music_play'); // logro: canciones escuchadas completas
   void useMusicStore.getState().next(true);
 });
+/** Pantalla encendida solo mientras suena música y si la persona lo activó. */
+function syncScreenAwake() {
+  const { isPlaying, settings } = useMusicStore.getState();
+  void setScreenAwake(isPlaying && settings.keepScreenOn);
+}
+
+/* -------------------- Música en segundo plano (activar / desactivar) -------------------- */
+// Si "Música en segundo plano" está desactivado, se pausa al salir de la app o bloquear la pantalla.
+const pauseIfBackgroundDisabled = () => {
+  const { isPlaying, settings, pause } = useMusicStore.getState();
+  if (isPlaying && !settings.backgroundPlay) void pause();
+};
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') pauseIfBackgroundDisabled();
+});
+if (Capacitor.isNativePlatform()) {
+  void CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+    if (!isActive) pauseIfBackgroundDisabled();
+  });
+}
+
 audio.addEventListener('pause', () => {
   // Pausa externa (auriculares desconectados, llamada, etc.)
   if (!switching && useMusicStore.getState().isPlaying && !audio.ended) {
     useMusicStore.setState({ isPlaying: false });
     mediaSession.setPlaybackState('paused');
+    syncScreenAwake();
   }
 });
 

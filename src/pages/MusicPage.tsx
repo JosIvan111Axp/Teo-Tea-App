@@ -218,6 +218,39 @@ const MusicPage: React.FC = () => {
             )}
           </section>
 
+          {/* --------------------------- Reproducción --------------------------- */}
+          <section className="music-card" aria-labelledby="playback-title">
+            <h2 id="playback-title">
+              <IonIcon icon={phonePortraitOutline} aria-hidden="true" /> Reproducción
+            </h2>
+            <IonToggle
+              className="music-toggle"
+              checked={settings.backgroundPlay}
+              justify="space-between"
+              onIonChange={(e) => updateSettings({ backgroundPlay: e.detail.checked })}
+            >
+              Música en segundo plano
+            </IonToggle>
+            <p className="music-help">
+              {settings.backgroundPlay
+                ? 'La música sigue sonando si sales de la app o bloqueas la pantalla.'
+                : 'La música se pausa al salir de la app o bloquear la pantalla.'}
+            </p>
+            <IonToggle
+              className="music-toggle"
+              checked={settings.keepScreenOn}
+              justify="space-between"
+              onIonChange={(e) => updateSettings({ keepScreenOn: e.detail.checked })}
+            >
+              Mantener la pantalla encendida
+            </IonToggle>
+            <p className="music-help">
+              {settings.keepScreenOn
+                ? 'Mientras suena música la pantalla no se apaga sola (usa más batería).'
+                : 'La pantalla se apaga sola como siempre, aunque suene música.'}
+            </p>
+          </section>
+
           {/* --------------------------- Cuidado auditivo --------------------------- */}
           <section className="music-card" aria-labelledby="hearing-title">
             <h2 id="hearing-title">
