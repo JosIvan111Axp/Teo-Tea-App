@@ -61,7 +61,7 @@ const publicUrl = (req, imagePath) =>
   imagePath ? `${req.protocol}://${req.get('host')}/${imagePath}` : undefined;
 
 /** Guarda una imagen recibida como data URL y devuelve su ruta relativa. */
-const saveImage = async (dataUrl) => {
+export const saveImage = async (dataUrl) => {
   const match = /^data:(image\/[a-z]+);base64,([A-Za-z0-9+/=]+)$/.exec(String(dataUrl));
   const ext = match && IMAGE_TYPES[match[1]];
   if (!ext) throw Object.assign(new Error('Formato de imagen no permitido.'), { status: 400 });
@@ -88,7 +88,7 @@ export const removeImage = async (imagePath) => {
 const loadPosts = async (req, postIds) => {
   const where = postIds ? 'WHERE p.id IN (?)' : '';
   const [posts] = await pool.query(
-    `SELECT p.id, p.user_id, p.body, p.image_path, p.created_at, u.name AS author, u.role, u.account_type AS author_type
+    `SELECT p.id, p.user_id, p.body, p.image_path, p.created_at, u.name AS author, u.role, u.account_type AS author_type, u.avatar_path AS author_avatar
        FROM posts p JOIN users u ON u.id = p.user_id
        ${where}
       ORDER BY p.created_at DESC, p.id DESC
@@ -100,7 +100,7 @@ const loadPosts = async (req, postIds) => {
   const ids = posts.map((p) => p.id);
   const [likes] = await pool.query('SELECT post_id, user_id FROM post_likes WHERE post_id IN (?)', [ids]);
   const [comments] = await pool.query(
-    `SELECT c.id, c.post_id, c.user_id, c.text, c.created_at, u.name AS author, u.account_type AS author_type
+    `SELECT c.id, c.post_id, c.user_id, c.text, c.created_at, u.name AS author, u.account_type AS author_type, u.avatar_path AS author_avatar
        FROM comments c JOIN users u ON u.id = c.user_id
       WHERE c.post_id IN (?)
       ORDER BY c.created_at ASC, c.id ASC`,
@@ -113,6 +113,7 @@ const loadPosts = async (req, postIds) => {
     author: p.author,
     role: p.role,
     authorType: p.author_type,
+    authorAvatar: p.author_avatar ?? null,
     createdAt: new Date(p.created_at).getTime(),
     body: p.body,
     image: publicUrl(req, p.image_path),
@@ -124,6 +125,7 @@ const loadPosts = async (req, postIds) => {
         authorId: String(c.user_id),
         author: c.author,
         authorType: c.author_type,
+        authorAvatar: c.author_avatar ?? null,
         text: c.text,
         createdAt: new Date(c.created_at).getTime(),
       })),

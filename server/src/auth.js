@@ -35,6 +35,8 @@ export const toPublicUser = (row) => ({
   interests: parseJsonList(row.interests),
   accountType: row.account_type ?? 'user',
   startPage: row.start_page ?? 'inicio',
+  // Ruta relativa de la foto (la app la completa con la dirección de la API).
+  avatar: row.avatar_path ?? null,
   communityRulesAccepted: Boolean(row.community_rules_accepted_at),
   communityFrozenUntil: isCommunityFrozen(row) ? new Date(row.community_frozen_until).getTime() : null,
   communityFreezeReason: isCommunityFrozen(row) ? row.community_freeze_reason ?? '' : '',

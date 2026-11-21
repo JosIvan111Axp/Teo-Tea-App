@@ -26,6 +26,7 @@ try {
     ['users', 'community_rules_accepted_at', 'DATETIME NULL'],
     ['users', 'community_frozen_until', 'DATETIME NULL'],
     ['users', 'community_freeze_reason', 'VARCHAR(300) NULL'],
+    ['users', 'avatar_path', 'VARCHAR(255) NULL'],
   ];
   for (const [table, column, definition] of migrations) {
     const [[exists]] = await pool.query(

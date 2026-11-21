@@ -91,3 +91,33 @@ export const compressImage = (file: File, maxSize = 960, quality = 0.75): Promis
     };
     img.src = url;
   });
+
+/** Recorta la imagen al centro en un cuadrado y la reduce (para fotos de perfil). */
+export const cropSquareImage = (file: File, size = 512, quality = 0.85): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const side = Math.min(img.width, img.height);
+      const sx = (img.width - side) / 2;
+      const sy = (img.height - side) / 2;
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.min(size, side);
+      canvas.height = canvas.width;
+      const ctx = canvas.getContext('2d');
+      URL.revokeObjectURL(url);
+      if (!ctx) {
+        reject(new Error('Canvas no disponible'));
+        return;
+      }
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, sx, sy, side, side, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('No se pudo leer la imagen'));
+    };
+    img.src = url;
+  });

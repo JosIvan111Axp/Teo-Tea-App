@@ -12,7 +12,7 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { homeOutline, libraryOutline, musicalNotesOutline, peopleOutline, personCircleOutline } from 'ionicons/icons';
+import { homeOutline, libraryOutline, musicalNotesOutline, peopleOutline } from 'ionicons/icons';
 import AuthPage from './pages/AuthPage';
 import BooksPage from './pages/BooksPage';
 import InfoPage from './pages/InfoPage';
@@ -149,10 +149,6 @@ const AppRoutes: React.FC = () => {
           <IonTabButton tab="comunidad" href="/comunidad">
             <IonIcon aria-hidden="true" icon={peopleOutline} />
             <IonLabel>Comunidad</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="perfil" href="/perfil">
-            <IonIcon aria-hidden="true" icon={personCircleOutline} />
-            <IonLabel>Perfil</IonLabel>
           </IonTabButton>
         </IonTabBar>
       )}

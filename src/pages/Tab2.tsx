@@ -2,7 +2,6 @@ import { useMemo, useRef, useState, type FormEvent } from 'react';
 import {
   IonActionSheet,
   IonAlert,
-  IonAvatar,
   IonButton,
   IonCard,
   IonCardContent,
@@ -43,7 +42,9 @@ import { useAppStore } from '../store/useAppStore';
 import { useAuthStore, useCurrentUser } from '../store/useAuthStore';
 import { track } from '../store/useAchievementsStore';
 import CommunityRulesModal from '../components/CommunityRulesModal';
-import { compressImage, formatRelativeTime, getInitials } from '../utils/helpers';
+import { compressImage, formatRelativeTime } from '../utils/helpers';
+import ProfileButton from '../components/ProfileButton';
+import UserAvatar from '../components/UserAvatar';
 import './Tab2.css';
 
 const MAX_POST_LENGTH = 500;
@@ -240,6 +241,7 @@ const Tab2: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonTitle>Comunidad</IonTitle>
+          <ProfileButton />
         </IonToolbar>
       </IonHeader>
       <IonContent className="community-content" fullscreen>
@@ -285,9 +287,7 @@ const Tab2: React.FC = () => {
           <IonCard className="composer-card">
             <IonCardContent>
               <div className="composer-heading">
-                <IonAvatar aria-hidden="true">
-                  <span className="avatar-fallback">{getInitials(user.name)}</span>
-                </IonAvatar>
+                <UserAvatar name={user.name} avatar={user.avatar} size={44} />
                 <div>
                   <strong>¿Qué estás pensando hoy, {user.name.split(' ')[0]}?</strong>
                   <span>Comparte solo lo que te resulte cómodo.</span>
@@ -422,9 +422,7 @@ const Tab2: React.FC = () => {
                 <IonCard className={`post-card${isMine ? ' post-card-mine' : ''}`} key={post.id}>
                   <IonCardContent>
                     <header className="post-header">
-                      <IonAvatar aria-hidden="true">
-                        <span className="avatar-fallback">{getInitials(post.author)}</span>
-                      </IonAvatar>
+                      <UserAvatar name={post.author} avatar={post.authorAvatar} size={44} />
                       <div className="post-author">
                         <strong>
                           {post.author}
@@ -492,6 +490,7 @@ const Tab2: React.FC = () => {
                             {post.comments.map((comment) => (
                               <li key={comment.id}>
                                 <div className="comment-head">
+                                  <UserAvatar name={comment.author} avatar={comment.authorAvatar} size={26} />
                                   <strong>{comment.author}</strong>
                                   <StaffBadge type={comment.authorType} />
                                   <span>{formatRelativeTime(comment.createdAt)}</span>

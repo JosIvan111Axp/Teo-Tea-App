@@ -1,10 +1,18 @@
+import { Capacitor } from '@capacitor/core';
+
 /**
  * Cliente HTTP de la API de TEO + TEA.
  * URL configurable con VITE_API_URL; por defecto usa el mismo host que la app en el puerto 3001
  * (así funciona también desde el celular en la red local).
  */
+// En la app nativa (Android) "localhost" es el propio teléfono: se usa VITE_NATIVE_API_URL
+// (la IP de la PC con la API en la red Wi-Fi, definida en .env.local; ver .env.example).
+const nativeApiUrl = Capacitor.isNativePlatform() ? import.meta.env.VITE_NATIVE_API_URL : undefined;
+
 export const API_URL: string =
-  import.meta.env.VITE_API_URL ?? `${window.location.protocol}//${window.location.hostname}:3001/api`;
+  nativeApiUrl ??
+  import.meta.env.VITE_API_URL ??
+  `${window.location.protocol}//${window.location.hostname}:3001/api`;
 
 export class ApiError extends Error {
   constructor(
@@ -56,3 +64,7 @@ export const api = async <T>(path: string, options: { method?: string; body?: un
 
 export const errorMessage = (error: unknown) =>
   error instanceof Error ? error.message : 'Ocurrió un error inesperado.';
+
+/** URL completa de un archivo servido por la API (fotos de perfil, imágenes). */
+export const mediaUrl = (path: string | null | undefined) =>
+  path ? `${API_URL.replace(/\/api\/?$/, '')}/${path.replace(/^\//, '')}` : null;

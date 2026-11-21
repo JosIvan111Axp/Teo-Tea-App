@@ -2,16 +2,21 @@ import { create } from 'zustand';
 import {
   MAX_TRACK_BYTES,
   createTrackId,
+  deletePlaylist as dbDeletePlaylist,
   deleteTrack,
   getTrackBlob,
   isAudioFile,
+  listPlaylists,
   listTracks,
   parseFileName,
   readDuration,
   requestPersistentStorage,
+  savePlaylist,
   saveTrack,
+  type Playlist,
   type TrackMeta,
 } from '../music/musicDb';
+import { mediaSession } from '../music/mediaSession';
 import { track } from './useAchievementsStore';
 
 /* =============================================================================
@@ -20,10 +25,10 @@ import { track } from './useAchievementsStore';
  *   <audio> → [Compresor: suaviza picos] → [Limitador: volumen × máximo] → [Fundido] → salida
  *
  * - Cuidado auditivo: el "volumen máximo" pone un techo que el volumen normal nunca supera,
- *   y el compresor reduce los golpes de sonido fuertes dentro de una misma canción.
- * - Transición suave: fundido al dar play/pausa y entre canciones (al terminar una, baja
- *   el volumen gradualmente y la siguiente entra subiendo).
- * - Media Session: controles en la pantalla de bloqueo / notificación del sistema.
+ *   y el compresor (con potencia ajustable) reduce los golpes de sonido fuertes.
+ * - Transición suave: fundido al dar play/pausa y entre canciones.
+ * - Cola de reproducción: todas las canciones o una playlist, en orden o mezclada.
+ * - Controles del sistema: Media Session (web) o servicio nativo en la app Android.
  * ========================================================================== */
 
 export type RepeatMode = 'off' | 'all' | 'one';
@@ -31,18 +36,29 @@ export type RepeatMode = 'off' | 'all' | 'one';
 export type MusicSettings = {
   volume: number; // 0..1 (lo que elige la persona)
   maxVolume: number; // 0.2..1 (limitador)
-  smoothPeaks: boolean; // compresor
+  smoothPeaks: boolean; // compresor activado
+  smoothStrength: number; // 1..5 (potencia del suavizado)
   fade: boolean; // transiciones suaves
   fadeSeconds: number; // 1 | 2 | 4
   shuffle: boolean;
   repeat: RepeatMode;
 };
 
+/** Potencia del suavizado → ajustes del compresor (umbral en dB y proporción). */
+export const SMOOTH_LEVELS = [
+  { label: 'Muy suave', threshold: -14, ratio: 2 },
+  { label: 'Suave', threshold: -18, ratio: 3 },
+  { label: 'Media', threshold: -24, ratio: 6 },
+  { label: 'Fuerte', threshold: -30, ratio: 10 },
+  { label: 'Muy fuerte', threshold: -36, ratio: 16 },
+];
+
 const SETTINGS_KEY = 'teo-tea-music-settings';
 const DEFAULT_SETTINGS: MusicSettings = {
   volume: 0.8,
   maxVolume: 0.7,
   smoothPeaks: true,
+  smoothStrength: 3,
   fade: true,
   fadeSeconds: 2,
   shuffle: false,
@@ -55,6 +71,16 @@ const loadSettings = (): MusicSettings => {
   } catch {
     return DEFAULT_SETTINGS;
   }
+};
+
+/** Mezcla aleatoria (Fisher–Yates). */
+const shuffled = <T,>(items: T[]) => {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
 };
 
 /* ------------------------------ Motor de audio ------------------------------ */
@@ -77,9 +103,7 @@ const ensureGraph = () => {
   ctx = new Ctor();
   const source = ctx.createMediaElementSource(audio);
   compressor = ctx.createDynamicsCompressor();
-  compressor.threshold.value = -24;
   compressor.knee.value = 24;
-  compressor.ratio.value = 8;
   compressor.attack.value = 0.005;
   compressor.release.value = 0.25;
   limiterGain = ctx.createGain();
@@ -99,12 +123,13 @@ const effectiveVolume = () => {
 };
 
 const applyLevels = () => {
-  const { smoothPeaks } = useMusicStore.getState().settings;
+  const { smoothPeaks, smoothStrength } = useMusicStore.getState().settings;
   if (ctx && limiterGain && compressor) {
     limiterGain.gain.setTargetAtTime(effectiveVolume(), ctx.currentTime, 0.05);
+    const level = SMOOTH_LEVELS[Math.min(SMOOTH_LEVELS.length, Math.max(1, smoothStrength)) - 1];
     // Compresor desactivado = proporción 1:1 (no altera el sonido).
-    compressor.ratio.setValueAtTime(smoothPeaks ? 8 : 1, ctx.currentTime);
-    compressor.threshold.setValueAtTime(smoothPeaks ? -24 : 0, ctx.currentTime);
+    compressor.ratio.setValueAtTime(smoothPeaks ? level.ratio : 1, ctx.currentTime);
+    compressor.threshold.setValueAtTime(smoothPeaks ? level.threshold : 0, ctx.currentTime);
   } else {
     audio.volume = effectiveVolume();
   }
@@ -129,8 +154,8 @@ const fadeTo = (target: number, seconds: number) =>
     window.setTimeout(resolve, Math.max(20, seconds * 1000));
   });
 
-const loadIntoAudio = async (track: TrackMeta) => {
-  const blob = await getTrackBlob(track.id);
+const loadIntoAudio = async (item: TrackMeta) => {
+  const blob = await getTrackBlob(item.id);
   if (!blob) throw new Error('No se encontró el archivo de la canción en este dispositivo.');
   if (currentUrl) URL.revokeObjectURL(currentUrl);
   currentUrl = URL.createObjectURL(blob);
@@ -138,21 +163,20 @@ const loadIntoAudio = async (track: TrackMeta) => {
   fadingOutForEnd = false;
 };
 
-const updateMediaSession = (track: TrackMeta | null) => {
-  if (!('mediaSession' in navigator)) return;
-  navigator.mediaSession.metadata = track
-    ? new MediaMetadata({ title: track.title, artist: track.artist || 'Artista desconocido', album: 'TEO + TEA' })
-    : null;
-};
-
 /* --------------------------------- Store --------------------------------- */
 type ImportResult = { added: number; skipped: string[] };
+
+/** De dónde sale la cola: todas las canciones o una playlist. */
+export type QueueSource = { type: 'all' } | { type: 'playlist'; id: string };
 
 type MusicStore = {
   owner: string | null;
   tracks: TrackMeta[];
+  playlists: Playlist[];
   loaded: boolean;
   currentId: string | null;
+  queue: string[];
+  source: QueueSource;
   isPlaying: boolean;
   position: number;
   duration: number;
@@ -162,22 +186,49 @@ type MusicStore = {
   loadFor: (owner: string) => Promise<void>;
   importFiles: (files: FileList | File[]) => Promise<ImportResult>;
   remove: (id: string) => Promise<void>;
-  playTrack: (id: string) => Promise<void>;
+  playTrack: (id: string, source?: QueueSource) => Promise<void>;
+  playSource: (source: QueueSource, options?: { shuffle?: boolean }) => Promise<void>;
   togglePlay: () => Promise<void>;
   play: () => Promise<void>;
   pause: () => Promise<void>;
   next: (auto?: boolean) => Promise<void>;
   previous: () => Promise<void>;
   seek: (seconds: number) => void;
+  toggleShuffle: () => void;
   updateSettings: (changes: Partial<MusicSettings>) => void;
+  createPlaylist: (name: string, trackIds?: string[]) => Promise<Playlist | null>;
+  renamePlaylist: (id: string, name: string) => Promise<void>;
+  setPlaylistTracks: (id: string, trackIds: string[]) => Promise<void>;
+  addToPlaylist: (id: string, trackIds: string[]) => Promise<void>;
+  removePlaylist: (id: string) => Promise<void>;
   stopAndClear: () => void;
+};
+
+/** Canciones de una fuente, en su orden original. */
+const sourceTrackIds = (state: Pick<MusicStore, 'tracks' | 'playlists'>, source: QueueSource) => {
+  if (source.type === 'playlist') {
+    const playlist = state.playlists.find((p) => p.id === source.id);
+    const existing = new Set(state.tracks.map((t) => t.id));
+    return (playlist?.trackIds ?? []).filter((id) => existing.has(id));
+  }
+  return state.tracks.map((t) => t.id);
+};
+
+/** Arma la cola: si hay aleatorio, mezcla dejando primero la canción elegida. */
+const buildQueue = (ids: string[], first: string | null, shuffle: boolean) => {
+  if (!shuffle) return ids;
+  const rest = shuffled(ids.filter((id) => id !== first));
+  return first && ids.includes(first) ? [first, ...rest] : rest;
 };
 
 export const useMusicStore = create<MusicStore>((set, get) => ({
   owner: null,
   tracks: [],
+  playlists: [],
   loaded: false,
   currentId: null,
+  queue: [],
+  source: { type: 'all' },
   isPlaying: false,
   position: 0,
   duration: 0,
@@ -188,8 +239,8 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
   loadFor: async (owner) => {
     if (get().owner !== owner) get().stopAndClear();
     try {
-      const tracks = await listTracks(owner);
-      set({ owner, tracks, loaded: true, error: '' });
+      const [tracks, playlists] = await Promise.all([listTracks(owner), listPlaylists(owner)]);
+      set({ owner, tracks, playlists, loaded: true, error: '' });
     } catch (error) {
       set({ owner, loaded: true, error: error instanceof Error ? error.message : 'No se pudo cargar tu música.' });
     }
@@ -245,23 +296,39 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
       audio.pause();
       audio.removeAttribute('src');
       set({ currentId: null, isPlaying: false, position: 0, duration: 0 });
-      updateMediaSession(null);
+      mediaSession.setMetadata(null);
+      mediaSession.setPlaybackState('none');
     }
     await deleteTrack(id);
-    set((state) => ({ tracks: state.tracks.filter((t) => t.id !== id) }));
+    // También se quita de las playlists que la contenían.
+    const touched = get().playlists.filter((p) => p.trackIds.includes(id));
+    for (const playlist of touched) {
+      await savePlaylist({ ...playlist, trackIds: playlist.trackIds.filter((t) => t !== id) });
+    }
+    set((state) => ({
+      tracks: state.tracks.filter((t) => t.id !== id),
+      queue: state.queue.filter((t) => t !== id),
+      playlists: state.playlists.map((p) => ({ ...p, trackIds: p.trackIds.filter((t) => t !== id) })),
+    }));
   },
 
-  playTrack: async (id) => {
-    const track = get().tracks.find((t) => t.id === id);
-    if (!track || switching) return;
+  playTrack: async (id, source) => {
+    const state = get();
+    const item = state.tracks.find((t) => t.id === id);
+    if (!item || switching) return;
+    // Nueva cola si se indica una fuente o si la canción no está en la cola actual.
+    if (source || !state.queue.includes(id)) {
+      const from = source ?? state.source;
+      set({ source: from, queue: buildQueue(sourceTrackIds(state, from), id, state.settings.shuffle) });
+    }
     switching = true;
     try {
       ensureGraph();
       await ctx?.resume();
       if (get().isPlaying) await fadeTo(0, fadeSeconds() / 2);
-      await loadIntoAudio(track);
-      set({ currentId: id, position: 0, duration: track.duration, error: '' });
-      updateMediaSession(track);
+      await loadIntoAudio(item);
+      set({ currentId: id, position: 0, duration: item.duration, error: '' });
+      mediaSession.setMetadata({ title: item.title, artist: item.artist || 'Artista desconocido', album: 'TEO + TEA' });
       await get().play();
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'No se pudo reproducir la canción.', isPlaying: false });
@@ -270,10 +337,22 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
     }
   },
 
+  playSource: async (source, options) => {
+    const state = get();
+    const ids = sourceTrackIds(state, source);
+    if (!ids.length) return;
+    const shuffle = options?.shuffle ?? state.settings.shuffle;
+    if (options?.shuffle !== undefined && options.shuffle !== state.settings.shuffle) {
+      get().updateSettings({ shuffle });
+    }
+    const queue = buildQueue(ids, null, shuffle);
+    set({ source, queue });
+    await get().playTrack(queue[0]);
+  },
+
   play: async () => {
     if (!get().currentId) {
-      const first = get().tracks[0];
-      if (first) await get().playTrack(first.id);
+      await get().playSource(get().source.type === 'playlist' ? get().source : { type: 'all' });
       return;
     }
     ensureGraph();
@@ -283,7 +362,7 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
     try {
       await audio.play();
       set({ isPlaying: true });
-      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+      mediaSession.setPlaybackState('playing');
       await fadeTo(1, fadeSeconds());
     } catch {
       set({ isPlaying: false, error: 'El navegador bloqueó la reproducción. Toca ▶ de nuevo.' });
@@ -292,7 +371,7 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
 
   pause: async () => {
     set({ isPlaying: false });
-    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+    mediaSession.setPlaybackState('paused');
     await fadeTo(0, fadeSeconds() / 2);
     if (!get().isPlaying) audio.pause();
   },
@@ -300,56 +379,69 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
   togglePlay: async () => (get().isPlaying ? get().pause() : get().play()),
 
   next: async (auto = false) => {
-    const { tracks, currentId, settings } = get();
-    if (!tracks.length) return;
-    const index = tracks.findIndex((t) => t.id === currentId);
+    const { queue, currentId, settings } = get();
+    if (!queue.length) return;
     if (auto && settings.repeat === 'one' && currentId) {
       await get().playTrack(currentId);
       return;
     }
-    let nextIndex: number;
-    if (settings.shuffle && tracks.length > 1) {
-      do nextIndex = Math.floor(Math.random() * tracks.length);
-      while (nextIndex === index);
-    } else {
-      nextIndex = index + 1;
-      if (nextIndex >= tracks.length) {
-        if (auto && settings.repeat === 'off') {
-          set({ isPlaying: false, position: 0 });
-          audio.currentTime = 0;
-          return;
-        }
-        nextIndex = 0;
+    const index = queue.indexOf(currentId ?? '');
+    let nextIndex = index + 1;
+    if (nextIndex >= queue.length) {
+      if (auto && settings.repeat === 'off') {
+        set({ isPlaying: false, position: 0 });
+        mediaSession.setPlaybackState('paused');
+        audio.currentTime = 0;
+        return;
       }
+      // Al dar la vuelta con aleatorio, se vuelve a mezclar para no repetir el mismo orden.
+      if (settings.shuffle) {
+        const reshuffled = buildQueue(queue, null, true);
+        set({ queue: reshuffled });
+        await get().playTrack(reshuffled[0]);
+        return;
+      }
+      nextIndex = 0;
     }
-    await get().playTrack(tracks[nextIndex].id);
+    await get().playTrack(queue[nextIndex]);
   },
 
   previous: async () => {
-    const { tracks, currentId } = get();
-    if (!tracks.length) return;
+    const { queue, currentId } = get();
+    if (!queue.length) return;
     // Como en otros reproductores: si ya avanzó más de 3 s, vuelve al inicio de la canción.
     if (audio.currentTime > 3) {
       audio.currentTime = 0;
       return;
     }
-    const index = tracks.findIndex((t) => t.id === currentId);
-    const prevIndex = index <= 0 ? tracks.length - 1 : index - 1;
-    await get().playTrack(tracks[prevIndex].id);
+    const index = queue.indexOf(currentId ?? '');
+    const prevIndex = index <= 0 ? queue.length - 1 : index - 1;
+    await get().playTrack(queue[prevIndex]);
   },
 
   seek: (seconds) => {
     if (!Number.isFinite(seconds)) return;
     audio.currentTime = Math.max(0, Math.min(seconds, audio.duration || seconds));
     fadingOutForEnd = false;
-    if (fadeGain && ctx && get().isPlaying) fadeTo(1, 0.15);
+    if (fadeGain && ctx && get().isPlaying) void fadeTo(1, 0.15);
     set({ position: audio.currentTime });
+    mediaSession.setPositionState(audio.currentTime, audio.duration);
+  },
+
+  /** Activa/desactiva el aleatorio y reordena la cola manteniendo la canción actual. */
+  toggleShuffle: () => {
+    const state = get();
+    const shuffle = !state.settings.shuffle;
+    state.updateSettings({ shuffle });
+    const ids = sourceTrackIds(state, state.source);
+    set({ queue: buildQueue(ids, state.currentId, shuffle) });
   },
 
   updateSettings: (changes) => {
     const settings = { ...get().settings, ...changes };
     if (settings.volume > 1) settings.volume = 1;
     settings.maxVolume = Math.max(0.2, Math.min(1, settings.maxVolume));
+    settings.smoothStrength = Math.max(1, Math.min(SMOOTH_LEVELS.length, Math.round(settings.smoothStrength)));
     set({ settings });
     try {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
@@ -359,20 +451,80 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
     applyLevels();
   },
 
+  /* ------------------------------- Playlists ------------------------------- */
+  createPlaylist: async (name, trackIds = []) => {
+    const owner = get().owner;
+    const clean = name.trim().slice(0, 60);
+    if (!owner || !clean) return null;
+    const playlist: Playlist = { id: createTrackId().replace(/^t-/, 'p-'), owner, name: clean, trackIds, createdAt: Date.now() };
+    await savePlaylist(playlist);
+    set((state) => ({ playlists: [...state.playlists, playlist] }));
+    return playlist;
+  },
+
+  renamePlaylist: async (id, name) => {
+    const playlist = get().playlists.find((p) => p.id === id);
+    const clean = name.trim().slice(0, 60);
+    if (!playlist || !clean) return;
+    const updated = { ...playlist, name: clean };
+    await savePlaylist(updated);
+    set((state) => ({ playlists: state.playlists.map((p) => (p.id === id ? updated : p)) }));
+  },
+
+  setPlaylistTracks: async (id, trackIds) => {
+    const playlist = get().playlists.find((p) => p.id === id);
+    if (!playlist) return;
+    const updated = { ...playlist, trackIds: [...new Set(trackIds)] };
+    await savePlaylist(updated);
+    set((state) => ({ playlists: state.playlists.map((p) => (p.id === id ? updated : p)) }));
+  },
+
+  addToPlaylist: async (id, trackIds) => {
+    const playlist = get().playlists.find((p) => p.id === id);
+    if (!playlist) return;
+    await get().setPlaylistTracks(id, [...playlist.trackIds, ...trackIds]);
+  },
+
+  removePlaylist: async (id) => {
+    await dbDeletePlaylist(id);
+    set((state) => ({
+      playlists: state.playlists.filter((p) => p.id !== id),
+      ...(state.source.type === 'playlist' && state.source.id === id ? { source: { type: 'all' } as QueueSource } : {}),
+    }));
+  },
+
   stopAndClear: () => {
     audio.pause();
     audio.removeAttribute('src');
     if (currentUrl) URL.revokeObjectURL(currentUrl);
     currentUrl = null;
-    updateMediaSession(null);
-    set({ owner: null, tracks: [], loaded: false, currentId: null, isPlaying: false, position: 0, duration: 0 });
+    mediaSession.setMetadata(null);
+    mediaSession.setPlaybackState('none');
+    set({
+      owner: null,
+      tracks: [],
+      playlists: [],
+      loaded: false,
+      currentId: null,
+      queue: [],
+      source: { type: 'all' },
+      isPlaying: false,
+      position: 0,
+      duration: 0,
+    });
   },
 }));
 
 /* ----------------------------- Eventos del <audio> ----------------------------- */
+let lastPositionSync = 0;
 audio.addEventListener('timeupdate', () => {
   const { isPlaying, settings } = useMusicStore.getState();
   useMusicStore.setState({ position: audio.currentTime });
+  // Posición en la pantalla de bloqueo (cada 5 s basta).
+  if (Date.now() - lastPositionSync > 5000) {
+    lastPositionSync = Date.now();
+    mediaSession.setPositionState(audio.currentTime, audio.duration);
+  }
   // Transición suave entre canciones: baja el volumen antes del final.
   const remaining = (audio.duration || 0) - audio.currentTime;
   if (isPlaying && settings.fade && !fadingOutForEnd && audio.duration > settings.fadeSeconds * 3 && remaining <= settings.fadeSeconds) {
@@ -381,7 +533,10 @@ audio.addEventListener('timeupdate', () => {
   }
 });
 audio.addEventListener('loadedmetadata', () => {
-  if (Number.isFinite(audio.duration)) useMusicStore.setState({ duration: audio.duration });
+  if (Number.isFinite(audio.duration)) {
+    useMusicStore.setState({ duration: audio.duration });
+    mediaSession.setPositionState(0, audio.duration);
+  }
 });
 audio.addEventListener('ended', () => {
   void track('music_play'); // logro: canciones escuchadas completas
@@ -389,27 +544,21 @@ audio.addEventListener('ended', () => {
 });
 audio.addEventListener('pause', () => {
   // Pausa externa (auriculares desconectados, llamada, etc.)
-  if (!switching && useMusicStore.getState().isPlaying && !audio.ended) useMusicStore.setState({ isPlaying: false });
+  if (!switching && useMusicStore.getState().isPlaying && !audio.ended) {
+    useMusicStore.setState({ isPlaying: false });
+    mediaSession.setPlaybackState('paused');
+  }
 });
 
 /* ------------------------- Controles del sistema (bloqueo) ------------------------- */
-if ('mediaSession' in navigator) {
-  const session = navigator.mediaSession;
-  const safe = (action: MediaSessionAction, handler: MediaSessionActionHandler) => {
-    try {
-      session.setActionHandler(action, handler);
-    } catch {
-      /* acción no soportada en este navegador */
-    }
-  };
-  safe('play', () => void useMusicStore.getState().play());
-  safe('pause', () => void useMusicStore.getState().pause());
-  safe('nexttrack', () => void useMusicStore.getState().next());
-  safe('previoustrack', () => void useMusicStore.getState().previous());
-  safe('seekto', (details) => {
-    if (details.seekTime != null) useMusicStore.getState().seek(details.seekTime);
-  });
-}
+mediaSession.setActionHandler('play', () => void useMusicStore.getState().play());
+mediaSession.setActionHandler('pause', () => void useMusicStore.getState().pause());
+mediaSession.setActionHandler('nexttrack', () => void useMusicStore.getState().next());
+mediaSession.setActionHandler('previoustrack', () => void useMusicStore.getState().previous());
+mediaSession.setActionHandler('stop', () => void useMusicStore.getState().pause());
+mediaSession.setActionHandler('seekto', (details) => {
+  if (details.seekTime != null) useMusicStore.getState().seek(details.seekTime);
+});
 
 export const formatTime = (seconds: number) => {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';

@@ -1,6 +1,7 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import {
   IonAlert,
+  IonBackButton,
   IonButton,
   IonButtons,
   IonCard,
@@ -30,6 +31,7 @@ import {
   locationOutline,
   logOutOutline,
   shieldHalfOutline,
+  cameraOutline,
   homeOutline,
   libraryOutline,
   musicalNotesOutline,
@@ -51,7 +53,8 @@ import { useAuthStore, useCurrentUser } from '../store/useAuthStore';
 import { ACCOUNT_TYPE_LABELS } from '../api/staff';
 import { ExternalLinkButton } from '../components/ExternalLink';
 import { useThemeStore } from '../store/useThemeStore';
-import { calculateAge, getInitials } from '../utils/helpers';
+import { calculateAge, cropSquareImage } from '../utils/helpers';
+import UserAvatar from '../components/UserAvatar';
 import chessComLogo from '../../assets/logos/chess-com.png';
 import duolingoLogo from '../../assets/logos/duolingo.png';
 import ibispaintLogo from '../../assets/logos/ibispaint.png';
@@ -137,6 +140,30 @@ const Tab3: React.FC = () => {
     (state) => state.posts.filter((post) => post.authorId === profile?.id).length,
   );
   const [isSaving, setIsSaving] = useState(false);
+  const uploadAvatar = useAuthStore((state) => state.uploadAvatar);
+  const removeAvatar = useAuthStore((state) => state.removeAvatar);
+  const photoInput = useRef<HTMLInputElement>(null);
+  const [photoBusy, setPhotoBusy] = useState(false);
+
+  /** Recorta la foto en cuadrado (512 px) en el dispositivo y la sube. */
+  const changePhoto = async (file: File | undefined) => {
+    if (photoInput.current) photoInput.current.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setToast('Elige un archivo de imagen.');
+      return;
+    }
+    setPhotoBusy(true);
+    try {
+      const image = await cropSquareImage(file);
+      const result = await uploadAvatar(image);
+      setToast(result.ok ? '¡Foto de perfil actualizada!' : result.error);
+    } catch {
+      setToast('No pudimos leer esa imagen. Prueba con otra.');
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
 
   useIonViewWillEnter(() => {
     void track('visit', 'perfil');
@@ -212,6 +239,9 @@ const Tab3: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/inicio" text="" />
+          </IonButtons>
           <IonTitle>Perfil</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={() => setConfirmLogout(true)}>
@@ -225,8 +255,43 @@ const Tab3: React.FC = () => {
         <main className="profile-layout">
           <IonCard className="profile-hero">
             <IonCardContent>
-              <div className="profile-avatar" role="img" aria-label={`Iniciales de ${profile.name}`}>
-                {getInitials(profile.name)}
+              <div className="profile-photo">
+                <UserAvatar name={profile.name} avatar={profile.avatar} size={112} className="profile-photo-img" />
+                {photoBusy && (
+                  <span className="profile-photo-busy" role="status" aria-label="Subiendo foto">
+                    <IonSpinner name="dots" />
+                  </span>
+                )}
+              </div>
+              <input
+                ref={photoInput}
+                className="visually-hidden"
+                type="file"
+                accept="image/*"
+                aria-label="Elegir foto de perfil"
+                onChange={(e) => void changePhoto(e.target.files?.[0])}
+              />
+              <div className="profile-photo-actions">
+                <IonButton size="small" fill="outline" disabled={photoBusy} onClick={() => photoInput.current?.click()}>
+                  <IonIcon slot="start" icon={cameraOutline} aria-hidden="true" />
+                  {profile.avatar ? 'Cambiar foto' : 'Agregar foto'}
+                </IonButton>
+                {profile.avatar && (
+                  <IonButton
+                    size="small"
+                    fill="clear"
+                    color="medium"
+                    disabled={photoBusy}
+                    onClick={async () => {
+                      setPhotoBusy(true);
+                      const result = await removeAvatar();
+                      setPhotoBusy(false);
+                      setToast(result.ok ? 'Foto quitada.' : result.error);
+                    }}
+                  >
+                    Quitar
+                  </IonButton>
+                )}
               </div>
               <h1>{profile.name}</h1>
               <p className="profile-username">{profile.username}</p>

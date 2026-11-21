@@ -17,8 +17,18 @@ export type TrackMeta = {
 
 type TrackRecord = TrackMeta & { blob: Blob };
 
+/** Playlist local: solo guarda el orden de las canciones (referencias a la tienda "tracks"). */
+export type Playlist = {
+  id: string;
+  owner: string;
+  name: string;
+  trackIds: string[];
+  createdAt: number;
+};
+
 const DB_NAME = 'teo-tea-music';
 const STORE = 'tracks';
+const PLAYLISTS = 'playlists';
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -29,10 +39,16 @@ const openDb = () => {
         reject(new Error('Este navegador no permite guardar canciones en el dispositivo.'));
         return;
       }
-      const request = indexedDB.open(DB_NAME, 1);
+      // v1: canciones · v2: playlists (la actualización conserva las canciones ya importadas)
+      const request = indexedDB.open(DB_NAME, 2);
       request.onupgradeneeded = () => {
-        const store = request.result.createObjectStore(STORE, { keyPath: 'id' });
-        store.createIndex('owner', 'owner');
+        const db = request.result;
+        if (!db.objectStoreNames.contains(STORE)) {
+          db.createObjectStore(STORE, { keyPath: 'id' }).createIndex('owner', 'owner');
+        }
+        if (!db.objectStoreNames.contains(PLAYLISTS)) {
+          db.createObjectStore(PLAYLISTS, { keyPath: 'id' }).createIndex('owner', 'owner');
+        }
       };
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error ?? new Error('No se pudo abrir el almacenamiento de música.'));
@@ -41,11 +57,15 @@ const openDb = () => {
   return dbPromise;
 };
 
-const run = async <T>(mode: IDBTransactionMode, fn: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> => {
+const run = async <T>(
+  mode: IDBTransactionMode,
+  fn: (store: IDBObjectStore) => IDBRequest<T>,
+  storeName = STORE,
+): Promise<T> => {
   const db = await openDb();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE, mode);
-    const request = fn(tx.objectStore(STORE));
+    const tx = db.transaction(storeName, mode);
+    const request = fn(tx.objectStore(storeName));
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error ?? new Error('Error de almacenamiento.'));
     tx.onabort = () => reject(tx.error ?? new Error('No hay espacio suficiente en el dispositivo.'));
@@ -72,6 +92,16 @@ export const getTrackBlob = async (id: string): Promise<Blob | null> => {
 export const saveTrack = (record: TrackRecord) => run('readwrite', (s) => s.put(record));
 
 export const deleteTrack = (id: string) => run('readwrite', (s) => s.delete(id));
+
+/* --------------------------------- Playlists --------------------------------- */
+export const listPlaylists = async (owner: string): Promise<Playlist[]> => {
+  const records = await run<Playlist[]>('readonly', (s) => s.index('owner').getAll(owner), PLAYLISTS);
+  return records.sort((a, b) => a.createdAt - b.createdAt);
+};
+
+export const savePlaylist = (playlist: Playlist) => run('readwrite', (s) => s.put(playlist), PLAYLISTS);
+
+export const deletePlaylist = (id: string) => run('readwrite', (s) => s.delete(id), PLAYLISTS);
 
 /** Pide al navegador que no borre la música si el dispositivo se queda sin espacio. */
 export const requestPersistentStorage = async () => {

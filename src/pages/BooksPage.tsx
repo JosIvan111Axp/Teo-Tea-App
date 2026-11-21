@@ -30,6 +30,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { type CatalogBook, type LibraryBook, useBooksStore } from '../store/useBooksStore';
 import { track } from '../store/useAchievementsStore';
+import ProfileButton from '../components/ProfileButton';
 import './BooksPage.css';
 
 type View = 'mia' | 'explorar';
@@ -150,6 +151,7 @@ const BooksPage: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonTitle>Biblioteca</IonTitle>
+          <ProfileButton />
         </IonToolbar>
         <IonToolbar className="books-segment-toolbar toolbar-light">
           <IonSegment value={view} onIonChange={(e) => setView((e.detail.value as View) ?? 'mia')}>

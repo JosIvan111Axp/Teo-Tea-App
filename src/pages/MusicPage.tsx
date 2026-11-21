@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
+  IonActionSheet,
   IonAlert,
   IonButton,
   IonContent,
@@ -15,6 +16,9 @@ import {
 } from '@ionic/react';
 import {
   addCircleOutline,
+  albumsOutline,
+  chevronForwardOutline,
+  listOutline,
   earOutline,
   musicalNotesOutline,
   pause,
@@ -28,10 +32,12 @@ import {
   volumeHighOutline,
   volumeLowOutline,
 } from 'ionicons/icons';
-import { storageEstimate } from '../music/musicDb';
+import { storageEstimate, type Playlist } from '../music/musicDb';
+import PlaylistModal from '../components/PlaylistModal';
 import { useCurrentUser } from '../store/useAuthStore';
-import { formatBytes, formatTime, useMusicStore } from '../store/useMusicStore';
+import { SMOOTH_LEVELS, formatBytes, formatTime, useMusicStore } from '../store/useMusicStore';
 import { track } from '../store/useAchievementsStore';
+import ProfileButton from '../components/ProfileButton';
 import './MusicPage.css';
 
 const FADE_OPTIONS = [1, 2, 4];
@@ -57,12 +63,22 @@ const MusicPage: React.FC = () => {
     previous,
     seek,
     updateSettings,
+    playlists,
+    source,
+    toggleShuffle,
+    playSource,
+    createPlaylist,
+    addToPlaylist,
   } = useMusicStore();
   const fileInput = useRef<HTMLInputElement>(null);
   const [toast, setToast] = useState<{ message: string; color: string } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [storage, setStorage] = useState<{ used: number; quota: number } | null>(null);
   const [seeking, setSeeking] = useState<number | null>(null);
+  const [addTarget, setAddTarget] = useState<string | null>(null);
+  /** Nombre de la playlist nueva: null = cerrado; '' = sin canción; id = crear con esa canción. */
+  const [newPlaylistFor, setNewPlaylistFor] = useState<string | null>(null);
+  const [openPlaylist, setOpenPlaylist] = useState<Playlist | null>(null);
 
   useEffect(() => {
     if (user) void loadFor(user.id);
@@ -76,6 +92,8 @@ const MusicPage: React.FC = () => {
   const current = tracks.find((t) => t.id === currentId) ?? null;
   const shownPosition = seeking ?? position;
   const effectivePercent = Math.round(settings.volume * settings.maxVolume * 100);
+  const sourceLabel =
+    source.type === 'playlist' ? playlists.find((p) => p.id === source.id)?.name ?? 'Playlist' : 'Todas las canciones';
 
   const handleImport = async (files: FileList | null) => {
     if (!files?.length) return;
@@ -101,6 +119,7 @@ const MusicPage: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonTitle>Música</IonTitle>
+          <ProfileButton />
         </IonToolbar>
       </IonHeader>
       <IonContent className="music-content">
@@ -118,6 +137,12 @@ const MusicPage: React.FC = () => {
             <div className="np-info">
               <strong>{current?.title ?? 'Elige una canción'}</strong>
               <span>{current ? current.artist || 'Artista desconocido' : 'Importa tus canciones para empezar'}</span>
+              {current && (
+                <span className="np-source">
+                  {settings.shuffle ? 'Aleatorio · ' : ''}
+                  {sourceLabel}
+                </span>
+              )}
             </div>
             <IonRange
               className="np-seek"
@@ -143,7 +168,7 @@ const MusicPage: React.FC = () => {
                 className={settings.shuffle ? 'is-active' : ''}
                 aria-label={settings.shuffle ? 'Aleatorio activado' : 'Aleatorio desactivado'}
                 aria-pressed={settings.shuffle}
-                onClick={() => updateSettings({ shuffle: !settings.shuffle })}
+                onClick={toggleShuffle}
               >
                 <IonIcon slot="icon-only" icon={shuffle} />
               </IonButton>
@@ -222,6 +247,31 @@ const MusicPage: React.FC = () => {
               Suavizar sonidos fuertes
             </IonToggle>
             <p className="music-help">Reduce los golpes de volumen repentinos dentro de una canción.</p>
+            {settings.smoothPeaks && (
+              <div className="smooth-strength">
+                <label className="music-setting-label" htmlFor="smooth-strength">
+                  Potencia del suavizado: <strong>{SMOOTH_LEVELS[settings.smoothStrength - 1].label}</strong>
+                </label>
+                <IonRange
+                  id="smooth-strength"
+                  aria-label="Potencia del suavizado"
+                  min={1}
+                  max={SMOOTH_LEVELS.length}
+                  step={1}
+                  snaps
+                  ticks
+                  value={settings.smoothStrength}
+                  onIonInput={(e) => updateSettings({ smoothStrength: Number(e.detail.value) })}
+                />
+                <div className="range-labels" aria-hidden="true">
+                  <span>Muy suave</span>
+                  <span>Muy fuerte</span>
+                </div>
+                <p className="music-help">
+                  Más potencia = los sonidos fuertes se igualan más con los suaves. Útil si hay sensibilidad auditiva.
+                </p>
+              </div>
+            )}
 
             <IonToggle
               className="music-toggle"
@@ -250,12 +300,80 @@ const MusicPage: React.FC = () => {
             )}
           </section>
 
+          {/* ------------------------------ Mis playlists ------------------------------ */}
+          <section className="music-card" aria-labelledby="playlists-title">
+            <div className="tracks-head">
+              <h2 id="playlists-title">
+                <IonIcon icon={albumsOutline} aria-hidden="true" /> Mis playlists <span>({playlists.length})</span>
+              </h2>
+              <IonButton fill="outline" disabled={!tracks.length} onClick={() => setNewPlaylistFor('')}>
+                <IonIcon slot="start" icon={addCircleOutline} aria-hidden="true" />
+                Nueva
+              </IonButton>
+            </div>
+            {!playlists.length && (
+              <p className="music-help">
+                {tracks.length
+                  ? 'Crea playlists para agrupar tus canciones: para relajarte, concentrarte o moverte.'
+                  : 'Primero importa canciones; luego podrás crear playlists con ellas.'}
+              </p>
+            )}
+            <ul className="playlist-rows">
+              {playlists.map((p) => {
+                const isActive = source.type === 'playlist' && source.id === p.id && Boolean(currentId);
+                return (
+                  <li key={p.id} className={isActive ? 'is-current' : ''}>
+                    <button type="button" className="playlist-open" onClick={() => setOpenPlaylist(p)}>
+                      <span className="playlist-cover" aria-hidden="true">
+                        <IonIcon icon={albumsOutline} />
+                      </span>
+                      <span className="track-copy">
+                        <strong>{p.name}</strong>
+                        <span>
+                          {p.trackIds.length} {p.trackIds.length === 1 ? 'canción' : 'canciones'}
+                          {isActive ? ' · sonando' : ''}
+                        </span>
+                      </span>
+                      <IonIcon icon={chevronForwardOutline} aria-hidden="true" className="playlist-chevron" />
+                    </button>
+                    <IonButton
+                      fill="clear"
+                      aria-label={`Reproducir ${p.name}`}
+                      disabled={!p.trackIds.length}
+                      onClick={() => void playSource({ type: 'playlist', id: p.id }, { shuffle: false })}
+                    >
+                      <IonIcon slot="icon-only" icon={play} />
+                    </IonButton>
+                    <IonButton
+                      fill="clear"
+                      aria-label={`Reproducir ${p.name} en orden aleatorio`}
+                      disabled={!p.trackIds.length}
+                      onClick={() => void playSource({ type: 'playlist', id: p.id }, { shuffle: true })}
+                    >
+                      <IonIcon slot="icon-only" icon={shuffle} />
+                    </IonButton>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+
           {/* ------------------------------ Mis canciones ------------------------------ */}
           <section className="music-card" aria-labelledby="tracks-title">
             <div className="tracks-head">
               <h2 id="tracks-title">
                 Mis canciones <span>({tracks.length})</span>
               </h2>
+              <div className="tracks-head-actions">
+              <IonButton
+                fill="outline"
+                disabled={!tracks.length}
+                aria-label="Reproducir todas en orden aleatorio"
+                onClick={() => void playSource({ type: 'all' }, { shuffle: true })}
+              >
+                <IonIcon slot="start" icon={shuffle} aria-hidden="true" />
+                Aleatorio
+              </IonButton>
               <IonButton disabled={importing} onClick={() => fileInput.current?.click()}>
                 {importing ? (
                   <>
@@ -268,6 +386,7 @@ const MusicPage: React.FC = () => {
                   </>
                 )}
               </IonButton>
+              </div>
             </div>
             <input
               ref={fileInput}
@@ -304,7 +423,7 @@ const MusicPage: React.FC = () => {
                       type="button"
                       className="track-main"
                       aria-label={`${isCurrent && isPlaying ? 'Pausar' : 'Reproducir'} ${track.title}`}
-                      onClick={() => void (isCurrent ? togglePlay() : playTrack(track.id))}
+                      onClick={() => void (isCurrent ? togglePlay() : playTrack(track.id, { type: 'all' }))}
                     >
                       <span className="track-index" aria-hidden="true">
                         {isCurrent && isPlaying ? <IonIcon icon={pause} /> : isCurrent ? <IonIcon icon={play} /> : index + 1}
@@ -316,6 +435,14 @@ const MusicPage: React.FC = () => {
                         </span>
                       </span>
                     </button>
+                    <IonButton
+                      fill="clear"
+                      color="medium"
+                      aria-label={`Agregar ${track.title} a una playlist`}
+                      onClick={() => setAddTarget(track.id)}
+                    >
+                      <IonIcon slot="icon-only" icon={listOutline} />
+                    </IonButton>
                     <IonButton
                       fill="clear"
                       color="medium"
@@ -354,6 +481,51 @@ const MusicPage: React.FC = () => {
           ]}
           onDidDismiss={() => setConfirmDelete(null)}
         />
+
+        <IonActionSheet
+          isOpen={Boolean(addTarget)}
+          header="Agregar a una playlist"
+          buttons={[
+            ...playlists.map((p) => ({
+              text: p.trackIds.includes(addTarget ?? '') ? `${p.name} (ya está)` : p.name,
+              handler: () => {
+                const id = addTarget;
+                if (!id || p.trackIds.includes(id)) return;
+                void addToPlaylist(p.id, [id]).then(() =>
+                  setToast({ message: `Agregada a “${p.name}”.`, color: 'secondary' }),
+                );
+              },
+            })),
+            { text: '+ Nueva playlist', handler: () => setNewPlaylistFor(addTarget ?? '') },
+            { text: 'Cancelar', role: 'cancel' },
+          ]}
+          onDidDismiss={() => setAddTarget(null)}
+        />
+
+        <IonAlert
+          isOpen={newPlaylistFor !== null}
+          header="Nueva playlist"
+          inputs={[{ name: 'name', type: 'text', placeholder: 'Ej.: Para relajarme', attributes: { maxlength: 60 } }]}
+          buttons={[
+            { text: 'Cancelar', role: 'cancel' },
+            {
+              text: 'Crear',
+              handler: (values: { name: string }) => {
+                if (!values.name.trim()) return false;
+                const withTrack = newPlaylistFor;
+                void createPlaylist(values.name, withTrack ? [withTrack] : []).then((p) => {
+                  if (!p) return;
+                  setToast({ message: `Playlist “${p.name}” creada.`, color: 'secondary' });
+                  if (!withTrack) setOpenPlaylist(p);
+                });
+                return true;
+              },
+            },
+          ]}
+          onDidDismiss={() => setNewPlaylistFor(null)}
+        />
+
+        <PlaylistModal playlist={openPlaylist} onClose={() => setOpenPlaylist(null)} />
 
         <IonToast
           isOpen={Boolean(toast)}

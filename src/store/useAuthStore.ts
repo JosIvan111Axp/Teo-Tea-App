@@ -27,6 +27,8 @@ type AuthStore = {
   refreshUser: () => Promise<void>;
   setStartPage: (startPage: StartPage) => Promise<AuthResult>;
   acceptCommunityRules: () => Promise<AuthResult>;
+  uploadAvatar: (image: string) => Promise<AuthResult>;
+  removeAvatar: () => Promise<AuthResult>;
   updateProfile: (
     changes: Partial<Pick<UserProfile, 'name' | 'profession' | 'bio' | 'skills' | 'interests'>>,
   ) => Promise<AuthResult>;
@@ -92,6 +94,26 @@ export const useAuthStore = create<AuthStore>()(
               method: 'PUT',
               body: { startPage },
             });
+            set({ user });
+            return { ok: true };
+          } catch (error) {
+            return { ok: false, error: errorMessage(error) };
+          }
+        },
+
+        uploadAvatar: async (image) => {
+          try {
+            const { user } = await api<{ user: UserProfile }>('/auth/me/avatar', { method: 'PUT', body: { image } });
+            set({ user });
+            return { ok: true };
+          } catch (error) {
+            return { ok: false, error: errorMessage(error) };
+          }
+        },
+
+        removeAvatar: async () => {
+          try {
+            const { user } = await api<{ user: UserProfile }>('/auth/me/avatar', { method: 'DELETE' });
             set({ user });
             return { ok: true };
           } catch (error) {

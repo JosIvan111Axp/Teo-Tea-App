@@ -49,6 +49,7 @@ import artComunidad from '../../assets/icons/ilustrado/comunidad.svg';
 import artDerechos from '../../assets/icons/ilustrado/derechos.svg';
 import artInformacion from '../../assets/icons/ilustrado/informacion.svg';
 import artTrabajo from '../../assets/icons/ilustrado/trabajo.svg';
+import ProfileButton from '../components/ProfileButton';
 import './Tab1.css';
 
 const quickLinks = [
@@ -151,6 +152,7 @@ const Tab1: React.FC = () => {
               <IonIcon slot="icon-only" icon={themeMode === 'dark' ? sunnyOutline : moonOutline} />
             </IonButton>
           </IonButtons>
+          <ProfileButton />
         </IonToolbar>
       </IonHeader>
       <IonContent className="home-content" fullscreen>

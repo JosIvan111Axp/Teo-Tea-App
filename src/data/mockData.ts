@@ -25,6 +25,7 @@ export type CommunityComment = {
   authorId: string;
   author: string;
   authorType?: AccountType;
+  authorAvatar?: string | null;
   text: string;
   createdAt: number;
 };
@@ -35,6 +36,7 @@ export type CommunityPost = {
   author: string;
   role: string;
   authorType?: AccountType;
+  authorAvatar?: string | null;
   createdAt: number;
   body: string;
   likedBy: string[];
@@ -58,6 +60,8 @@ export type UserProfile = {
   interests: string[];
   accountType?: AccountType;
   startPage?: StartPage;
+  /** Ruta relativa de la foto de perfil en el servidor (null = sin foto). */
+  avatar?: string | null;
   communityRulesAccepted?: boolean;
   communityFrozenUntil?: number | null;
   communityFreezeReason?: string;

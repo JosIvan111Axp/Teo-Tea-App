@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { pool } from '../db.js';
+import { removeImage, saveImage } from './posts.js';
 import { isSuspended, requireAuth, signToken, suspensionMessage, toPublicUser } from '../auth.js';
 
 const router = Router();
@@ -97,6 +98,32 @@ router.put('/me/start-page', requireAuth, async (req, res, next) => {
     const startPage = String(req.body.startPage ?? '');
     if (!START_PAGES.includes(startPage)) return res.status(400).json({ error: 'Página de inicio no válida.' });
     await pool.query('UPDATE users SET start_page = ? WHERE id = ?', [startPage, req.user.id]);
+    const [[row]] = await pool.query('SELECT * FROM users WHERE id = ?', [req.user.id]);
+    return res.json({ user: toPublicUser(row) });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Foto de perfil: se recibe ya recortada y comprimida por la app (data URL JPEG/PNG/WebP, máx. 2 MB).
+router.put('/me/avatar', requireAuth, async (req, res, next) => {
+  try {
+    if (!req.body.image) return res.status(400).json({ error: 'Elige una imagen.' });
+    const newPath = await saveImage(req.body.image);
+    const oldPath = req.user.avatar_path;
+    await pool.query('UPDATE users SET avatar_path = ? WHERE id = ?', [newPath, req.user.id]);
+    if (oldPath) await removeImage(oldPath);
+    const [[row]] = await pool.query('SELECT * FROM users WHERE id = ?', [req.user.id]);
+    return res.json({ user: toPublicUser(row) });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.delete('/me/avatar', requireAuth, async (req, res, next) => {
+  try {
+    if (req.user.avatar_path) await removeImage(req.user.avatar_path);
+    await pool.query('UPDATE users SET avatar_path = NULL WHERE id = ?', [req.user.id]);
     const [[row]] = await pool.query('SELECT * FROM users WHERE id = ?', [req.user.id]);
     return res.json({ user: toPublicUser(row) });
   } catch (error) {
