@@ -248,9 +248,6 @@
 }
 
 .community-tools ion-segment-button {
-  --color: var(--teo-ink-soft);
-  --color-checked: var(--teo-surface);
-  --indicator-color: var(--teo-purple);
   min-height: 42px;
   font-weight: 600;
   text-transform: none;

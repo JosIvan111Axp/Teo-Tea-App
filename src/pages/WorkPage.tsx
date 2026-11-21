@@ -23,6 +23,14 @@ import {
 import { ExternalLinkButton } from '../components/ExternalLink';
 import { COUNTRIES, countryFromProfile, type CountryCode } from '../data/rights';
 import { useCurrentUser } from '../store/useAuthStore';
+import bumeranLogo from '../../assets/logos/bumeran.png';
+import computrabajoLogo from '../../assets/logos/computrabajo.png';
+import elempleoLogo from '../../assets/logos/elempleo.png';
+import incluyemeLogo from '../../assets/logos/incluyeme.png';
+import indeedLogo from '../../assets/logos/indeed.png';
+import linkedinLogo from '../../assets/logos/linkedin.png';
+import multitrabajosLogo from '../../assets/logos/multitrabajos.png';
+import servicioEmpleoLogo from '../../assets/logos/servicio-empleo.jpg';
 import './WorkPage.css';
 
 /* Frases para empezar el día con ánimo (cambia cada día). */
@@ -41,11 +49,13 @@ type JobSite = {
   description: string;
   scope: 'todos' | CountryCode;
   inclusive?: boolean;
+  logo?: string;
 };
 
 const JOB_SITES: JobSite[] = [
   {
     name: 'Incluyeme.com',
+    logo: incluyemeLogo,
     url: 'https://www.incluyeme.com',
     description: 'Portal latinoamericano de empleo para personas con discapacidad, con empresas comprometidas con la inclusión.',
     scope: 'todos',
@@ -53,18 +63,21 @@ const JOB_SITES: JobSite[] = [
   },
   {
     name: 'LinkedIn',
+    logo: linkedinLogo,
     url: 'https://www.linkedin.com/jobs/',
     description: 'La red profesional más usada: perfil, contactos y ofertas de empleo en todo el mundo.',
     scope: 'todos',
   },
   {
     name: 'Computrabajo',
+    logo: computrabajoLogo,
     url: 'https://www.computrabajo.com',
     description: 'Uno de los portales de empleo más grandes de Latinoamérica, con secciones por país.',
     scope: 'todos',
   },
   {
     name: 'Indeed',
+    logo: indeedLogo,
     url: 'https://www.indeed.com',
     description: 'Buscador que reúne ofertas de muchos sitios de empleo.',
     scope: 'todos',
@@ -77,24 +90,28 @@ const JOB_SITES: JobSite[] = [
   },
   {
     name: 'Multitrabajos',
+    logo: multitrabajosLogo,
     url: 'https://www.multitrabajos.com',
     description: 'Portal de empleo privado muy usado en Ecuador.',
     scope: 'ecuador',
   },
   {
     name: 'Servicio Público de Empleo',
+    logo: servicioEmpleoLogo,
     url: 'https://www.serviciodeempleo.gov.co',
     description: 'Red pública de empleo de Colombia, con orientación y ofertas gratuitas.',
     scope: 'colombia',
   },
   {
     name: 'elempleo.com',
+    logo: elempleoLogo,
     url: 'https://www.elempleo.com',
     description: 'Portal de empleo privado de Colombia.',
     scope: 'colombia',
   },
   {
     name: 'Bumeran Perú',
+    logo: bumeranLogo,
     url: 'https://www.bumeran.com.pe',
     description: 'Portal de empleo privado con ofertas en Perú.',
     scope: 'peru',
@@ -188,6 +205,9 @@ const WorkPage: React.FC = () => {
               {sites.map((site) => (
                 <li key={site.name}>
                   <ExternalLinkButton url={site.url} label={site.name} className="work-site">
+                    <span className="site-logo" aria-hidden="true">
+                      {site.logo ? <img src={site.logo} alt="" /> : <IonIcon icon={briefcaseOutline} />}
+                    </span>
                     <span className="work-site-copy">
                       <strong>
                         {site.name}

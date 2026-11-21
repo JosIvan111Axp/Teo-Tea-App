@@ -96,6 +96,7 @@ const ReaderPage: React.FC = () => {
   const saveTimer = useRef<number | undefined>(undefined);
   const pendingSave = useRef<{ cfi: string; progress: number } | null>(null);
   const touchStart = useRef<{ x: number; y: number; t: number } | null>(null);
+  const lastProgress = useRef(libraryBook?.progress ?? 0);
 
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState('');
@@ -154,11 +155,16 @@ const ReaderPage: React.FC = () => {
           setAtStart(location.atStart);
           setAtEnd(location.atEnd);
           setPageInfo(location.start.displayed);
-          const pct =
-            book.locations.length() > 0 ? book.locations.percentageFromCfi(location.start.cfi) : location.start.percentage;
-          if (Number.isFinite(pct)) setProgress(pct);
+          // Mientras se calculan las posiciones, el % no es fiable: se conserva el último conocido
+          // para no sobrescribir el avance guardado con 0%.
+          const ready = book.locations.length() > 0;
+          const pct = ready ? book.locations.percentageFromCfi(location.start.cfi) : NaN;
+          if (Number.isFinite(pct)) {
+            lastProgress.current = pct;
+            setProgress(pct);
+          }
 
-          pendingSave.current = { cfi: location.start.cfi, progress: Number.isFinite(pct) ? pct : 0 };
+          pendingSave.current = { cfi: location.start.cfi, progress: lastProgress.current };
           window.clearTimeout(saveTimer.current);
           saveTimer.current = window.setTimeout(flushProgress, 1500);
         });
@@ -197,6 +203,9 @@ const ReaderPage: React.FC = () => {
         if (cancelled) return;
         setToc(navigation.toc);
 
+        // Avance guardado (la biblioteca ya está cargada en este punto).
+        lastProgress.current =
+          useBooksStore.getState().library.find((item) => item.id === bookId)?.progress ?? lastProgress.current;
         await rendition.display(startLocation);
         if (cancelled) return;
         setStatus('ready');
@@ -221,7 +230,14 @@ const ReaderPage: React.FC = () => {
         if (cancelled) return;
         setLocationsReady(true);
         const current = rendition.currentLocation() as unknown as Location | undefined;
-        if (current?.start?.cfi) setProgress(book.locations.percentageFromCfi(current.start.cfi));
+        if (current?.start?.cfi) {
+          const pct = book.locations.percentageFromCfi(current.start.cfi);
+          lastProgress.current = pct;
+          setProgress(pct);
+          pendingSave.current = { cfi: current.start.cfi, progress: pct };
+          window.clearTimeout(saveTimer.current);
+          saveTimer.current = window.setTimeout(flushProgress, 1500);
+        }
       } catch (err) {
         if (!cancelled) {
           setError(errorMessage(err));
@@ -387,7 +403,11 @@ const ReaderPage: React.FC = () => {
       </footer>
 
       {/* Índice */}
-      <IonModal isOpen={showToc} onDidDismiss={() => setShowToc(false)}>
+      <IonModal
+        isOpen={showToc}
+        onDidDismiss={() => setShowToc(false)}
+        className={`reader-modal reader-modal-${prefs.theme}`}
+      >
         <IonHeader>
           <IonToolbar>
             <IonTitle>Índice</IonTitle>
@@ -422,7 +442,7 @@ const ReaderPage: React.FC = () => {
         onDidDismiss={() => setShowSettings(false)}
         initialBreakpoint={0.6}
         breakpoints={[0, 0.6, 0.9]}
-        className="reader-settings-modal"
+        className={`reader-settings-modal reader-modal reader-modal-${prefs.theme}`}
       >
         <IonContent className="reader-settings">
           <h2>Ajustes de lectura</h2>

@@ -1,7 +1,8 @@
 /* Lector EPUB estilo "Google Libros": texto paginado, controles que se ocultan al tocar. */
 
 .reader-page {
-  --reader-chrome-bg: var(--teo-surface);
+  /* Colores fijos del tema de lectura (no dependen del modo claro/oscuro de la app). */
+  --reader-chrome-bg: #fffefc;
 }
 
 .reader-theme-sepia {
@@ -281,7 +282,7 @@
 
 /* El lector conserva barras del color del tema de lectura (no las moradas globales). */
 .reader-page {
-  --reader-chrome-fg: var(--teo-ink);
+  --reader-chrome-fg: #33204f;
 }
 
 .reader-theme-sepia {
@@ -307,4 +308,87 @@
    para que índice, ajustes y volver se vean en los temas claro y sepia. */
 .reader-page .reader-header ion-toolbar {
   --ion-toolbar-color: var(--reader-chrome-fg);
+}
+
+/* Ventanas del lector (índice y ajustes): siguen el tema de LECTURA, no el de la app.
+   Lector en claro → ventana clara con letras oscuras; sepia → sepia; oscuro → oscuro. */
+.reader-modal {
+  --background: var(--teo-surface);
+  --ion-background-color: var(--teo-surface);
+  --ion-item-background: var(--teo-surface);
+  --ion-text-color: var(--teo-ink);
+  --ion-toolbar-background: var(--teo-surface);
+  color: var(--teo-ink);
+}
+
+.reader-modal-claro {
+  color-scheme: light;
+  --teo-ink: #33204f;
+  --teo-ink-soft: #4d3b66;
+  --teo-muted: #6b5f7a;
+  --teo-surface: #fffefc;
+  --teo-bg-alt: #faf7fc;
+  --teo-border: #e2d8ee;
+  --teo-purple: #6a3ea1;
+  --teo-purple-soft: #efe7f8;
+  --teo-green: #2f8a57;
+  --teo-green-strong: #22703f;
+  --ion-color-primary: #6a3ea1;
+  --ion-color-primary-rgb: 106, 62, 161;
+  --ion-color-primary-contrast: #ffffff;
+}
+
+.reader-modal-sepia {
+  color-scheme: light;
+  --teo-ink: #3f3020;
+  --teo-ink-soft: #5a4630;
+  --teo-muted: #7a6650;
+  --teo-surface: #f6ecd9;
+  --teo-bg-alt: #f1e4cb;
+  --teo-border: #dcc9a6;
+  --teo-purple: #6a3ea1;
+  --teo-purple-soft: #ece0f0;
+  --teo-green: #2f8a57;
+  --teo-green-strong: #22703f;
+  --ion-color-primary: #6a3ea1;
+  --ion-color-primary-rgb: 106, 62, 161;
+  --ion-color-primary-contrast: #ffffff;
+}
+
+.reader-modal-oscuro {
+  color-scheme: dark;
+  --teo-ink: #ece6f5;
+  --teo-ink-soft: #cfc4de;
+  --teo-muted: #a99cbc;
+  --teo-surface: #1c1724;
+  --teo-bg-alt: #241d2e;
+  --teo-border: #3e3350;
+  --teo-purple: #c6a8f0;
+  --teo-purple-soft: #2e2242;
+  --teo-green: #3fae6e;
+  --teo-green-strong: #6fcf97;
+  --ion-color-primary: #c6a8f0;
+  --ion-color-primary-rgb: 198, 168, 240;
+  --ion-color-primary-contrast: #1c1724;
+}
+
+.reader-modal ion-header ion-toolbar {
+  --background: var(--teo-surface);
+  --color: var(--teo-ink);
+  --ion-toolbar-color: var(--teo-ink);
+  border-bottom: 1px solid var(--teo-border);
+}
+
+.reader-modal ion-header ion-toolbar ion-title {
+  color: var(--teo-ink);
+}
+
+.reader-modal ion-item {
+  --color: var(--teo-ink);
+  --border-color: var(--teo-border);
+}
+
+.reader-modal .rs-option,
+.reader-modal .rs-row ion-button {
+  color: var(--teo-ink);
 }

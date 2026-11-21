@@ -219,3 +219,51 @@ ion-modal ion-header ion-toolbar ion-button {
 .theme-toggle-button {
   --color: #ffffff;
 }
+
+/* Selector de pestañas (IonSegment): el texto SIEMPRE contrasta con el fondo.
+   Seleccionado = texto del color de lectura principal + subrayado morado grueso. */
+ion-segment {
+  --background: var(--teo-purple-soft);
+}
+
+ion-segment-button {
+  --color: var(--teo-ink-soft);
+  --color-checked: var(--teo-ink);
+  --color-hover: var(--teo-ink);
+  --indicator-color: var(--teo-purple);
+  --indicator-height: 4px;
+  --background-checked: var(--teo-surface);
+  --background-hover: var(--teo-surface);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+ion-segment-button.segment-button-checked {
+  font-weight: 800;
+}
+
+ion-segment-button.segment-button-checked ion-icon {
+  color: var(--teo-purple);
+}
+
+/* Logo de sitio/app: recuadro blanco para que se vea igual en modo claro y oscuro. */
+.site-logo {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--teo-border);
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--teo-purple);
+  font-size: 1.4rem;
+}
+
+.site-logo img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}

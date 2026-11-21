@@ -14,9 +14,6 @@
 }
 
 .rights-segment-toolbar ion-segment-button {
-  --color: var(--teo-ink-soft);
-  --color-checked: #ffffff;
-  --indicator-color: var(--teo-purple);
   min-height: 46px;
   font-weight: 600;
   text-transform: none;

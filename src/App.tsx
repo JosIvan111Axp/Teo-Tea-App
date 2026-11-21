@@ -12,7 +12,7 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { homeOutline, libraryOutline, peopleOutline, personCircleOutline } from 'ionicons/icons';
+import { homeOutline, libraryOutline, musicalNotesOutline, peopleOutline, personCircleOutline } from 'ionicons/icons';
 import AuthPage from './pages/AuthPage';
 import BooksPage from './pages/BooksPage';
 import InfoPage from './pages/InfoPage';
@@ -24,6 +24,9 @@ import Tab1 from './pages/Tab1';
 import Tab2 from './pages/Tab2';
 import Tab3 from './pages/Tab3';
 import { ExternalLinkProvider } from './components/ExternalLink';
+import MiniPlayer from './components/MiniPlayer';
+import MusicPage from './pages/MusicPage';
+import { useMusicStore } from './store/useMusicStore';
 import WorkPage from './pages/WorkPage';
 import { useAppStore } from './store/useAppStore';
 import './store/useThemeStore';
@@ -76,10 +79,11 @@ const AppRoutes: React.FC = () => {
   const isLoggedIn = useIsLoggedIn();
   const showTabBar =
     isLoggedIn &&
-    (['/inicio', '/comunidad', '/perfil', '/biblioteca', '/derechos', '/trabajo', '/equipo'].includes(pathname) ||
+    (['/inicio', '/comunidad', '/perfil', '/biblioteca', '/derechos', '/trabajo', '/equipo', '/musica'].includes(pathname) ||
       pathname.startsWith('/informacion'));
 
   return (
+    <>
     <IonTabs>
       <IonRouterOutlet>
         <Route path="/bienvenida" element={<GuestOnly><AuthPage mode="welcome" /></GuestOnly>} />
@@ -93,6 +97,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/biblioteca" element={<RequireAuth><BooksPage /></RequireAuth>} />
         <Route path="/derechos" element={<RequireAuth><RightsPage /></RequireAuth>} />
         <Route path="/trabajo" element={<RequireAuth><WorkPage /></RequireAuth>} />
+        <Route path="/musica" element={<RequireAuth><MusicPage /></RequireAuth>} />
         <Route
           path="/equipo"
           element={
@@ -128,6 +133,10 @@ const AppRoutes: React.FC = () => {
             <IonIcon aria-hidden="true" icon={libraryOutline} />
             <IonLabel>Biblioteca</IonLabel>
           </IonTabButton>
+          <IonTabButton tab="musica" href="/musica">
+            <IonIcon aria-hidden="true" icon={musicalNotesOutline} />
+            <IonLabel>Música</IonLabel>
+          </IonTabButton>
           <IonTabButton tab="comunidad" href="/comunidad">
             <IonIcon aria-hidden="true" icon={peopleOutline} />
             <IonLabel>Comunidad</IonLabel>
@@ -139,6 +148,8 @@ const AppRoutes: React.FC = () => {
         </IonTabBar>
       )}
     </IonTabs>
+    {isLoggedIn && <MiniPlayer />}
+    </>
   );
 };
 
@@ -156,6 +167,8 @@ const App: React.FC = () => {
     else {
       resetPosts();
       resetBooks();
+      // La música es local y personal: al cerrar sesión se detiene y se descarga de memoria.
+      useMusicStore.getState().stopAndClear();
     }
   }, [token, refreshUser, resetPosts, resetBooks]);
 

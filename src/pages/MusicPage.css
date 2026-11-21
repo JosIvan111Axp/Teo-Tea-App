@@ -1,0 +1,444 @@
+.music-content {
+  --background: var(--teo-bg);
+}
+
+.music-layout {
+  box-sizing: border-box;
+  width: min(100%, 760px);
+  margin: 0 auto;
+  padding: 16px 16px 40px;
+}
+
+.music-privacy {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--teo-green-soft);
+  color: var(--teo-ink);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.music-privacy ion-icon {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--teo-green-strong);
+  font-size: 1.2rem;
+}
+
+/* Reproductor */
+.now-playing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 0 18px;
+  padding: 22px 18px 16px;
+  border-radius: 22px;
+  background: linear-gradient(150deg, var(--teo-purple-strong) 0%, var(--teo-purple) 60%, var(--teo-green-strong) 150%);
+  box-shadow: 0 8px 24px rgb(var(--teo-shadow) / 20%);
+  color: #ffffff;
+}
+
+.np-art {
+  display: grid;
+  width: 112px;
+  height: 112px;
+  place-items: center;
+  margin-bottom: 14px;
+  border-radius: 20px;
+  background: rgb(255 255 255 / 15%);
+  font-size: 3.2rem;
+}
+
+.np-info {
+  display: flex;
+  max-width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.np-info strong {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 1.25rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.np-info span {
+  color: rgb(255 255 255 / 85%);
+}
+
+.now-playing ion-range {
+  --bar-background: rgb(255 255 255 / 25%);
+  --bar-background-active: #ffffff;
+  --knob-background: #ffffff;
+  --bar-height: 5px;
+  --knob-size: 18px;
+  width: 100%;
+}
+
+.np-seek {
+  padding-top: 6px;
+}
+
+.np-times {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-top: -8px;
+  color: rgb(255 255 255 / 85%);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.np-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 6px 0;
+}
+
+.np-controls ion-button {
+  --color: #ffffff;
+  position: relative;
+  margin: 0;
+  font-size: 1.1rem;
+  opacity: 0.75;
+}
+
+.np-controls ion-button.is-active,
+.np-controls ion-button:not(.np-play) {
+  opacity: 1;
+}
+
+.np-controls ion-button:not(.is-active):is([aria-pressed='false'], [aria-label^='Repetir: no']) {
+  opacity: 0.55;
+}
+
+.np-controls .np-play {
+  --background: #ffffff;
+  --color: var(--teo-purple-strong);
+  --border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  margin: 0 10px;
+  font-size: 1.5rem;
+  opacity: 1;
+}
+
+.repeat-one {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.np-volume {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.2rem;
+}
+
+.np-volume-note {
+  margin: -4px 0 0;
+  color: rgb(255 255 255 / 85%);
+  font-size: 0.8rem;
+}
+
+.music-error {
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 25%);
+  font-size: 0.88rem;
+}
+
+/* Tarjetas */
+.music-card {
+  margin: 0 0 18px;
+  padding: 18px;
+  border: 1px solid var(--teo-border);
+  border-radius: 18px;
+  background: var(--teo-surface);
+}
+
+.music-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  color: var(--teo-ink);
+  font-size: 1.15rem;
+}
+
+.music-card h2 ion-icon {
+  color: var(--teo-purple);
+}
+
+.music-card h2 span {
+  color: var(--teo-muted);
+  font-weight: 500;
+}
+
+.music-setting-label {
+  color: var(--teo-ink);
+  font-weight: 600;
+}
+
+.music-help {
+  margin: 2px 0 10px;
+  color: var(--teo-muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.music-card ion-range {
+  --bar-background: var(--teo-purple-soft);
+  --bar-background-active: var(--teo-purple);
+  --knob-background: var(--teo-purple);
+  padding: 0 4px;
+}
+
+.music-toggle {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 8px;
+  color: var(--teo-ink);
+  font-weight: 600;
+  --track-background-checked: var(--teo-green);
+}
+
+.fade-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fade-option {
+  min-height: 40px;
+  padding: 6px 14px;
+  border: 2px solid var(--teo-border);
+  border-radius: 12px;
+  background: var(--teo-surface);
+  color: var(--teo-ink);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fade-option.is-selected {
+  border-color: var(--teo-purple);
+  color: var(--teo-purple);
+}
+
+/* Lista de canciones */
+.tracks-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tracks-head h2 {
+  margin: 0;
+}
+
+.tracks-head ion-button {
+  margin: 0;
+  text-transform: none;
+  font-weight: 700;
+}
+
+.track-list {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.track-list li {
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+}
+
+.track-list li.is-current {
+  background: var(--teo-purple-soft);
+}
+
+.track-main {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.track-main:focus-visible {
+  outline: 3px solid var(--teo-purple);
+}
+
+.track-index {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--teo-bg-alt);
+  color: var(--teo-ink-soft);
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.is-current .track-index {
+  background: var(--teo-purple);
+  color: #ffffff;
+}
+
+.track-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.track-copy strong {
+  overflow: hidden;
+  color: var(--teo-ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.track-copy span {
+  color: var(--teo-muted);
+  font-size: 0.84rem;
+}
+
+.music-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 22px 16px;
+  border: 1px dashed var(--teo-border-strong);
+  border-radius: 14px;
+  color: var(--teo-ink-soft);
+  text-align: center;
+}
+
+.music-empty ion-icon {
+  color: var(--teo-purple);
+  font-size: 2.2rem;
+}
+
+.music-empty p {
+  margin: 0;
+}
+
+.music-storage {
+  margin: 14px 0 0;
+  color: var(--teo-muted);
+  font-size: 0.8rem;
+}
+
+/* Mini reproductor (visible en otras pantallas) */
+.mini-player {
+  position: fixed;
+  right: 8px;
+  bottom: calc(62px + env(safe-area-inset-bottom));
+  left: 8px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 6px 6px 6px 14px;
+  border-radius: 16px;
+  background: var(--teo-purple-strong);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 25%);
+  color: #ffffff;
+}
+
+.mini-player-open {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mini-player-open > ion-icon {
+  flex: 0 0 auto;
+  font-size: 1.3rem;
+}
+
+.mini-player-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.mini-player-copy strong,
+.mini-player-copy span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-player-copy span {
+  color: rgb(255 255 255 / 80%);
+  font-size: 0.8rem;
+}
+
+.mini-player ion-button {
+  --color: #ffffff;
+  margin: 0;
+}
+
+.mini-player-progress {
+  position: absolute;
+  right: 14px;
+  bottom: 3px;
+  left: 14px;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 25%);
+}
+
+.mini-player-progress span {
+  display: block;
+  height: 100%;
+  background: #ffffff;
+}
+
+/* Deja espacio al final del contenido cuando el mini reproductor está visible */
+body.has-mini-player ion-content {
+  --padding-bottom: 72px;
+}

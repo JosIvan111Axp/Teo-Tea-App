@@ -47,12 +47,18 @@ import { ACCOUNT_TYPE_LABELS } from '../api/staff';
 import { ExternalLinkButton } from '../components/ExternalLink';
 import { useThemeStore } from '../store/useThemeStore';
 import { calculateAge, getInitials } from '../utils/helpers';
+import chessComLogo from '../../assets/logos/chess-com.png';
+import duolingoLogo from '../../assets/logos/duolingo.png';
+import ibispaintLogo from '../../assets/logos/ibispaint.png';
+import khanAcademyLogo from '../../assets/logos/khan-academy.png';
+import lichessLogo from '../../assets/logos/lichess.png';
 import './Tab3.css';
 
 /** Apps recomendadas para aprender, conectar y ampliar habilidades. */
 const RECOMMENDED_APPS = [
   {
     name: 'Chess.com',
+    logo: chessComLogo,
     category: 'Ajedrez',
     description: 'Juega, resuelve problemas y aprende ajedrez con lecciones guiadas.',
     url: 'https://www.chess.com/es',
@@ -61,6 +67,7 @@ const RECOMMENDED_APPS = [
   },
   {
     name: 'Lichess',
+    logo: lichessLogo,
     category: 'Ajedrez',
     description: 'Ajedrez gratuito, sin anuncios y de código abierto, con prácticas y estudios.',
     url: 'https://lichess.org',
@@ -69,6 +76,7 @@ const RECOMMENDED_APPS = [
   },
   {
     name: 'Khan Academy',
+    logo: khanAcademyLogo,
     category: 'Aprendizaje',
     description: 'Cursos gratuitos de matemáticas, ciencias, programación y más, a tu ritmo.',
     url: 'https://es.khanacademy.org',
@@ -77,6 +85,7 @@ const RECOMMENDED_APPS = [
   },
   {
     name: 'ibisPaint X',
+    logo: ibispaintLogo,
     category: 'Dibujo',
     description: 'App de dibujo digital para celular y tablet, con pinceles y capas.',
     url: 'https://ibispaint.com',
@@ -85,6 +94,7 @@ const RECOMMENDED_APPS = [
   },
   {
     name: 'Duolingo',
+    logo: duolingoLogo,
     category: 'Idiomas',
     description: 'Aprende idiomas con lecciones cortas y juegos diarios.',
     url: 'https://www.duolingo.com',
@@ -312,8 +322,8 @@ const Tab3: React.FC = () => {
                   {RECOMMENDED_APPS.map((app) => (
                     <li key={app.name}>
                       <ExternalLinkButton url={app.url} label={app.name} className="app-item">
-                        <span className="app-icon" style={{ background: app.color }} aria-hidden="true">
-                          <IonIcon icon={app.icon} />
+                        <span className="site-logo" aria-hidden="true">
+                          <img src={app.logo} alt="" />
                         </span>
                         <span className="app-copy">
                           <strong>{app.name}</strong>

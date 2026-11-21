@@ -14,9 +14,6 @@
 }
 
 .team-segment-toolbar ion-segment-button {
-  --color: var(--teo-ink-soft);
-  --color-checked: #ffffff;
-  --indicator-color: var(--teo-purple);
   min-width: 90px;
   min-height: 44px;
   font-weight: 600;
