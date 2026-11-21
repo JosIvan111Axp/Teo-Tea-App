@@ -123,7 +123,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
 
     setForm(emptyForm);
     setIdentity('');
-    navigate('/inicio', { replace: true });
+    // La redirección a /inicio la hace el guardia de rutas al detectar la sesión.
   };
 
   const submitLogin = async (event: FormEvent<HTMLFormElement>) => {
@@ -143,7 +143,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
     }
 
     setLoginPassword('');
-    navigate('/inicio', { replace: true });
+    // La redirección a /inicio la hace el guardia de rutas al detectar la sesión.
   };
 
   const errorNote = formError && (

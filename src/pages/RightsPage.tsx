@@ -12,10 +12,21 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
-import { briefcaseOutline, callOutline, documentTextOutline, shieldCheckmarkOutline, warningOutline } from 'ionicons/icons';
+import {
+  briefcaseOutline,
+  callOutline,
+  documentTextOutline,
+  libraryOutline,
+  openOutline,
+  shieldCheckmarkOutline,
+  warningOutline,
+} from 'ionicons/icons';
+import { ExternalLinkButton } from '../components/ExternalLink';
 import {
   AREAS,
+  CONSTITUTION_LINKS,
   COUNTRIES,
+  LAW_LINKS,
   REVIEWED_AT,
   countryFromProfile,
   rights,
@@ -82,6 +93,18 @@ const RightsPage: React.FC = () => {
               {areaInfo.label} · {countryLabel}
             </h1>
             <p className="rights-intro">{content.intro}</p>
+            <ExternalLinkButton
+              url={CONSTITUTION_LINKS[country].url}
+              label={CONSTITUTION_LINKS[country].label}
+              className="constitution-link"
+            >
+              <IonIcon icon={libraryOutline} aria-hidden="true" />
+              <span>
+                <strong>Constitución de {countryLabel}</strong>
+                <span>Consulta el texto completo</span>
+              </span>
+              <IonIcon icon={openOutline} aria-hidden="true" />
+            </ExternalLinkButton>
 
             <ul className="law-list">
               {content.laws.map((law) => (
@@ -101,6 +124,11 @@ const RightsPage: React.FC = () => {
                       <li key={point}>{point}</li>
                     ))}
                   </ul>
+                  {LAW_LINKS[country][law.name] && (
+                    <ExternalLinkButton url={LAW_LINKS[country][law.name]} label={law.name} className="law-link">
+                      Leer el texto oficial <IonIcon icon={openOutline} aria-hidden="true" />
+                    </ExternalLinkButton>
+                  )}
                 </li>
               ))}
             </ul>

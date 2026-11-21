@@ -56,11 +56,17 @@ export type UserProfile = {
   accountType?: AccountType;
 };
 
+export type FoundationLink = { label: string; url: string; kind: 'web' | 'whatsapp' | 'facebook' | 'instagram' | 'tiktok' | 'youtube' | 'donar' };
+
 export type FoundationInfo = {
   name: string;
   tagline: string;
   description: string;
   pillars: { title: string; description: string; icon: string }[];
+  mission: string;
+  vision: string;
+  website: string;
+  links: FoundationLink[];
 };
 
 
@@ -103,28 +109,42 @@ export const mockData: {
       ],
     },
   ],
-  // Texto provisional: reemplázalo con la información oficial de la fundación.
+  // Información tomada de https://fundacionsenderoazul.org/ (revisada en noviembre de 2026).
   foundation: {
     name: 'Fundación Sendero Azul',
-    tagline: 'Acompañando caminos diversos',
+    tagline: 'Familias comprometidas con la inclusión',
     description:
-      'TEO + TEA es un espacio impulsado por Fundación Sendero Azul para que personas autistas, sus familias y la comunidad encuentren información, apoyo y oportunidades en un entorno respetuoso.',
+      'Somos familias comprometidas que trabajan por las personas con Trastorno del Espectro Autista, disfasia, TDAH, trastorno obsesivo compulsivo u otras condiciones intelectuales, brindando atención y asesoría a ellas y a sus familias.',
     pillars: [
       {
-        title: 'Acompañamiento',
-        description: 'Orientación cercana para personas y familias.',
+        title: 'Atención y asesoría',
+        description: 'Acompañamiento a personas y a sus familias.',
         icon: handLeftOutline,
       },
       {
-        title: 'Información accesible',
-        description: 'Contenidos claros sobre el TEA y la neurodiversidad.',
-        icon: bookOutline,
-      },
-      {
-        title: 'Comunidad inclusiva',
-        description: 'Redes de apoyo y espacios para conectar.',
+        title: 'Club Senderos',
+        description: 'Aprender habilidades sociales, motricidad y valores a través del juego, guiados por profesionales.',
         icon: peopleCircleOutline,
       },
+      {
+        title: 'Autonomía e inclusión',
+        description: 'Desarrollar habilidades para una vida independiente y la inclusión laboral.',
+        icon: bookOutline,
+      },
+    ],
+    mission:
+      'Acoger a las personas con TEA, disfasia, TDAH, TOC u otras condiciones intelectuales y a sus familias, para desarrollar sus habilidades, cualidades y capacidades, y lograr su inclusión en la sociedad económicamente activa como personas autónomas e independientes.',
+    vision:
+      'Crear proyectos autosustentables donde trabajen personas con TEA y condiciones similares, y centros especializados de acogida, siendo un referente nacional e internacional en inclusión.',
+    website: 'https://fundacionsenderoazul.org/',
+    links: [
+      { label: 'Sitio web', url: 'https://fundacionsenderoazul.org/', kind: 'web' },
+      { label: 'WhatsApp', url: 'https://wa.me/593983978052', kind: 'whatsapp' },
+      { label: 'Facebook', url: 'https://www.facebook.com/funsendazul/', kind: 'facebook' },
+      { label: 'Instagram', url: 'https://www.instagram.com/fundacionsenderoazul/', kind: 'instagram' },
+      { label: 'TikTok', url: 'https://www.tiktok.com/@funsendazul', kind: 'tiktok' },
+      { label: 'YouTube', url: 'https://www.youtube.com/channel/UC0kc7YIYNBJaiOyn1_wnxRA', kind: 'youtube' },
+      { label: 'Donar', url: 'https://fundacionsenderoazul.org/Boton-Donacion-con-Paypal-master/index.html', kind: 'donar' },
     ],
   },
 };

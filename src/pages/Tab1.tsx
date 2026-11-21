@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import {
   IonAlert,
+  IonButton,
+  IonButtons,
   IonCard,
   IonCardContent,
   IonContent,
@@ -12,8 +14,20 @@ import {
   IonToolbar,
 } from '@ionic/react';
 import { useNavigate } from 'react-router-dom';
+import { ExternalLinkButton } from '../components/ExternalLink';
+import { useThemeStore } from '../store/useThemeStore';
+import type { FoundationLink } from '../data/mockData';
 import {
+  globeOutline,
+  heartOutline,
   informationCircleOutline,
+  logoFacebook,
+  logoInstagram,
+  logoTiktok,
+  logoWhatsapp,
+  logoYoutube,
+  moonOutline,
+  sunnyOutline,
   libraryOutline,
   briefcaseOutline,
   chevronForwardOutline,
@@ -44,6 +58,7 @@ const quickLinks = [
     title: 'Trabajo',
     description: 'Explora oportunidades y entornos laborales inclusivos.',
     icon: briefcaseOutline,
+    path: '/trabajo',
   },
   {
     title: 'Leyes y Derechos',
@@ -59,7 +74,19 @@ const quickLinks = [
   },
 ];
 
+const LINK_ICONS: Record<FoundationLink['kind'], string> = {
+  web: globeOutline,
+  whatsapp: logoWhatsapp,
+  facebook: logoFacebook,
+  instagram: logoInstagram,
+  tiktok: logoTiktok,
+  youtube: logoYoutube,
+  donar: heartOutline,
+};
+
 const Tab1: React.FC = () => {
+  const themeMode = useThemeStore((state) => state.mode);
+  const toggleTheme = useThemeStore((state) => state.toggle);
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [pendingSection, setPendingSection] = useState('');
@@ -86,6 +113,15 @@ const Tab1: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonTitle>Inicio</IonTitle>
+          <IonButtons slot="end">
+            <IonButton
+              className="theme-toggle-button"
+              aria-label={themeMode === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+              onClick={toggleTheme}
+            >
+              <IonIcon slot="icon-only" icon={themeMode === 'dark' ? sunnyOutline : moonOutline} />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent className="home-content" fullscreen>
@@ -117,6 +153,31 @@ const Tab1: React.FC = () => {
             </IonCardContent>
           </IonCard>
 
+
+          <section className="foundation-card" aria-labelledby="foundation-title">
+            <div className="foundation-header">
+              <img className="foundation-logo" src={senderoAzulLogo} alt="Logo de Fundación Sendero Azul" />
+              <div>
+                <p className="foundation-eyebrow">Quiénes nos acompañan</p>
+                <h2 id="foundation-title">{foundation.name}</h2>
+                <p className="foundation-tagline">{foundation.tagline}</p>
+              </div>
+            </div>
+            <p className="foundation-description">{foundation.description}</p>
+            <ul className="foundation-pillars">
+              {foundation.pillars.map((pillar) => (
+                <li key={pillar.title}>
+                  <span className="foundation-pillar-icon">
+                    <IonIcon aria-hidden="true" icon={pillar.icon} />
+                  </span>
+                  <span>
+                    <strong>{pillar.title}</strong>
+                    <span>{pillar.description}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
 
           <IonCard className="weekly-quote">
             <IonCardContent>
@@ -165,29 +226,30 @@ const Tab1: React.FC = () => {
             )}
           </section>
 
-          <section className="foundation-card" aria-labelledby="foundation-title">
-            <div className="foundation-header">
-              <img className="foundation-logo" src={senderoAzulLogo} alt="Logo de Fundación Sendero Azul" />
+          <section className="foundation-mini" aria-labelledby="foundation-mini-title">
+            <div className="foundation-mini-head">
+              <img src={senderoAzulLogo} alt="" aria-hidden="true" />
               <div>
-                <p className="foundation-eyebrow">Quiénes nos acompañan</p>
-                <h2 id="foundation-title">{foundation.name}</h2>
-                <p className="foundation-tagline">{foundation.tagline}</p>
+                <h2 id="foundation-mini-title">Conoce a la Fundación Sendero Azul</h2>
+                <p>TEO + TEA es un espacio de la fundación.</p>
               </div>
             </div>
-            <p className="foundation-description">{foundation.description}</p>
-            <ul className="foundation-pillars">
-              {foundation.pillars.map((pillar) => (
-                <li key={pillar.title}>
-                  <span className="foundation-pillar-icon">
-                    <IonIcon aria-hidden="true" icon={pillar.icon} />
-                  </span>
-                  <span>
-                    <strong>{pillar.title}</strong>
-                    <span>{pillar.description}</span>
-                  </span>
-                </li>
+            <p className="foundation-mini-mission">
+              <strong>Su misión:</strong> {foundation.mission}
+            </p>
+            <div className="foundation-links">
+              {foundation.links.map((link) => (
+                <ExternalLinkButton
+                  key={link.kind}
+                  url={link.url}
+                  label={`${link.label} de la Fundación Sendero Azul`}
+                  className={`foundation-link foundation-link-${link.kind}`}
+                >
+                  <IonIcon icon={LINK_ICONS[link.kind]} aria-hidden="true" />
+                  {link.label}
+                </ExternalLinkButton>
               ))}
-            </ul>
+            </div>
           </section>
         </main>
         <IonAlert

@@ -124,3 +124,98 @@ ion-tab-button.tab-selected ion-icon {
   place-items: center;
   background: var(--teo-bg);
 }
+
+/* ------------------------------------------------------------------ */
+/* Modo oscuro (clase .ion-palette-dark en <html>, ver useThemeStore). */
+/* Va después de la paleta oscura de Ionic para usar los colores TEO.  */
+/* ------------------------------------------------------------------ */
+:root.ion-palette-dark {
+  color-scheme: dark;
+
+  --teo-purple: #9a6ed6;
+  --teo-purple-strong: #7a4cb8;
+  --teo-purple-soft: #2e2242;
+  --teo-green: #3fae6e;
+  --teo-green-strong: #6fcf97;
+  --teo-green-soft: #1b3326;
+
+  --teo-ink: #f1ecf8;
+  --teo-ink-soft: #d2c8e0;
+  --teo-muted: #a99cbc;
+
+  --teo-surface: #221a2e;
+  --teo-bg: #16101e;
+  --teo-bg-alt: #1c1527;
+  --teo-border: #3a2e4d;
+  --teo-border-strong: #56466e;
+  --teo-shadow: 0 0 0;
+
+  --ion-color-primary: #9a6ed6;
+  --ion-color-primary-rgb: 154, 110, 214;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #8861bc;
+  --ion-color-primary-tint: #a47dda;
+
+  --ion-color-secondary: #3fae6e;
+  --ion-color-secondary-rgb: 63, 174, 110;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #379961;
+  --ion-color-secondary-tint: #52b67d;
+
+  --ion-color-success: #3fae6e;
+  --ion-color-success-rgb: 63, 174, 110;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #379961;
+  --ion-color-success-tint: #52b67d;
+
+  --ion-background-color: #16101e;
+  --ion-background-color-rgb: 22, 16, 30;
+  --ion-text-color: #f1ecf8;
+  --ion-text-color-rgb: 241, 236, 248;
+  --ion-toolbar-background: #3a2260;
+  --ion-toolbar-color: #ffffff;
+  --ion-tab-bar-background: #3a2260;
+  --ion-tab-bar-color: rgb(255 255 255 / 70%);
+  --ion-tab-bar-color-selected: #ffffff;
+  --ion-item-background: #221a2e;
+  --ion-card-background: #221a2e;
+}
+
+/* Fondos claros fijos que en oscuro necesitan su versión oscura. */
+:root.ion-palette-dark .auth-error {
+  background: #3b1c1f;
+}
+
+:root.ion-palette-dark .rights-disclaimer {
+  background: #33290f;
+  color: #f3dfa6;
+}
+
+:root.ion-palette-dark .team-chip-warn {
+  background: #3a2e10;
+  color: #f3d58a;
+}
+
+:root.ion-palette-dark .team-chip-danger {
+  background: #3b1c1f;
+  color: #f4b3ae;
+}
+
+/* Barras claras (segunda barra, ventanas): los botones de Ionic toman --ion-toolbar-color,
+   así que se redefine para que no queden blancos sobre fondo claro. */
+ion-header ion-toolbar.toolbar-light,
+ion-modal ion-header ion-toolbar {
+  --ion-toolbar-color: var(--teo-ink);
+}
+
+ion-modal ion-header ion-toolbar ion-button {
+  --ion-toolbar-color: var(--teo-purple);
+}
+
+/* Interruptor y fila de la sección Apariencia */
+.theme-toggle-button {
+  --color: #ffffff;
+}

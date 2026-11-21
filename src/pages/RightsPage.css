@@ -225,3 +225,56 @@
 .rights-disclaimer p {
   margin: 0;
 }
+
+.law-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  color: var(--teo-purple);
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.law-link:hover,
+.law-link:focus-visible {
+  text-decoration: underline;
+}
+
+.constitution-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--teo-border);
+  border-radius: 14px;
+  background: var(--teo-purple-soft);
+  color: var(--teo-ink);
+  text-decoration: none;
+}
+
+.constitution-link > ion-icon {
+  flex: 0 0 auto;
+  color: var(--teo-purple);
+  font-size: 1.3rem;
+}
+
+.constitution-link > span {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.constitution-link > span > span {
+  color: var(--teo-ink-soft);
+  font-size: 0.85rem;
+}
+
+.constitution-link:hover,
+.constitution-link:focus-visible {
+  border-color: var(--teo-purple);
+  outline: none;
+}

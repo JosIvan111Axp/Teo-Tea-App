@@ -375,3 +375,52 @@ export const countryFromProfile = (country?: string): CountryCode | null => {
   const value = (country ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   return COUNTRIES.find((c) => c.code === value)?.code ?? null;
 };
+
+/* --------------------------- Enlaces a textos oficiales --------------------------- */
+// Verificados en noviembre de 2026. Para Perú y Venezuela, la Constitución enlaza a
+// Constitute Project (texto completo) porque los portales oficiales no siempre están disponibles.
+
+export const CONSTITUTION_LINKS: Record<CountryCode, { label: string; url: string }> = {
+  ecuador: {
+    label: 'Constitución de la República del Ecuador (Asamblea Nacional, PDF)',
+    url: 'https://www.asambleanacional.gob.ec/sites/default/files/documents/old/constitucion_de_bolsillo.pdf',
+  },
+  colombia: {
+    label: 'Constitución Política de Colombia (Secretaría del Senado)',
+    url: 'http://www.secretariasenado.gov.co/senado/basedoc/constitucion_politica_1991.html',
+  },
+  peru: {
+    label: 'Constitución Política del Perú (Constitute Project)',
+    url: 'https://www.constituteproject.org/constitution/Peru_2021?lang=es',
+  },
+  venezuela: {
+    label: 'Constitución de la República Bolivariana de Venezuela (Constitute Project)',
+    url: 'https://www.constituteproject.org/constitution/Venezuela_2009?lang=es',
+  },
+};
+
+/** Enlace al texto de cada ley (por país y nombre de la ley tal como aparece arriba). */
+export const LAW_LINKS: Record<CountryCode, Record<string, string>> = {
+  ecuador: {
+    'Constitución de la República del Ecuador': CONSTITUTION_LINKS.ecuador.url,
+    'Ley Orgánica de Discapacidades':
+      'https://www.trabajo.gob.ec/wp-content/uploads/2024/01/LEY-ORGANICA-DE-DISCAPACIDADES.pdf',
+  },
+  colombia: {
+    'Ley 361 de 1997': 'http://www.secretariasenado.gov.co/senado/basedoc/ley_0361_1997.html',
+    'Ley Estatutaria 1618 de 2013': 'http://www.secretariasenado.gov.co/senado/basedoc/ley_1618_2013.html',
+    'Acción de tutela': CONSTITUTION_LINKS.colombia.url,
+    'Ley 1996 de 2019': 'http://www.secretariasenado.gov.co/senado/basedoc/ley_1996_2019.html',
+    'Estatuto del Consumidor (Ley 1480 de 2011)': 'http://www.secretariasenado.gov.co/senado/basedoc/ley_1480_2011.html',
+    'Ley 1581 de 2012 (Habeas Data)': 'http://www.secretariasenado.gov.co/senado/basedoc/ley_1581_2012.html',
+  },
+  peru: {
+    'Ley 29973 – Ley General de la Persona con Discapacidad': 'https://www.leyes.congreso.gob.pe/Documentos/Leyes/29973.pdf',
+    'Ley 30150 – Protección de las personas con TEA': 'https://www.leyes.congreso.gob.pe/Documentos/Leyes/30150.pdf',
+    'Código de Protección y Defensa del Consumidor (Ley 29571)': 'https://www.leyes.congreso.gob.pe/Documentos/Leyes/29571.pdf',
+    'Ley 29733 – Protección de Datos Personales': 'https://www.leyes.congreso.gob.pe/Documentos/Leyes/29733.pdf',
+  },
+  venezuela: {
+    'Constitución de la República Bolivariana de Venezuela': CONSTITUTION_LINKS.venezuela.url,
+  },
+};

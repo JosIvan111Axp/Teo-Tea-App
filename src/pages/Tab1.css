@@ -187,7 +187,7 @@
 
 /* Fundación Sendero Azul */
 .foundation-card {
-  margin: 26px 0 18px;
+  margin: 0 0 18px;
   padding: 20px 18px;
   border: 1px solid var(--teo-border);
   border-top: 5px solid var(--teo-green);
@@ -299,4 +299,98 @@
   .quick-link-card {
     min-height: 116px;
   }
+}
+
+/* Apartado pequeño: Conoce a la Fundación Sendero Azul */
+.foundation-mini {
+  margin: 24px 0 8px;
+  padding: 16px;
+  border: 1px solid var(--teo-border);
+  border-radius: 16px;
+  background: var(--teo-surface);
+}
+
+.foundation-mini-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.foundation-mini-head img {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  padding: 3px;
+  border-radius: 50%;
+  background: #ffffff;
+  object-fit: contain;
+}
+
+.foundation-mini h2 {
+  margin: 0;
+  color: var(--teo-ink);
+  font-size: 1.02rem;
+}
+
+.foundation-mini-head p {
+  margin: 2px 0 0;
+  color: var(--teo-muted);
+  font-size: 0.85rem;
+}
+
+.foundation-mini-mission {
+  margin: 12px 0;
+  color: var(--teo-ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.foundation-mini-mission strong {
+  color: var(--teo-ink);
+}
+
+.foundation-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.foundation-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 6px 12px;
+  border: 1px solid var(--teo-border-strong);
+  border-radius: 999px;
+  background: var(--teo-bg-alt);
+  color: var(--teo-ink);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.foundation-link:hover,
+.foundation-link:focus-visible {
+  border-color: var(--teo-purple);
+  outline: none;
+}
+
+.foundation-link ion-icon {
+  font-size: 1.05rem;
+  color: var(--teo-purple);
+}
+
+.foundation-link-whatsapp ion-icon {
+  color: #25a85a;
+}
+
+.foundation-link-donar {
+  border-color: var(--teo-green);
+  background: var(--teo-green-soft);
+  color: var(--teo-green-strong);
+}
+
+.foundation-link-donar ion-icon {
+  color: var(--teo-green-strong);
 }

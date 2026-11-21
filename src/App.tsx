@@ -23,7 +23,10 @@ const ReaderPage = lazy(() => import('./pages/ReaderPage'));
 import Tab1 from './pages/Tab1';
 import Tab2 from './pages/Tab2';
 import Tab3 from './pages/Tab3';
+import { ExternalLinkProvider } from './components/ExternalLink';
+import WorkPage from './pages/WorkPage';
 import { useAppStore } from './store/useAppStore';
+import './store/useThemeStore';
 import { useBooksStore } from './store/useBooksStore';
 import { useAuthStore, useCurrentUser, useIsLoggedIn } from './store/useAuthStore';
 
@@ -44,6 +47,9 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
 /* Theme variables */
+/* Paleta oscura de Ionic (se activa con la clase .ion-palette-dark; ver useThemeStore) */
+import '@ionic/react/css/palettes/dark.class.css';
+
 import './theme/variables.css';
 
 setupIonicReact();
@@ -70,7 +76,7 @@ const AppRoutes: React.FC = () => {
   const isLoggedIn = useIsLoggedIn();
   const showTabBar =
     isLoggedIn &&
-    (['/inicio', '/comunidad', '/perfil', '/biblioteca', '/derechos', '/equipo'].includes(pathname) ||
+    (['/inicio', '/comunidad', '/perfil', '/biblioteca', '/derechos', '/trabajo', '/equipo'].includes(pathname) ||
       pathname.startsWith('/informacion'));
 
   return (
@@ -86,6 +92,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/informacion" element={<RequireAuth><InfoPage /></RequireAuth>} />
         <Route path="/biblioteca" element={<RequireAuth><BooksPage /></RequireAuth>} />
         <Route path="/derechos" element={<RequireAuth><RightsPage /></RequireAuth>} />
+        <Route path="/trabajo" element={<RequireAuth><WorkPage /></RequireAuth>} />
         <Route
           path="/equipo"
           element={
@@ -140,6 +147,7 @@ const App: React.FC = () => {
   const refreshUser = useAuthStore((state) => state.refreshUser);
   const resetPosts = useAppStore((state) => state.reset);
   const resetBooks = useBooksStore((state) => state.reset);
+  const isLoggedIn = useIsLoggedIn();
 
   // Al abrir la app con sesión guardada, valida el token y trae el perfil actualizado.
   // Al cerrar sesión, limpia las publicaciones en memoria.
@@ -153,9 +161,13 @@ const App: React.FC = () => {
 
   return (
     <IonApp>
-      <IonReactRouter>
-        <AppRoutes />
-      </IonReactRouter>
+      <ExternalLinkProvider>
+        {/* La clave reconstruye el enrutador al iniciar/cerrar sesión: evita que Ionic deje la
+            página anterior encima (botones que no respondían hasta recargar con F5). */}
+        <IonReactRouter key={isLoggedIn ? 'session' : 'guest'}>
+          <AppRoutes />
+        </IonReactRouter>
+      </ExternalLinkProvider>
     </IonApp>
   );
 };

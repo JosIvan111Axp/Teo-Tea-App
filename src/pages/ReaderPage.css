@@ -302,3 +302,9 @@
   --color: var(--reader-chrome-fg);
   color: var(--reader-chrome-fg);
 }
+
+/* Los botones de Ionic en barras usan --ion-toolbar-color (no --color): se iguala al tema de lectura
+   para que índice, ajustes y volver se vean en los temas claro y sepia. */
+.reader-page .reader-header ion-toolbar {
+  --ion-toolbar-color: var(--reader-chrome-fg);
+}

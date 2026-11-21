@@ -18,6 +18,7 @@ import {
   IonTextarea,
   IonTitle,
   IonToast,
+  IonToggle,
   IonToolbar,
   useIonViewWillEnter,
 } from '@ionic/react';
@@ -29,14 +30,68 @@ import {
   locationOutline,
   logOutOutline,
   shieldHalfOutline,
+  brushOutline,
+  extensionPuzzleOutline,
+  languageOutline,
+  moonOutline,
+  openOutline,
+  rocketOutline,
+  schoolOutline,
+  sunnyOutline,
   mailOutline,
 } from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 import { useAuthStore, useCurrentUser } from '../store/useAuthStore';
 import { ACCOUNT_TYPE_LABELS } from '../api/staff';
+import { ExternalLinkButton } from '../components/ExternalLink';
+import { useThemeStore } from '../store/useThemeStore';
 import { calculateAge, getInitials } from '../utils/helpers';
 import './Tab3.css';
+
+/** Apps recomendadas para aprender, conectar y ampliar habilidades. */
+const RECOMMENDED_APPS = [
+  {
+    name: 'Chess.com',
+    category: 'Ajedrez',
+    description: 'Juega, resuelve problemas y aprende ajedrez con lecciones guiadas.',
+    url: 'https://www.chess.com/es',
+    icon: extensionPuzzleOutline,
+    color: '#5d9948',
+  },
+  {
+    name: 'Lichess',
+    category: 'Ajedrez',
+    description: 'Ajedrez gratuito, sin anuncios y de código abierto, con prácticas y estudios.',
+    url: 'https://lichess.org',
+    icon: extensionPuzzleOutline,
+    color: '#4a4a4a',
+  },
+  {
+    name: 'Khan Academy',
+    category: 'Aprendizaje',
+    description: 'Cursos gratuitos de matemáticas, ciencias, programación y más, a tu ritmo.',
+    url: 'https://es.khanacademy.org',
+    icon: schoolOutline,
+    color: '#14a585',
+  },
+  {
+    name: 'ibisPaint X',
+    category: 'Dibujo',
+    description: 'App de dibujo digital para celular y tablet, con pinceles y capas.',
+    url: 'https://ibispaint.com',
+    icon: brushOutline,
+    color: '#d94a8c',
+  },
+  {
+    name: 'Duolingo',
+    category: 'Idiomas',
+    description: 'Aprende idiomas con lecciones cortas y juegos diarios.',
+    url: 'https://www.duolingo.com',
+    icon: languageOutline,
+    color: '#58a700',
+  },
+];
 
 const toList = (value: string) =>
   value
@@ -66,6 +121,8 @@ const Tab3: React.FC = () => {
   const [editForm, setEditForm] = useState({ name: '', profession: '', bio: '', skills: '', interests: '' });
   const [editError, setEditError] = useState('');
   const [toast, setToast] = useState('');
+  const themeMode = useThemeStore((state) => state.mode);
+  const setThemeMode = useThemeStore((state) => state.setMode);
 
   if (!profile) return null;
 
@@ -111,7 +168,7 @@ const Tab3: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/bienvenida', { replace: true });
+    // La redirección a /bienvenida la hace el guardia de rutas al cerrar la sesión.
   };
 
   const field = (key: keyof typeof editForm) => (value: string | null | undefined) =>
@@ -239,6 +296,55 @@ const Tab3: React.FC = () => {
                 ) : (
                   <p className="profile-empty">Agrega tus gustos desde “Editar perfil”.</p>
                 )}
+              </IonCardContent>
+            </IonCard>
+          </section>
+
+          <section aria-labelledby="profile-apps-title">
+            <IonCard className="profile-section">
+              <IonCardContent>
+                <div className="profile-section-heading">
+                  <IonIcon aria-hidden="true" icon={rocketOutline} />
+                  <h2 id="profile-apps-title">Apps recomendadas</h2>
+                </div>
+                <p className="profile-apps-intro">Para aprender, conectar y ampliar tus habilidades.</p>
+                <ul className="app-list">
+                  {RECOMMENDED_APPS.map((app) => (
+                    <li key={app.name}>
+                      <ExternalLinkButton url={app.url} label={app.name} className="app-item">
+                        <span className="app-icon" style={{ background: app.color }} aria-hidden="true">
+                          <IonIcon icon={app.icon} />
+                        </span>
+                        <span className="app-copy">
+                          <strong>{app.name}</strong>
+                          <span className="app-category">{app.category}</span>
+                          <span>{app.description}</span>
+                        </span>
+                        <IonIcon icon={openOutline} aria-hidden="true" className="app-open" />
+                      </ExternalLinkButton>
+                    </li>
+                  ))}
+                </ul>
+              </IonCardContent>
+            </IonCard>
+          </section>
+
+          <section aria-labelledby="profile-appearance-title">
+            <IonCard className="profile-section">
+              <IonCardContent>
+                <div className="profile-section-heading">
+                  <IonIcon aria-hidden="true" icon={themeMode === 'dark' ? moonOutline : sunnyOutline} />
+                  <h2 id="profile-appearance-title">Apariencia</h2>
+                </div>
+                <IonToggle
+                  className="theme-toggle"
+                  checked={themeMode === 'dark'}
+                  onIonChange={(e) => setThemeMode(e.detail.checked ? 'dark' : 'light')}
+                  justify="space-between"
+                >
+                  Modo oscuro
+                </IonToggle>
+                <p className="profile-apps-intro">Se recuerda en este dispositivo.</p>
               </IonCardContent>
             </IonCard>
           </section>
