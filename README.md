@@ -102,7 +102,8 @@ App (Ionic + React)  ──HTTP/JSON──▶  API (Node.js + Express)  ──�
 ├── android/                  Proyecto Android (Capacitor)
 ├── assets/                   Imágenes, logos e íconos ilustrados (assets/icons/ilustrado)
 ├── resources/                Logo fuente para generar los íconos de la app
-└── docs/FASE2-ANDROID.md     Guía para compilar e instalar la app Android
+├── docs/FASE2-ANDROID.md     Guía para compilar e instalar la app Android
+└── docs/GOOGLE-PLAY.md       Guía y costos para publicar en Google Play
 ```
 
 ---
@@ -153,7 +154,7 @@ Para usarla desde el celular en la misma Wi-Fi: `http://<IP-de-tu-PC>:5173` (per
 ## 6. App Android
 
 El proyecto ya compila como APK. Requisitos: **JDK 21** y **Android SDK** (plataforma 36, build-tools 35); ver la guía
-completa en [`docs/FASE2-ANDROID.md`](docs/FASE2-ANDROID.md).
+completa en [`docs/FASE2-ANDROID.md`](docs/FASE2-ANDROID.md). Para publicar en la tienda, con costos y requisitos, ver [`docs/GOOGLE-PLAY.md`](docs/GOOGLE-PLAY.md).
 
 ```bash
 # .env.local → VITE_NATIVE_API_URL=http://<IP-de-tu-PC>:3001/api   (ver .env.example)

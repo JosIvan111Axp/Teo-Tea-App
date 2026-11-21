@@ -20,11 +20,15 @@ import {
   peopleOutline,
   personOutline,
   businessOutline,
+  keyOutline,
 } from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
 import senderoAzulLogo from '../../assets/SenderoAzul Logo.png';
 import welcomeBanner from '../../assets/BienvenidoArreglado.png';
 import { DEMO_EMAIL, DEMO_PASSWORD, useAuthStore } from '../store/useAuthStore';
+import BirthdatePicker from '../components/BirthdatePicker';
+import { COUNTRIES } from '../data/profileOptions';
+import { canUseSavedPasswords, offerToSavePassword, pickSavedPassword } from '../auth/passwordSaver';
 import './AuthPage.css';
 
 type AuthMode = 'welcome' | 'register' | 'login';
@@ -41,8 +45,6 @@ const identities = [
   { label: 'Empleador', icon: businessOutline },
   { label: 'Sin diagnóstico', icon: helpCircleOutline },
 ];
-
-const countries = ['Argentina', 'Chile', 'Colombia', 'Ecuador', 'España', 'México', 'Perú', 'Otro'];
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD = 6;
@@ -83,7 +85,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
 
   const submitProfile = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const missing = Object.entries(form).find(([, value]) => !String(value).trim());
+    const missing = Object.entries(form).find(([key, value]) => key !== 'birthdate' && !String(value).trim());
     if (missing) {
       setFormError('Completa todos los campos para continuar.');
       return;
@@ -94,6 +96,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
     }
     if (form.password.length < MIN_PASSWORD) {
       setFormError(`La contraseña debe tener al menos ${MIN_PASSWORD} caracteres.`);
+      return;
+    }
+    if (!form.birthdate) {
+      setFormError('Elige tu fecha de nacimiento (día, mes y año).');
       return;
     }
     if (new Date(form.birthdate) > new Date()) {
@@ -121,6 +127,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
       return;
     }
 
+    // Pide al teléfono / navegador que guarde el correo y la contraseña.
+    void offerToSavePassword(form.email.trim().toLowerCase(), form.password, form.name.trim());
     setForm(emptyForm);
     setIdentity('');
     // La redirección a /inicio la hace el guardia de rutas al detectar la sesión.
@@ -142,8 +150,17 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
       return;
     }
 
+    void offerToSavePassword(loginEmail.trim().toLowerCase(), loginPassword);
     setLoginPassword('');
     // La redirección a /inicio la hace el guardia de rutas al detectar la sesión.
+  };
+
+  const fillSavedPassword = async () => {
+    const saved = await pickSavedPassword();
+    if (!saved) return;
+    setLoginEmail(saved.id);
+    setLoginPassword(saved.password);
+    setFormError('');
   };
 
   const errorNote = formError && (
@@ -182,7 +199,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
               </div>
               <IonText color="medium">
                 <p className="prototype-note">
-                  Prototipo: las cuentas se guardan solo en este navegador.
+                  Una app gratuita de Fundación Sendero Azul.
                 </p>
               </IonText>
             </section>
@@ -218,7 +235,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
                     label="Nombre de usuario"
                     labelPlacement="stacked"
                     fill="outline"
-                    autocomplete="username"
+                    autocomplete="nickname"
+                    name="nickname"
                     placeholder="ej. alex.teo"
                     value={form.username}
                     onIonInput={(e) => updateField('username')(e.detail.value)}
@@ -229,7 +247,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
                     labelPlacement="stacked"
                     fill="outline"
                     type="email"
-                    autocomplete="email"
+                    inputmode="email"
+                    name="email"
+                    autocomplete="username"
+                    helperText="Con este correo iniciarás sesión"
                     value={form.email}
                     onIonInput={(e) => updateField('email')(e.detail.value)}
                     required
@@ -239,6 +260,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
                     labelPlacement="stacked"
                     fill="outline"
                     type="password"
+                    name="password"
                     autocomplete="new-password"
                     helperText={`Mínimo ${MIN_PASSWORD} caracteres`}
                     value={form.password}
@@ -256,7 +278,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
                     value={form.country}
                     onIonChange={(e) => updateField('country')(e.detail.value)}
                   >
-                    {countries.map((country) => (
+                    {COUNTRIES.map((country) => (
                       <IonSelectOption key={country} value={country}>
                         {country}
                       </IonSelectOption>
@@ -271,16 +293,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
                     onIonInput={(e) => updateField('city')(e.detail.value)}
                     required
                   />
-                  <IonInput
-                    label="Fecha de nacimiento"
-                    labelPlacement="stacked"
-                    fill="outline"
-                    type="date"
-                    autocomplete="bday"
-                    value={form.birthdate}
-                    onIonInput={(e) => updateField('birthdate')(e.detail.value)}
-                    required
-                  />
+                  <BirthdatePicker value={form.birthdate} onChange={updateField('birthdate')} />
                   {errorNote}
                   <IonButton expand="block" type="submit">
                     Continuar
@@ -346,7 +359,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
                   labelPlacement="stacked"
                   fill="outline"
                   type="email"
-                  autocomplete="email"
+                  inputmode="email"
+                  name="email"
+                  autocomplete="username"
                   value={loginEmail}
                   onIonInput={(e) => {
                     setLoginEmail(e.detail.value ?? '');
@@ -359,6 +374,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
                   labelPlacement="stacked"
                   fill="outline"
                   type="password"
+                  name="password"
                   autocomplete="current-password"
                   value={loginPassword}
                   onIonInput={(e) => {
@@ -373,6 +389,12 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
                 <IonButton expand="block" type="submit" disabled={isSubmitting}>
                   {isSubmitting ? <IonSpinner name="dots" /> : 'Iniciar sesión'}
                 </IonButton>
+                {canUseSavedPasswords() && (
+                  <IonButton expand="block" fill="outline" color="secondary" type="button" onClick={fillSavedPassword}>
+                    <IonIcon slot="start" icon={keyOutline} aria-hidden="true" />
+                    Usar una contraseña guardada
+                  </IonButton>
+                )}
                 <p className="auth-switch">
                   ¿Aún no tienes cuenta?{' '}
                   <button type="button" onClick={() => navigate('/registro')}>

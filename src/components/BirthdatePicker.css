@@ -1,0 +1,108 @@
+.birthdate-picker {
+  display: grid;
+  gap: 6px;
+}
+
+.birthdate-label {
+  color: var(--teo-ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.birthdate-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 0 16px;
+  border: 1px solid var(--teo-border-strong);
+  border-radius: 12px;
+  background: var(--teo-surface);
+  color: var(--teo-ink);
+  font: inherit;
+  font-size: 1.05rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.birthdate-field > ion-icon:first-child {
+  color: var(--teo-purple);
+  font-size: 1.4rem;
+}
+
+.birthdate-field.is-empty span {
+  color: var(--teo-ink-soft);
+}
+
+.birthdate-field span {
+  flex: 1;
+}
+
+.birthdate-chevron {
+  color: var(--teo-ink-soft);
+}
+
+.birthdate-field:focus-visible {
+  outline: 3px solid var(--teo-purple);
+  outline-offset: 2px;
+}
+
+.birthdate-hint {
+  margin: 0 2px;
+  color: var(--teo-ink-soft);
+  font-size: 0.92rem;
+}
+
+.birthdate-sheet {
+  --height: auto;
+}
+
+.birthdate-sheet-body {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+  background: var(--teo-surface);
+  color: var(--teo-ink);
+}
+
+.birthdate-sheet-body h2 {
+  margin: 4px 0 0;
+  font-size: 1.2rem;
+}
+
+.birthdate-sheet-body ion-datetime {
+  --background: var(--teo-surface);
+  --wheel-highlight-background: var(--teo-purple-soft);
+  --wheel-fade-background-rgb: 255, 254, 252;
+  width: 100%;
+  max-width: 360px;
+  color: var(--teo-ink);
+}
+
+.birthdate-preview {
+  margin: 0;
+  color: var(--teo-purple);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.birthdate-sheet-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.birthdate-sheet-actions ion-button {
+  min-height: 48px;
+  margin: 0;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.ion-palette-dark .birthdate-sheet-body ion-datetime {
+  --wheel-fade-background-rgb: 34, 26, 46;
+}

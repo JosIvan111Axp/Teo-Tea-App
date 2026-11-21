@@ -30,7 +30,9 @@ type AuthStore = {
   uploadAvatar: (image: string) => Promise<AuthResult>;
   removeAvatar: () => Promise<AuthResult>;
   updateProfile: (
-    changes: Partial<Pick<UserProfile, 'name' | 'profession' | 'bio' | 'skills' | 'interests'>>,
+    changes: Partial<
+      Pick<UserProfile, 'name' | 'profession' | 'bio' | 'skills' | 'interests' | 'city' | 'country' | 'birthdate'>
+    >,
   ) => Promise<AuthResult>;
 };
 

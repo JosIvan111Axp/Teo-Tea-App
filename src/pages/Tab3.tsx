@@ -15,6 +15,8 @@ import {
   IonModal,
   IonNote,
   IonPage,
+  IonSelect,
+  IonSelectOption,
   IonSpinner,
   IonTextarea,
   IonTitle,
@@ -46,6 +48,8 @@ import {
   schoolOutline,
   sunnyOutline,
   mailOutline,
+  personCircleOutline,
+  globeOutline,
 } from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
@@ -63,6 +67,14 @@ import lichessLogo from '../../assets/logos/lichess.png';
 import { track, useAchievementsStore } from '../store/useAchievementsStore';
 import LevelCard from '../components/LevelCard';
 import type { StartPage } from '../data/mockData';
+import BirthdatePicker from '../components/BirthdatePicker';
+import TagEditor from '../components/TagEditor';
+import {
+  COUNTRIES,
+  INTEREST_SUGGESTIONS,
+  PROFESSION_SUGGESTIONS,
+  SKILL_SUGGESTIONS,
+} from '../data/profileOptions';
 import './Tab3.css';
 
 /** Apps recomendadas para aprender, conectar y ampliar habilidades. */
@@ -122,12 +134,33 @@ const START_PAGES: { value: StartPage; label: string; icon: string }[] = [
   { value: 'comunidad', label: 'Comunidad', icon: peopleOutline },
 ];
 
-const toList = (value: string) =>
-  value
-    .split(',')
-    .map((item) => item.trim())
-    .filter(Boolean)
-    .slice(0, 12);
+/** Ideas para empezar la biografía si la hoja en blanco cuesta. */
+const BIO_PROMPTS = ['Me gusta…', 'Estoy aprendiendo…', 'En mi tiempo libre…', 'Me siento bien cuando…'];
+
+type EditForm = {
+  name: string;
+  profession: string;
+  bio: string;
+  skills: string[];
+  interests: string[];
+  city: string;
+  country: string;
+  birthdate: string;
+};
+
+const emptyEdit: EditForm = {
+  name: '',
+  profession: '',
+  bio: '',
+  skills: [],
+  interests: [],
+  city: '',
+  country: '',
+  birthdate: '',
+};
+
+const appendPrompt = (bio: string, prompt: string) =>
+  (bio ? (bio.endsWith(' ') ? bio : bio + ' ') : '') + prompt;
 
 const Tab3: React.FC = () => {
   const navigate = useNavigate();
@@ -173,7 +206,8 @@ const Tab3: React.FC = () => {
 
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ name: '', profession: '', bio: '', skills: '', interests: '' });
+  const [editForm, setEditForm] = useState<EditForm>(emptyEdit);
+  const [editKey, setEditKey] = useState(0);
   const [editError, setEditError] = useState('');
   const [toast, setToast] = useState('');
   const themeMode = useThemeStore((state) => state.mode);
@@ -193,18 +227,27 @@ const Tab3: React.FC = () => {
       name: profile.name,
       profession: profile.profession,
       bio: profile.bio,
-      skills: profile.skills.join(', '),
-      interests: profile.interests.join(', '),
+      skills: [...profile.skills],
+      interests: [...profile.interests],
+      city: profile.city,
+      country: profile.country,
+      birthdate: profile.birthdate,
     });
+    // Nueva clave: el selector de fecha se reinicia con los datos actuales.
+    setEditKey((k) => k + 1);
     setEditError('');
     setIsEditing(true);
   };
 
-  const saveProfile = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const saveProfile = async (event?: FormEvent<HTMLFormElement>) => {
+    event?.preventDefault();
     const name = editForm.name.trim();
     if (!name) {
       setEditError('El nombre no puede quedar vacío.');
+      return;
+    }
+    if (!editForm.city.trim() || !editForm.country) {
+      setEditError('Indica tu país y tu ciudad.');
       return;
     }
     setIsSaving(true);
@@ -212,8 +255,11 @@ const Tab3: React.FC = () => {
       name,
       profession: editForm.profession.trim(),
       bio: editForm.bio.trim(),
-      skills: toList(editForm.skills),
-      interests: toList(editForm.interests),
+      skills: editForm.skills,
+      interests: editForm.interests,
+      city: editForm.city.trim(),
+      country: editForm.country,
+      ...(editForm.birthdate ? { birthdate: editForm.birthdate } : {}),
     });
     setIsSaving(false);
     if (!result.ok) {
@@ -232,8 +278,12 @@ const Tab3: React.FC = () => {
     // La redirección a /bienvenida la hace el guardia de rutas al cerrar la sesión.
   };
 
-  const field = (key: keyof typeof editForm) => (value: string | null | undefined) =>
-    setEditForm((current) => ({ ...current, [key]: value ?? '' }));
+  const field =
+    (key: 'name' | 'profession' | 'bio' | 'city' | 'country' | 'birthdate') =>
+    (value: string | null | undefined) => {
+      setEditForm((current) => ({ ...current, [key]: value ?? '' }));
+      setEditError('');
+    };
 
   return (
     <IonPage>
@@ -559,59 +609,148 @@ const Tab3: React.FC = () => {
                 <IonButton onClick={() => setIsEditing(false)}>Cancelar</IonButton>
               </IonButtons>
               <IonTitle>Editar perfil</IonTitle>
+              <IonButtons slot="end">
+                <IonButton strong disabled={isSaving} onClick={() => void saveProfile()}>
+                  Guardar
+                </IonButton>
+              </IonButtons>
             </IonToolbar>
           </IonHeader>
           <IonContent className="profile-content">
-            <form className="profile-edit-form" onSubmit={saveProfile}>
-              <IonInput
-                label="Nombre"
-                labelPlacement="stacked"
-                fill="outline"
-                value={editForm.name}
-                onIonInput={(e) => field('name')(e.detail.value)}
-              />
-              <IonInput
-                label="Profesión u ocupación"
-                labelPlacement="stacked"
-                fill="outline"
-                value={editForm.profession}
-                onIonInput={(e) => field('profession')(e.detail.value)}
-              />
-              <IonTextarea
-                label="Biografía"
-                labelPlacement="stacked"
-                fill="outline"
-                autoGrow
-                rows={3}
-                maxlength={300}
-                counter
-                value={editForm.bio}
-                onIonInput={(e) => field('bio')(e.detail.value)}
-              />
-              <IonInput
-                label="Habilidades"
-                labelPlacement="stacked"
-                fill="outline"
-                helperText="Sepáralas con comas. Ej: Dibujo, Programación"
-                value={editForm.skills}
-                onIonInput={(e) => field('skills')(e.detail.value)}
-              />
-              <IonInput
-                label="Gustos"
-                labelPlacement="stacked"
-                fill="outline"
-                helperText="Sepáralos con comas. Ej: Música, Naturaleza"
-                value={editForm.interests}
-                onIonInput={(e) => field('interests')(e.detail.value)}
-              />
+            <form className="profile-edit-form" onSubmit={saveProfile} key={editKey}>
+              <p className="edit-intro">Completa solo lo que quieras compartir. Puedes cambiarlo cuando quieras.</p>
+
+              <section className="edit-card" aria-labelledby="edit-about">
+                <h2 id="edit-about">
+                  <IonIcon icon={personCircleOutline} aria-hidden="true" /> Sobre ti
+                </h2>
+                <IonInput
+                  label="Nombre"
+                  labelPlacement="stacked"
+                  fill="outline"
+                  autocomplete="name"
+                  value={editForm.name}
+                  onIonInput={(e) => field('name')(e.detail.value)}
+                />
+                <div>
+                  <IonInput
+                    label="Profesión u ocupación"
+                    labelPlacement="stacked"
+                    fill="outline"
+                    placeholder="Ej. Estudiante"
+                    value={editForm.profession}
+                    onIonInput={(e) => field('profession')(e.detail.value)}
+                  />
+                  <div className="edit-quick" aria-label="Sugerencias de ocupación">
+                    {PROFESSION_SUGGESTIONS.map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        className={editForm.profession === option ? 'is-selected' : ''}
+                        onClick={() => field('profession')(option)}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <IonTextarea
+                    label="Biografía"
+                    labelPlacement="stacked"
+                    fill="outline"
+                    autoGrow
+                    rows={3}
+                    maxlength={300}
+                    counter
+                    placeholder="Cuéntale a la comunidad algo sobre ti"
+                    value={editForm.bio}
+                    onIonInput={(e) => field('bio')(e.detail.value)}
+                  />
+                  <div className="edit-quick" aria-label="Ideas para empezar la biografía">
+                    <span>¿No sabes cómo empezar?</span>
+                    {BIO_PROMPTS.map((prompt) => (
+                      <button
+                        key={prompt}
+                        type="button"
+                        onClick={() => field('bio')(appendPrompt(editForm.bio, prompt).slice(0, 300))}
+                      >
+                        {prompt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              <section className="edit-card" aria-labelledby="edit-place">
+                <h2 id="edit-place">
+                  <IonIcon icon={globeOutline} aria-hidden="true" /> Dónde vives y edad
+                </h2>
+                <IonSelect
+                  label="País"
+                  labelPlacement="stacked"
+                  fill="outline"
+                  interface="popover"
+                  placeholder="Selecciona tu país"
+                  value={editForm.country}
+                  onIonChange={(e) => field('country')(e.detail.value)}
+                >
+                  {(COUNTRIES.includes(editForm.country) || !editForm.country
+                    ? COUNTRIES
+                    : [editForm.country, ...COUNTRIES]
+                  ).map((country) => (
+                    <IonSelectOption key={country} value={country}>
+                      {country}
+                    </IonSelectOption>
+                  ))}
+                </IonSelect>
+                <IonInput
+                  label="Ciudad"
+                  labelPlacement="stacked"
+                  fill="outline"
+                  autocomplete="address-level2"
+                  value={editForm.city}
+                  onIonInput={(e) => field('city')(e.detail.value)}
+                />
+                <BirthdatePicker value={editForm.birthdate} onChange={field('birthdate')} />
+              </section>
+
+              <section className="edit-card" aria-labelledby="edit-skills">
+                <h2 id="edit-skills">
+                  <IonIcon icon={checkmarkCircleOutline} aria-hidden="true" /> Lo que sé hacer
+                </h2>
+                <TagEditor
+                  label="Habilidades"
+                  values={editForm.skills}
+                  onChange={(skills) => setEditForm((current) => ({ ...current, skills }))}
+                  suggestions={SKILL_SUGGESTIONS}
+                  placeholder="Ej. Dibujo"
+                />
+              </section>
+
+              <section className="edit-card" aria-labelledby="edit-interests">
+                <h2 id="edit-interests">
+                  <IonIcon icon={heartOutline} aria-hidden="true" /> Lo que me gusta
+                </h2>
+                <TagEditor
+                  label="Gustos"
+                  values={editForm.interests}
+                  onChange={(interests) => setEditForm((current) => ({ ...current, interests }))}
+                  suggestions={INTEREST_SUGGESTIONS}
+                  placeholder="Ej. Naturaleza"
+                />
+              </section>
+
               {editError && (
-                <IonNote color="danger" role="alert">
+                <IonNote className="edit-error" color="danger" role="alert">
                   {editError}
                 </IonNote>
               )}
-              <IonButton expand="block" type="submit" disabled={isSaving}>
-                {isSaving ? <IonSpinner name="dots" /> : 'Guardar cambios'}
-              </IonButton>
+              <div className="edit-actions">
+                <IonButton expand="block" type="submit" disabled={isSaving}>
+                  {isSaving ? <IonSpinner name="dots" /> : 'Guardar cambios'}
+                </IonButton>
+              </div>
             </form>
           </IonContent>
         </IonModal>

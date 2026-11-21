@@ -9,6 +9,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         // Plugin propio de la app (ver ScreenStatePlugin): debe registrarse antes de super.onCreate.
         registerPlugin(ScreenStatePlugin.class);
+        registerPlugin(PasswordSaverPlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

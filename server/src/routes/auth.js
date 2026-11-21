@@ -156,14 +156,30 @@ router.patch('/me', requireAuth, async (req, res, next) => {
     const name = clean(req.body.name ?? req.user.name);
     if (!name) return res.status(400).json({ error: 'El nombre no puede quedar vacío.' });
 
+    const city = clean(req.body.city ?? req.user.city);
+    const country = clean(req.body.country ?? req.user.country, 80);
+    if (!city || !country) return res.status(400).json({ error: 'Indica tu país y tu ciudad.' });
+    const birthdate = clean(req.body.birthdate ?? req.user.birthdate, 10);
+    if (
+      birthdate &&
+      (!/^\d{4}-\d{2}-\d{2}$/.test(birthdate) ||
+        Number.isNaN(new Date(birthdate).getTime()) ||
+        new Date(birthdate) > new Date())
+    ) {
+      return res.status(400).json({ error: 'La fecha de nacimiento no es válida.' });
+    }
+
     await pool.query(
-      'UPDATE users SET name = ?, profession = ?, bio = ?, skills = ?, interests = ? WHERE id = ?',
+      'UPDATE users SET name = ?, profession = ?, bio = ?, skills = ?, interests = ?, city = ?, country = ?, birthdate = ? WHERE id = ?',
       [
         name,
         clean(req.body.profession ?? req.user.profession),
         clean(req.body.bio ?? req.user.bio ?? '', 300),
         JSON.stringify(req.body.skills ? toList(req.body.skills) : toPublicUser(req.user).skills),
         JSON.stringify(req.body.interests ? toList(req.body.interests) : toPublicUser(req.user).interests),
+        city,
+        country,
+        birthdate || null,
         req.user.id,
       ],
     );
